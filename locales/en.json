@@ -1,0 +1,15 @@
+{
+    "welcome": "Welcome",
+    "username": "Username",
+    "password": "Password",
+    "forgotPassword": "Forgot Password",
+    "rememberSession": "Remember Session",
+    "login": "Login",
+    "profileScreen": "Profile Screen",
+    "theme": "Dark theme",
+    "connected": "Connected:",
+    "networkState": "Internet Reachable",
+    "networkType": "Type:",
+    "noInternetConnection": "No internet connection",
+    "networkError": "Error getting network status."
+  }
