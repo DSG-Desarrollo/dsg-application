@@ -1,35 +1,69 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DrawableImage from '../../../components/molecules/DrawableImage';
 import ActionButtons from '../../../components/atoms/ActionButtons';
-
-const handleSave = () => {
-  console.log('Guardar acción ejecutada');
-};
-
-const handleEdit = () => {
-  console.log('Editar acción ejecutada');
-};
-
-const buttons = [
-  { text: 'Guardar', icon: faSave, onPress: handleSave },
-  { text: 'Editar', icon: faEdit, onPress: handleEdit },
-];
+import ApiService from '../../../services/api/ApiService';
 
 const TabInstallationSignatureProof = () => {
+  const [showDrawableImage, setShowDrawableImage] = useState(false);
+  const drawableImageRef = useRef(null);
   const [text, onChangeText] = React.useState('');
+
+  const handleSave = async () => {
+    try {
+      if (drawableImageRef.current) {
+        const base64Image = await drawableImageRef.current.captureCanvas();
+        //console.log('Base64 Image:', base64Image);
+        /*console.log('Texto:', text);*/
+
+        const apiService = new ApiService();
+        const formData = {
+          id_tarea: 6666,
+          nombre_firma_cliente: text,
+          image: base64Image,
+        };
+
+        // Endpoint al que se enviarán los datos
+        const endpoint = 'api/client-signature';
+
+        // Enviar los datos utilizando el método sendFormData de ApiService
+        const response = await apiService.sendFormData(formData, endpoint);
+        console.log('Respuesta de la API:', response);
+      } else {
+        console.log("Null");
+      }
+    } catch (error) {
+      console.log('Error al capturar la imagen del lienzo:', error);
+    }
+  };
+
+  useEffect(() => {
+    setShowDrawableImage(true);
+  }, []);
+
+  const handleEdit = () => {
+    console.log('Editar acción ejecutada');
+  };
+
+  const buttons = [
+    { text: 'Guardar', icon: faSave, onPress: handleSave },
+    { text: 'Editar', icon: faEdit, onPress: handleEdit },
+  ];
 
   return (
     <View style={styles.container}>
-      <DrawableImage
-        blankCanvas={true}
-        strokeColor="black"
-        strokeWidth={4}
-        containerStyle={styles.fixedImageContainer}
-        imageStyle={styles.fixedImage}
-      />
+      {showDrawableImage && (
+        <DrawableImage
+          ref={drawableImageRef}
+          blankCanvas={true}
+          strokeColor="black"
+          strokeWidth={4}
+          containerStyle={styles.fixedImageContainer}
+          imageStyle={styles.fixedImage}
+        />
+      )}
       <TextInput
         style={[styles.input, styles.underline]}
         onChangeText={onChangeText}

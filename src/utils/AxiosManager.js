@@ -97,8 +97,8 @@ class AxiosManager {
      * @returns {Promise<Object>} Una promesa que se resuelve con los datos de la respuesta.
      */
     async request(endpoint, method, data, withCredentials) {
-        //console.log(data);
         const url = `${this.baseUrl}/${endpoint}`;
+        console.log(url, method);
 
         try {
             let response;

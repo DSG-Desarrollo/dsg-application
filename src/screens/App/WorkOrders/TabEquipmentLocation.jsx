@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from "react";
 import { View, Modal, Pressable, Text, TextInput, StyleSheet } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSave, faEdit } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +18,8 @@ const options = [
 ];
 
 const TabEquipmentLocation = () => {
+    const [showDrawableImage, setShowDrawableImage] = useState(false);
+    const drawableImageRef = useRef(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [clearPaths, setClearPaths] = useState(false);
 
@@ -30,8 +32,18 @@ const TabEquipmentLocation = () => {
         setClearPaths(false); // Reset clearPaths after paths have been cleared
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         // Implementar la lógica de guardar aquí
+        try {
+            if (drawableImageRef.current) {
+                const base64Image = await drawableImageRef.current.captureCanvas();
+
+            } else {
+                
+            }
+        } catch (error) {
+            console.log('Error al capturar la imagen del lienzo:', error);
+        }
     };
 
     const handleEdit = () => {
