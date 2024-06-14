@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
 import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DrawableImage from '../../../components/molecules/DrawableImage';
 import ActionButtons from '../../../components/atoms/ActionButtons';
 import ApiService from '../../../services/api/ApiService';
 
 const TabInstallationSignatureProof = () => {
+  const [allFormsCompleted, setAllFormsCompleted] = useState(false);
+  const [anyFormCompleted, setAnyFormCompleted] = useState(false);
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const drawableImageRef = useRef(null);
   const [text, onChangeText] = React.useState('');
@@ -15,8 +18,6 @@ const TabInstallationSignatureProof = () => {
     try {
       if (drawableImageRef.current) {
         const base64Image = await drawableImageRef.current.captureCanvas();
-        //console.log('Base64 Image:', base64Image);
-        /*console.log('Texto:', text);*/
 
         const apiService = new ApiService();
         const formData = {
@@ -31,6 +32,9 @@ const TabInstallationSignatureProof = () => {
         // Enviar los datos utilizando el método sendFormData de ApiService
         const response = await apiService.sendFormData(formData, endpoint);
         console.log('Respuesta de la API:', response);
+
+        await FormCompletionTracker.markFormAsCompleted("form_installation_signature_proof", 4434, 6669, 7);
+
       } else {
         console.log("Null");
       }

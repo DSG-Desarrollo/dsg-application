@@ -1,27 +1,79 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import ActionButtons from '../../../components/atoms/ActionButtons';
 import useFetchProducts from '../../../hooks/useFetchProducts';
+import ApiService from '../../../services/api/ApiService';
+import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
 
 const TabWorkOrderSupplies = () => {
+  const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
   const sortedProductsData = productsData.sort((a, b) => a.productName.localeCompare(b.productName));
 
+  // Handle input change
+  const handleQuantityChange = (id, value) => {
+    setProductQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [id]: value,
+    }));
+  };  
+
+  const handleSave = async () => {
+    const apiService = new ApiService();
+    const data = sortedProductsData.map((product) => ({
+      id_orden_trabajo: 6626,
+      id_aprovisionamiento: product.id,
+      cantidad: parseInt(productQuantities[product.id], 10) || 0,
+    }));
+
+    const endpoint = 'api/materials-order';
+    const response = await apiService.sendFormData(data, endpoint);
+
+    await FormCompletionTracker.markFormAsCompleted("form_work_order_supplies", 4434, 6669, 7);
+
+    console.log('Respuesta de la API:', response);
+  }
+
+  const handleEdit = () => {
+
+  };
+
+  const buttons = [
+    { text: 'Guardar', icon: faSave, onPress: handleSave },
+    { text: 'Editar', icon: faEdit, onPress: handleEdit },
+  ];
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Materiales usados</Text>
-      {sortedProductsData.map((product) => (
-        <View key={product.id} style={styles.productContainer}>
-          <View style={styles.productInfo}>
-            <Text style={styles.productName}>{product.productName}</Text>
-            <Text style={styles.productUnit}>{product.unitOfMeasure}</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Materiales usados</Text>
+      </View>
+      <View>
+        {sortedProductsData.map((product) => (
+          <View key={product.id} style={styles.productContainer}>
+            <View style={styles.productInfo}>
+              <Text style={styles.productName}>{product.productName}</Text>
+              <Text style={styles.productUnit}>{product.unitOfMeasure}</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Cantidad usada"
+              keyboardType="numeric"
+              value={productQuantities[product.id] || ''}
+              onChangeText={(value) => handleQuantityChange(product.id, value)}
+            />
           </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Cantidad usada"
-            keyboardType="numeric"
-          />
-        </View>
-      ))}
+        ))}
+      </View>
+      <View style={styles.buttonsContainer}>
+        <ActionButtons
+          buttons={buttons}
+          buttonContainerStyle={styles.customButtonContainer}
+          buttonStyle={styles.customButton}
+          buttonTextStyle={styles.customButtonText}
+        />
+      </View>
     </ScrollView>
   );
 };
@@ -30,6 +82,9 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     backgroundColor: '#f5f5f5',
+  },
+  headerContainer: {
+    marginBottom: 20,
   },
   header: {
     fontSize: 24,
@@ -72,6 +127,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     textAlign: 'center',
     color: '#333',
+  },
+  buttonsContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  customButtonContainer: {
+    marginBottom: 10,
   },
 });
 

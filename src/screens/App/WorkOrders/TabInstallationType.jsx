@@ -4,6 +4,7 @@ import { RadioButton } from 'react-native-paper';
 import i18n from '../../../../i18n';
 import TicketService from '../../../services/api/tickets/TicketService';
 import FormValidation from '../../../components/molecules/FormValidation';
+import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
 
 const TabInstallationType = ({ route }) => {
   const {
@@ -67,6 +68,8 @@ const TabInstallationType = ({ route }) => {
           console.log('Datos del registro insertado:', response.data);
           console.log('Último ID insertado:', response.last_insert_id);
           ToastAndroid.show(response.message, ToastAndroid.SHORT);
+
+          await FormCompletionTracker.markFormAsCompleted("form_installation_type", 4434, 6669, 7);
 
           // Aquí puedes realizar acciones adicionales, como actualizar la interfaz de usuario
         } else {
