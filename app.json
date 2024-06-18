@@ -1,5 +1,12 @@
 {
+  "name": "dsg-application",
+  "displayName": "dsg-application",
   "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "f990977d-e454-427d-865b-27481130d47a"
+      }
+    },
     "name": "dsg-application",
     "slug": "dsg-application",
     "version": "1.0.0",
@@ -15,6 +22,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.dsg.application",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
