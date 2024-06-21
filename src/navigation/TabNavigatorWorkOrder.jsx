@@ -4,9 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Text } from 'react-native';
 import {
     TabUnitDetail, TabInstallationType, TabWorkOrderSupplies,
-    TabInstallationSignatureProof, TabEquipmentLocation
+    TabInstallationSignatureProof, TabEquipmentLocation,
+    TabTakePhoto
 } from '../screens/App/WorkOrders/';
-import { faListAlt, faTools, faClipboardCheck, faMapMarkerAlt, faWrench } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faListAlt, faTools, faClipboardCheck, faMapMarkerAlt, faWrench } from '@fortawesome/free-solid-svg-icons';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -138,6 +139,17 @@ const TabNavigatorWorkOrder = ({ route }) => {
                     title: 'Comprobante',
                     tabBarIcon: ({ color }) => (
                         <FontAwesomeIcon icon={faMapMarkerAlt} color={color} size={20} />
+                    ),
+                    swipeEnabled: false,
+                }}
+            />
+            <Tab.Screen
+                name="TabTakePhoto"
+                component={TabTakePhoto}
+                options={{
+                    title: 'Foto',
+                    tabBarIcon: ({ color }) => (
+                        <FontAwesomeIcon icon={faCamera} color={color} size={20} />
                     ),
                     swipeEnabled: false,
                 }}
