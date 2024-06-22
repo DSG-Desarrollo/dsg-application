@@ -26,7 +26,7 @@ class UnitWorkOrdersService {
             try {
                 // Realizar la solicitud GraphQL y controlar el tiempo de espera
                 const resultData = await Promise.race([
-                    this.api.request('/graphql', 'POST', { query }), // Solicitud GraphQL
+                    this.api.request('graphql', 'POST', { query }), // Solicitud GraphQL
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout)) // Control de tiempo de espera
                 ]);
 

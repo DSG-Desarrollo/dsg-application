@@ -5,8 +5,27 @@ import ActionButtons from '../../../components/atoms/ActionButtons';
 import useFetchProducts from '../../../hooks/useFetchProducts';
 import ApiService from '../../../services/api/ApiService';
 import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
+import useUserData from '../../../hooks/useUserData';
 
-const TabWorkOrderSupplies = () => {
+const TabWorkOrderSupplies = ({ route }) => {
+  const { userData } = useUserData();
+  const {
+    tareaId,
+    codigo,
+    estado,
+    empresa,
+    prioridad,
+    fechaCreacion,
+    tipo,
+    trabajo,
+    servicio,
+    direccionTarea,
+    requeridos,
+    id_orden_trabajo,
+    id_servicio_cliente,
+    id_unidad,
+  } = route.params;
+
   const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
   const sortedProductsData = productsData.sort((a, b) => a.productName.localeCompare(b.productName));
@@ -17,12 +36,12 @@ const TabWorkOrderSupplies = () => {
       ...prevQuantities,
       [id]: value,
     }));
-  };  
+  };
 
   const handleSave = async () => {
     const apiService = new ApiService();
     const data = sortedProductsData.map((product) => ({
-      id_orden_trabajo: 6626,
+      id_orden_trabajo: id_orden_trabajo,
       id_aprovisionamiento: product.id,
       cantidad: parseInt(productQuantities[product.id], 10) || 0,
     }));
@@ -30,7 +49,7 @@ const TabWorkOrderSupplies = () => {
     const endpoint = 'api/materials-order';
     const response = await apiService.sendFormData(data, endpoint);
 
-    await FormCompletionTracker.markFormAsCompleted("form_work_order_supplies", 4434, 6669, 7);
+    await FormCompletionTracker.markFormAsCompleted("form_work_order_supplies", tareaId, id_orden_trabajo, userData.id_usuario);
 
     console.log('Respuesta de la API:', response);
   }

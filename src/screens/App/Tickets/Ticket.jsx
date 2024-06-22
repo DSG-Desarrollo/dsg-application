@@ -27,7 +27,6 @@ const TicketsOfDayScreen = () => {
         {ticketsData.length > 0 ? (
           <View style={styles.ticketsContainer}>
             {ticketsData.map((task, index) => (
-              //console.log(task.types_tasks.color_tipo_tarea),
               <TicketList
                 key={index}
                 tareaId={task.id_tarea}

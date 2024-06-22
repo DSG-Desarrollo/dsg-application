@@ -19,7 +19,13 @@ const options = [
     { label: 'Grua', value: 'Grua', image: require('../../../assets/images/scania-vabis-l-36-super.png') },
 ];
 
-const TabEquipmentLocation = () => {
+const TabEquipmentLocation = ({ route }) => {
+    console.log(route.params);
+    const {
+        tareaId,
+        id_servicio_cliente,
+        id_unidad,
+    } = route.params;
     const [showDrawableImage, setShowDrawableImage] = useState(false);
     const drawableImageRef = useRef(null);
     const [selectedOption, setSelectedOption] = useState(null);
@@ -59,7 +65,7 @@ const TabEquipmentLocation = () => {
                     console.log(`Formulario ${formKey} completado: ${completed}`);
                 });
 */
-                await FormCompletionTracker.markFormAsCompleted("form_equipment_location", 4434, 6669, 7);
+                await FormCompletionTracker.markFormAsCompleted("form_equipment_location", tareaId, 6669, 7);
                 //console.log('Respuesta de la API:', response);
             } else {
                 console.log("NULL");

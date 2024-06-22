@@ -6,15 +6,34 @@ import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DrawableImage from '../../../components/molecules/DrawableImage';
 import ActionButtons from '../../../components/atoms/ActionButtons';
 import ApiService from '../../../services/api/ApiService';
+import useUserData from '../../../hooks/useUserData';
 
 const TabInstallationSignatureProof = () => {
+  const { userData } = useUserData();
   const [allFormsCompleted, setAllFormsCompleted] = useState(false);
   const [anyFormCompleted, setAnyFormCompleted] = useState(false);
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const drawableImageRef = useRef(null);
   const [text, onChangeText] = React.useState('');
 
-  const handleSave = async () => {
+  const handleSave = async ({ route }) => {
+    const {
+      tareaId,
+      codigo,
+      estado,
+      empresa,
+      prioridad,
+      fechaCreacion,
+      tipo,
+      trabajo,
+      servicio,
+      direccionTarea,
+      requeridos,
+      id_orden_trabajo,
+      id_servicio_cliente,
+      id_unidad,
+    } = route.params;
+
     try {
       if (drawableImageRef.current) {
         const base64Image = await drawableImageRef.current.captureCanvas();
@@ -33,7 +52,7 @@ const TabInstallationSignatureProof = () => {
         const response = await apiService.sendFormData(formData, endpoint);
         console.log('Respuesta de la API:', response);
 
-        await FormCompletionTracker.markFormAsCompleted("form_installation_signature_proof", 4434, 6669, 7);
+        await FormCompletionTracker.markFormAsCompleted("form_installation_signature_proof", tareaId, id_orden_trabajo, userData.id_usuario);
 
       } else {
         console.log("Null");

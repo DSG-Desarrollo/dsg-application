@@ -12,6 +12,7 @@ import { faCamera, faListAlt, faTools, faClipboardCheck, faMapMarkerAlt, faWrenc
 const Tab = createMaterialTopTabNavigator();
 
 const TabNavigatorWorkOrder = ({ route }) => {
+    //console.log("TabNavigatorWorkOrder:",route);
     const {
         tareaId,
         codigo,
@@ -24,6 +25,9 @@ const TabNavigatorWorkOrder = ({ route }) => {
         servicio,
         direccionTarea,
         requeridos,
+        id_orden_trabajo,
+        id_servicio_cliente,
+        id_unidad,
     } = route.params;
     const renderTabBarIcon = ({ route, color }) => {
         let iconName;
@@ -73,6 +77,9 @@ const TabNavigatorWorkOrder = ({ route }) => {
         servicio,
         direccionTarea,
         requeridos,
+        id_orden_trabajo,
+        id_servicio_cliente,
+        id_unidad,
     };
 
     return (
@@ -120,6 +127,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
                         <FontAwesomeIcon icon={faClipboardCheck} color={color} size={20} />
                     ),
                 }}
+                initialParams={sharedParams}
             />
             <Tab.Screen
                 name="TabEquipmentLocation"
@@ -131,6 +139,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
                     ),
                     swipeEnabled: false,
                 }}
+                initialParams={sharedParams}
             />
             <Tab.Screen
                 name="TabInstallationSignatureProof"
@@ -142,6 +151,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
                     ),
                     swipeEnabled: false,
                 }}
+                initialParams={sharedParams}
             />
             <Tab.Screen
                 name="TabTakePhoto"
