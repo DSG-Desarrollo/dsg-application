@@ -1,8 +1,6 @@
 import React from 'react';
 import RNPickerSelect from 'react-native-picker-select';
 import { StyleSheet, View } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 const SelectManager = ({
     data,

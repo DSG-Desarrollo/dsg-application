@@ -98,7 +98,6 @@ class AxiosManager {
      */
     async request(endpoint, method, data, withCredentials) {
         const url = `${this.baseUrl}/${endpoint}`;
-        console.log(url, method);
 
         try {
             let response;
@@ -118,7 +117,7 @@ class AxiosManager {
 
             return response.data;
         } catch (error) {
-            throw new Error(`Error al realizar la solicitud ${method} a ${url}: ${error.message}`);
+            throw new Error(`Error al realizar la solicitud ${method} a ${url}::: ${error.message}`);
         }
     }
 

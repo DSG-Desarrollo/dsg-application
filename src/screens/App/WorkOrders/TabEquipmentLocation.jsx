@@ -7,6 +7,7 @@ import DrawableImage from '../../../components/molecules/DrawableImage';
 import styles from '../../../styles/TabEquipmentLocationStyles';
 import ApiService from '../../../services/api/ApiService';
 import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
+import useUserData from '../../../hooks/useUserData';
 
 const options = [
     { label: 'Vehículo liviano', value: 'Vehículo liviano', image: require('../../../assets/images/vehiculo_liviano.jpg') },
@@ -20,9 +21,10 @@ const options = [
 ];
 
 const TabEquipmentLocation = ({ route }) => {
-    console.log(route.params);
+    const { userData } = useUserData();
     const {
         tareaId,
+        id_orden_trabajo,
         id_servicio_cliente,
         id_unidad,
     } = route.params;
@@ -48,25 +50,21 @@ const TabEquipmentLocation = ({ route }) => {
 
             if (drawableImageRef.current) {
                 const base64Image = await drawableImageRef.current.captureCanvas();
+                let idOrdenTrabajoInt = parseInt(id_orden_trabajo, 10);
                 const formData = {
-                    "id_tarea": 1,
-                    "id_orden_trabajo": 1,
-                    "image": base64Image,
+                    "id_tarea": tareaId,
+                    "id_orden_trabajo": idOrdenTrabajoInt,
                     "comentario_imagen": "Este es un comentario de prueba",
-                    "usuario_creacion": 123
+                    "usuario_creacion": userData.id_usuario,
+                    "image": base64Image,
                 };
+                console.log(base64Image);
                 // Endpoint al que se enviarán los datos
                 const endpoint = 'api/img-location-installation-ot';
                 const response = await apiService.sendFormData(formData, endpoint);
 
-                /*const { allCompleted, formStatuses } = await FormCompletionTracker.checkAllFormsCompleted(6669);
-                console.log('Todos los formularios completos:', allCompleted);
-                formStatuses.forEach(({ formKey, completed }) => {
-                    console.log(`Formulario ${formKey} completado: ${completed}`);
-                });
-*/
-                await FormCompletionTracker.markFormAsCompleted("form_equipment_location", tareaId, 6669, 7);
-                //console.log('Respuesta de la API:', response);
+                await FormCompletionTracker.markFormAsCompleted("form_equipment_location", tareaId, id_orden_trabajo, userData.id_usuario);
+                console.log('Respuesta de la API:', response);
             } else {
                 console.log("NULL");
             }
@@ -100,6 +98,7 @@ const TabEquipmentLocation = ({ route }) => {
                 {selectedOption && selectedOption.image && (
                     <DrawableImage
                         ref={drawableImageRef}
+                        fixedImageSource={selectedOption.image}
                         mode="dynamicImage"
                         dynamicImageSource={selectedOption.image}
                         strokeColor="red"

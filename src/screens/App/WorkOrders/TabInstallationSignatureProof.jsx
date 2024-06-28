@@ -8,7 +8,23 @@ import ActionButtons from '../../../components/atoms/ActionButtons';
 import ApiService from '../../../services/api/ApiService';
 import useUserData from '../../../hooks/useUserData';
 
-const TabInstallationSignatureProof = () => {
+const TabInstallationSignatureProof = ({ route }) => {
+  const {
+    tareaId,
+    codigo,
+    estado,
+    empresa,
+    prioridad,
+    fechaCreacion,
+    tipo,
+    trabajo,
+    servicio,
+    direccionTarea,
+    requeridos,
+    id_orden_trabajo,
+    id_servicio_cliente,
+    id_unidad,
+  } = route.params;
   const { userData } = useUserData();
   const [allFormsCompleted, setAllFormsCompleted] = useState(false);
   const [anyFormCompleted, setAnyFormCompleted] = useState(false);
@@ -16,23 +32,7 @@ const TabInstallationSignatureProof = () => {
   const drawableImageRef = useRef(null);
   const [text, onChangeText] = React.useState('');
 
-  const handleSave = async ({ route }) => {
-    const {
-      tareaId,
-      codigo,
-      estado,
-      empresa,
-      prioridad,
-      fechaCreacion,
-      tipo,
-      trabajo,
-      servicio,
-      direccionTarea,
-      requeridos,
-      id_orden_trabajo,
-      id_servicio_cliente,
-      id_unidad,
-    } = route.params;
+  const handleSave = async () => {
 
     try {
       if (drawableImageRef.current) {
@@ -40,7 +40,8 @@ const TabInstallationSignatureProof = () => {
 
         const apiService = new ApiService();
         const formData = {
-          id_tarea: 6666,
+          id_tarea: tareaId,
+          id_orden_trabajo: id_orden_trabajo,
           nombre_firma_cliente: text,
           image: base64Image,
         };

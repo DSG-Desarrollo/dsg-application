@@ -1,4 +1,3 @@
-import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Definir las claves de los formularios como constantes
@@ -13,6 +12,7 @@ const FORMS = Object.values(FORM_KEYS);
 
 const FormCompletionTracker = {
     markFormAsCompleted: async (formKey, taskId, workOrderId, userId) => {
+        console.log(formKey, taskId, workOrderId, userId);
         try {
             const formData = {
                 status: 'completed',
@@ -21,13 +21,16 @@ const FormCompletionTracker = {
             };
             await AsyncStorage.setItem(formKey, JSON.stringify(formData));
             console.log(`Formulario ${formKey} marcado como completado`);
-            
+
             const allCompleted = await FormCompletionTracker.checkAllFormsCompleted(workOrderId);
             const anyCompleted = await FormCompletionTracker.checkAnyFormCompleted(workOrderId);
+            const isFirstCompleted = anyCompleted.formStatuses.filter(status => status.completed).length === 1 && anyCompleted.formStatuses.some(status => status.formKey === formKey && status.completed);
+
+            console.log("Todos completos: ", allCompleted);
 
             // Iniciar la OT si es el primer formulario completado
-            if (anyCompleted.anyCompleted && !anyCompleted.formStatuses.some(status => status.formKey === formKey && status.completed)) {
-                await FormCompletionTracker.startWorkOrder(workOrderId, userId);
+            if (isFirstCompleted) {
+                await FormCompletionTracker.startWorkOrder(taskId, workOrderId, userId);
             }
 
             // Finalizar la OT si todos los formularios están completados
@@ -103,15 +106,14 @@ const FormCompletionTracker = {
         }
     },
 
-    startWorkOrder: async (workOrderId, userId) => {
+    startWorkOrder: async (taskId, workOrderId, userId) => {
         try {
-            console.log(workOrderId, userId);
-            const response = await fetch(`http://192.168.0.18:8080/api/work-orders/${workOrderId}/start`, {
+            const response = await fetch(`http://192.168.0.36:8080/api/work-orders/${workOrderId}/start`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id_usuario: userId }),
+                body: JSON.stringify({ id_usuario: userId, id_tarea: taskId }),
             });
 
             if (!response.ok) {
@@ -126,7 +128,7 @@ const FormCompletionTracker = {
 
     completeWorkOrder: async (workOrderId, taskId, userId) => {
         try {
-            const response = await fetch(`http://192.168.0.18:8080/api/work-orders/${workOrderId}/complete`, {
+            const response = await fetch(`http://192.168.0.36:8080/api/work-orders/${workOrderId}/complete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

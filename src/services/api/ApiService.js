@@ -34,6 +34,7 @@ class ApiService {
                 throw new Error(`Error ${response.status}: ${response.statusText}`);
             }
         } catch (error) {
+            //console.log(error);
             // Maneja errores HTTP utilizando el método centralizado handleHttpError
             handleHttpError(error);
 
