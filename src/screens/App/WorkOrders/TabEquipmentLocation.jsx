@@ -99,7 +99,6 @@ const TabEquipmentLocation = ({ route }) => {
                     <DrawableImage
                         ref={drawableImageRef}
                         fixedImageSource={selectedOption.image}
-                        mode="dynamicImage"
                         dynamicImageSource={selectedOption.image}
                         strokeColor="red"
                         strokeWidth={4}
@@ -107,6 +106,9 @@ const TabEquipmentLocation = ({ route }) => {
                         imageStyle={styles.fixedImage}
                         clearPaths={clearPaths}
                         onPathsCleared={handleClearPaths}
+                        blankCanvas={false}
+                        imageWidth={100} // Pasar el ancho dinámicamente
+                        imageHeight={100} // Pasar la altura dinámicamente
                     />
                 )}
             </View>

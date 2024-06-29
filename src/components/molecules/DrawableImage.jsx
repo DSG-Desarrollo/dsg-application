@@ -7,25 +7,12 @@ import {
     Path,
     Skia,
     useTouchHandler,
-    useCanvasRef, ImageFormat
+    useCanvasRef,
+    Image as SkiaImage,
+    useImage,
+    ImageFormat
 } from "@shopify/react-native-skia";
 
-/**
- * Componente que muestra una imagen de fondo y permite dibujar sobre ella en un lienzo.
- *
- * @param {Object} props - Propiedades del componente.
- * @param {ImageSourcePropType} props.fixedImageSource - Fuente de la imagen fija que se muestra en el fondo.
- * @param {ImageSourcePropType} props.dynamicImageSource - Fuente de la imagen dinámica que se dibuja sobre la imagen fija.
- * @param {string} [props.strokeColor="red"] - Color del trazo al dibujar sobre la imagen.
- * @param {number} [props.strokeWidth=2] - Ancho del trazo al dibujar sobre la imagen.
- * @param {StyleProp<ViewStyle>} [props.imageStyle] - Estilo adicional para la imagen.
- * @param {StyleProp<ViewStyle>} [props.containerStyle] - Estilo adicional para el contenedor del componente.
- * @param {boolean} props.clearPaths - Bandera para borrar los trazos en el lienzo.
- * @param {function} props.onPathsCleared - Función de retorno de llamada para restablecer la bandera clearPaths.
- * @param {boolean} [props.blankCanvas=false] - Indica si el lienzo debe iniciarse en blanco sin imagen fija.
- * @param {Object} ref - Ref para exponer métodos al componente padre.
- * @returns {JSX.Element} Componente de imagen dibujable.
- */
 const DrawableImage = forwardRef(({
     fixedImageSource,
     dynamicImageSource,
@@ -36,11 +23,15 @@ const DrawableImage = forwardRef(({
     clearPaths,
     onPathsCleared,
     blankCanvas,
+    imageWidth = '100%',  // Por defecto '100%'
+    imageHeight = '100%'  // Por defecto '100%'
 }, ref) => {
     const canvasRef = useCanvasRef();
     const [paths, setPaths] = useState([]);
     const [undonePaths, setUndonePaths] = useState([]);
     const [hasDrawn, setHasDrawn] = useState(false);
+
+    const image = useImage(fixedImageSource); // Cargar la imagen
 
     useEffect(() => {
         if (clearPaths) {
@@ -51,11 +42,6 @@ const DrawableImage = forwardRef(({
         }
     }, [clearPaths, onPathsCleared]);
 
-    /**
-     * Maneja el inicio de un nuevo trazo en el lienzo.
-     *
-     * @param {Object} touchInfo - Información del evento de toque.
-     */
     const onDrawingStart = useCallback((touchInfo) => {
         const { x, y } = touchInfo;
         const newPath = Skia.Path.Make();
@@ -64,11 +50,6 @@ const DrawableImage = forwardRef(({
         setHasDrawn(true); // Actualizar estado
     }, []);
 
-    /**
-     * Maneja el dibujo activo en el lienzo mientras se arrastra el dedo.
-     *
-     * @param {Object} touchInfo - Información del evento de toque.
-     */
     const onDrawingActive = useCallback((touchInfo) => {
         const { x, y } = touchInfo;
         setPaths((currentPaths) => {
@@ -79,9 +60,6 @@ const DrawableImage = forwardRef(({
         });
     }, []);
 
-    /**
-     * Deshace el último trazo realizado en el lienzo.
-     */
     const undo = useCallback(() => {
         setPaths((currentPaths) => {
             if (currentPaths.length === 0) return currentPaths;
@@ -92,9 +70,6 @@ const DrawableImage = forwardRef(({
         });
     }, []);
 
-    /**
-     * Rehace el último trazo que fue deshecho.
-     */
     const redo = useCallback(() => {
         setUndonePaths((currentUndone) => {
             if (currentUndone.length === 0) return currentUndone;
@@ -105,51 +80,27 @@ const DrawableImage = forwardRef(({
         });
     }, []);
 
-    /**
-     * Captura el contenido del lienzo en formato base64 y lo imprime en la consola.
-     * Si no se puede capturar la imagen del lienzo, se imprime un mensaje de error.
-     * 
-     * @returns {Promise<string|null>} Base64 de la imagen capturada o null si falla.
-     */
     const getCanvasBase64 = async () => {
         try {
-            // Intenta obtener la imagen del lienzo
-            const image = canvasRef.current?.makeImageSnapshot();
-
-            // Verifica si se pudo obtener la imagen del lienzo
-            if (image) {
-                // Convierte la imagen a formato base64
-                const base64 = await image.encodeToBase64(ImageFormat.PNG);
-                // Imprime el base64 en la consola
+            const imageSnapshot = canvasRef.current?.makeImageSnapshot();
+            if (imageSnapshot) {
+                const base64 = await imageSnapshot.encodeToBase64(ImageFormat.PNG);
                 return base64;
-                //console.log(base64);
             } else {
-                // Imprime un mensaje de error si no se pudo obtener la imagen del lienzo
                 console.log("No se pudo capturar la imagen del lienzo");
                 return null;
             }
         } catch (error) {
-            // Maneja cualquier excepción que pueda ocurrir
             console.error("Error al capturar la imagen del lienzo:", error);
             return null;
         }
     };
 
-    /**
-     * Hook de React que permite exponer métodos y propiedades al componente padre a través de un ref.
-     * En este caso, se expone el método `captureCanvas` para capturar el contenido del lienzo en formato base64,
-     * y la propiedad `hasDrawn` para indicar si se ha realizado algún dibujo en el lienzo.
-     */
     useImperativeHandle(ref, () => ({
         captureCanvas: getCanvasBase64,
         hasDrawn
     }));
 
-    /**
-     * Hook de React Native Skia que maneja los eventos táctiles en el lienzo.
-     * Se utiliza para gestionar el inicio y la continuación del dibujo.
-     * `onStart` se llama cuando se inicia un nuevo trazo en el lienzo, y `onActive` se llama mientras se arrastra el dedo.
-     */
     const touchHandler = useTouchHandler({
         onStart: onDrawingStart,
         onActive: onDrawingActive,
@@ -157,40 +108,20 @@ const DrawableImage = forwardRef(({
 
     return (
         <View style={[styles.container, containerStyle]}>
-            {blankCanvas && (
-                <View style={styles.canvasContainer}>
-                    <Canvas ref={canvasRef} style={[styles.canvas]} onTouch={touchHandler}>
-                        {paths.map((path, index) => (
-                            <Path
-                                key={index}
-                                path={path}
-                                color={strokeColor}
-                                style="stroke"
-                                strokeWidth={strokeWidth}
-                            />
-                        ))}
-                    </Canvas>
-                </View>
-            )}
-            {(fixedImageSource || dynamicImageSource) && (
-                <ImageBackground
-                    source={fixedImageSource || dynamicImageSource}
-                    style={[styles.canvasContainer, imageStyle]}
-                    resizeMode="contain"
-                >
-                    <Canvas ref={canvasRef} style={styles.canvas} onTouch={touchHandler}>
-                        {paths.map((path, index) => (
-                            <Path
-                                key={index}
-                                path={path}
-                                color={strokeColor}
-                                style="stroke"
-                                strokeWidth={strokeWidth}
-                            />
-                        ))}
-                    </Canvas>
-                </ImageBackground>
-            )}
+            <View style={styles.canvasContainer}>
+                <Canvas ref={canvasRef} style={[styles.canvas]} onTouch={touchHandler}>
+                    {image && <SkiaImage image={image} x={0} y={0} width={imageWidth} height={imageHeight} fit="contain" />}
+                    {paths.map((path, index) => (
+                        <Path
+                            key={index}
+                            path={path}
+                            color={strokeColor}
+                            style="stroke"
+                            strokeWidth={strokeWidth}
+                        />
+                    ))}
+                </Canvas>
+            </View>
             <View style={styles.sideButtonsContainer}>
                 <TouchableOpacity
                     onPress={undo}
