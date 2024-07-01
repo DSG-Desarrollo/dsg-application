@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Switch, View } from 'react-native';
+import { TouchableOpacity, Switch, View, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import Background from '../../components/atoms/Background';
 import Logo from '../../components/atoms/Logo';
@@ -98,7 +98,8 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
 
   const onLoginPressed = async () => {
     if (!email.value || !password.value) {
-      showToast();
+      //showToast();
+      Alert.alert('Error', 'Por favor, ingrese su email y contraseña.'); 
       return;
     }
 
@@ -111,9 +112,11 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
         // Si no hay conexión a internet, usar los datos locales para verificar el inicio de sesión
         if (usersDB.length > 0) {
           setIsAuthenticated(true);
+          Alert.alert('Éxito', 'Inicio de sesión exitoso sin conexión.');
         } else {
           console.log('Usuario no encontrado en la base de datos local');
-          showToast();
+          Alert.alert('Error', 'Usuario no encontrado en la base de datos local.');
+          //showToast();
           return;
         }
       } else {
@@ -128,18 +131,22 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
 
           if (usersHttpDB.length > 0) {
             console.log('El usuario ya existe en la base de datos local.');
+            Alert.alert('Éxito', 'Inicio de sesión exitoso con conexión.');
           } else {
             console.log('El usuario no existe en la base de datos local. Se procederá a insertarlo.');
             await insertUserToDatabase(response.user);
+            Alert.alert('Éxito', 'Inicio de sesión exitoso y usuario insertado en la base de datos local.');
           }
 
         } else {
           console.log('Inicio de sesión fallido');
-          showToast();
+          //showToast();
+          Alert.alert('Error', 'Inicio de sesión fallido.');
         }
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
+      Alert.alert('Error', `Error al iniciar sesión: ${error.message}`);
     }
   };
 
