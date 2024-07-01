@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useImperativeHandle, forwardRef } from "react";
-import { StyleSheet, ImageBackground, View, TouchableOpacity } from "react-native";
+import { StyleSheet, ImageBackground, View, TouchableOpacity, Dimensions } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -13,6 +13,12 @@ import {
     ImageFormat
 } from "@shopify/react-native-skia";
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Calcular los valores porcentuales (por ejemplo, 50% del tamaño del contenedor)
+const imageWidth = screenWidth * 0.65;
+const imageHeight = screenHeight * 0.65;
+
 const DrawableImage = forwardRef(({
     fixedImageSource,
     dynamicImageSource,
@@ -23,8 +29,6 @@ const DrawableImage = forwardRef(({
     clearPaths,
     onPathsCleared,
     blankCanvas,
-    imageWidth = '100%',  // Por defecto '100%'
-    imageHeight = '100%'  // Por defecto '100%'
 }, ref) => {
     const canvasRef = useCanvasRef();
     const [paths, setPaths] = useState([]);
@@ -160,7 +164,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
     },
-    canvasBorder: {
+    /*canvasBorder: {
         borderWidth: 2,
         borderColor: 'black',
     },
@@ -169,7 +173,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f0f0f0',
-    },
+    },*/
     placeholderText: {
         fontSize: 20,
         fontWeight: 'bold',
