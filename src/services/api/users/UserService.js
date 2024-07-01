@@ -1,5 +1,6 @@
 import AxiosManager from '../../../utils/AxiosManager';
 import Constants from 'expo-constants';
+import ToastManager from '../../../utils/ToastManager';
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 const MAX_RETRIES = 3;
@@ -42,7 +43,7 @@ class UserService {
                 if (attempt < MAX_RETRIES) {
                     await new Promise(resolve => setTimeout(resolve, RETRY_DELAY)); // Espera antes de intentar nuevamente
                 } else {
-                    throw new Error('Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.'); // Lanza un error después de todos los intentos fallidos
+                    throw new Error('Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde._'); // Lanza un error después de todos los intentos fallidos
                 }
             }
         }
