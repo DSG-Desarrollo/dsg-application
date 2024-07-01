@@ -3,7 +3,7 @@ import UnitWorkOrdersService from '../services/api/units/UnitWorkOrdersService';
 import useNetworkState from './useNetworkState';
 
 const useFetchUnitWorkOrders = (taskId) => {
-    console.log(taskId);
+    //console.log(taskId);
     const unitWorkOrdersService = new UnitWorkOrdersService();
     const [unitsData, setUnitsData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -22,6 +22,7 @@ const useFetchUnitWorkOrders = (taskId) => {
                 const query = `
                     query {
                         units(id_tarea: ${taskId}) {
+                            id_orden_trabajo
                             id_unidad
                             id_servicio_cliente
                             unidad

@@ -32,7 +32,7 @@ class ProductsService {
                 console.log(queryWithVariables);
 
                 const resultData = await Promise.race([
-                    this.api.request('/graphql', 'POST', queryWithVariables),
+                    this.api.request('graphql', 'POST', queryWithVariables),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout))
                 ]);
 

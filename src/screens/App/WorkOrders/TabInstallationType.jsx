@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, Text, ToastAndroid, TextInput, TouchableOpacity, Pressable } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import i18n from '../../../../i18n';
 import TicketService from '../../../services/api/tickets/TicketService';
 import FormValidation from '../../../components/molecules/FormValidation';
 import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
+import useUserData from '../../../hooks/useUserData';
 
 const TabInstallationType = ({ route }) => {
+  const { userData, loading, error } = useUserData();
+
   const {
     tareaId,
     codigo,
@@ -19,6 +22,9 @@ const TabInstallationType = ({ route }) => {
     servicio,
     direccionTarea,
     requeridos,
+    id_orden_trabajo,
+    id_servicio_cliente,
+    id_unidad,
   } = route.params;
   const validationInput = [
     { key: "vehicle", type: "string", message: "El tipo de vehículo es requerido" },
@@ -69,7 +75,7 @@ const TabInstallationType = ({ route }) => {
           console.log('Último ID insertado:', response.last_insert_id);
           ToastAndroid.show(response.message, ToastAndroid.SHORT);
 
-          await FormCompletionTracker.markFormAsCompleted("form_installation_type", 4434, 6669, 7);
+          await FormCompletionTracker.markFormAsCompleted("form_installation_type", tareaId, id_orden_trabajo, userData.id_usuario);
 
           // Aquí puedes realizar acciones adicionales, como actualizar la interfaz de usuario
         } else {

@@ -17,7 +17,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  const handleItemClick = () => {
+  const handleItemClick = (id_orden_trabajo, id_servicio_cliente, id_unidad) => {
     navigation.navigate('TabNavigatorWorkOrder', {
       tareaId,
       codigo,
@@ -30,11 +30,18 @@ const TicketDetailScreen = ({ route, navigation }) => {
       servicio,
       direccionTarea,
       requeridos,
+      id_orden_trabajo,
+      id_servicio_cliente,
+      id_unidad,
     });
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={style.orderItem} onPress={() => handleItemClick()}>
+    //console.log("Clic",item.id_orden_trabajo),
+    <TouchableOpacity
+      style={style.orderItem}
+      onPress={() => handleItemClick(item.id_orden_trabajo, item.id_servicio_cliente, item.id_unidad)}
+    >
       <View style={style.itemRow}>
         <Text style={[style.labelList, style.dynamicFontSize]}>Matrícula:</Text>
         <Text style={[style.info, style.dynamicFontSize]} numberOfLines={1} ellipsizeMode="tail">

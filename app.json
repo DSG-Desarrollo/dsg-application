@@ -30,6 +30,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow dsg-application to access your camera",
+          "microphonePermission": "Allow dsg-application to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ]
+    ]
   }
 }

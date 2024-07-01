@@ -4,13 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Text } from 'react-native';
 import {
     TabUnitDetail, TabInstallationType, TabWorkOrderSupplies,
-    TabInstallationSignatureProof, TabEquipmentLocation
+    TabInstallationSignatureProof, TabEquipmentLocation,
+    TabTakePhoto
 } from '../screens/App/WorkOrders/';
-import { faListAlt, faTools, faClipboardCheck, faMapMarkerAlt, faWrench } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faListAlt, faTools, faClipboardCheck, faMapMarkerAlt, faWrench } from '@fortawesome/free-solid-svg-icons';
 
 const Tab = createMaterialTopTabNavigator();
 
 const TabNavigatorWorkOrder = ({ route }) => {
+    //console.log("TabNavigatorWorkOrder:",route);
     const {
         tareaId,
         codigo,
@@ -23,6 +25,9 @@ const TabNavigatorWorkOrder = ({ route }) => {
         servicio,
         direccionTarea,
         requeridos,
+        id_orden_trabajo,
+        id_servicio_cliente,
+        id_unidad,
     } = route.params;
     const renderTabBarIcon = ({ route, color }) => {
         let iconName;
@@ -72,6 +77,9 @@ const TabNavigatorWorkOrder = ({ route }) => {
         servicio,
         direccionTarea,
         requeridos,
+        id_orden_trabajo,
+        id_servicio_cliente,
+        id_unidad,
     };
 
     return (
@@ -119,6 +127,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
                         <FontAwesomeIcon icon={faClipboardCheck} color={color} size={20} />
                     ),
                 }}
+                initialParams={sharedParams}
             />
             <Tab.Screen
                 name="TabEquipmentLocation"
@@ -130,6 +139,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
                     ),
                     swipeEnabled: false,
                 }}
+                initialParams={sharedParams}
             />
             <Tab.Screen
                 name="TabInstallationSignatureProof"
@@ -138,6 +148,18 @@ const TabNavigatorWorkOrder = ({ route }) => {
                     title: 'Comprobante',
                     tabBarIcon: ({ color }) => (
                         <FontAwesomeIcon icon={faMapMarkerAlt} color={color} size={20} />
+                    ),
+                    swipeEnabled: false,
+                }}
+                initialParams={sharedParams}
+            />
+            <Tab.Screen
+                name="TabTakePhoto"
+                component={TabTakePhoto}
+                options={{
+                    title: 'Foto',
+                    tabBarIcon: ({ color }) => (
+                        <FontAwesomeIcon icon={faCamera} color={color} size={20} />
                     ),
                     swipeEnabled: false,
                 }}
