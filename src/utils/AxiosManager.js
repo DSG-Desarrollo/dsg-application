@@ -38,6 +38,7 @@ class AxiosManager {
             });
             return response.data;
         } catch (error) {
+            this.handleError(error, 'GET', endpoint);
             throw error;
         }
     }
@@ -62,6 +63,7 @@ class AxiosManager {
 
             return response.data;
         } catch (error) {
+            this.handleError(error, 'POST', endpoint);
             throw error;
         }
     }
@@ -82,6 +84,7 @@ class AxiosManager {
 
             return response.data;
         } catch (error) {
+            this.handleError(error, 'PUT', endpoint);
             throw error;
         }
     }
@@ -131,8 +134,19 @@ class AxiosManager {
             const response = await axios.delete(`${this.baseUrl}/${endpoint}`);
             return response.data;
         } catch (error) {
+            this.handleError(error, 'DELETE', endpoint);
             throw error;
         }
+    }
+
+    /**
+     * Maneja errores de solicitud HTTP.
+     * @param {Error} error - El error lanzado por Axios.
+     * @param {string} method - El método HTTP (GET, POST, PUT, DELETE).
+     * @param {string} endpoint - El endpoint de la API.
+     */
+    handleError(error, method, endpoint) {
+        console.error(`Error en la solicitud ${method} a ${endpoint}:`, error.response ? error.response.data : error.message);
     }
 }
 
