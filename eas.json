@@ -1,24 +1,28 @@
 {
-  "cli": {
-    "version": ">= 10.0.0"
-  },
-  "build": {
-    "development": {
-      "android": {
-        "buildType": "apk"
-      },
-      "developmentClient": true,
-      "distribution": "internal"
+  "expo": {
+    "name": "DSG",
+    "slug": "dsg-application",
+    "cli": {
+      "version": ">= 10.0.0"
     },
-    "preview": {
-      "android": {
-        "buildType": "apk"
+    "build": {
+      "development": {
+        "android": {
+          "buildType": "apk"
+        },
+        "developmentClient": false,
+        "distribution": "internal"
       },
-      "distribution": "internal"
+      "preview": {
+        "android": {
+          "buildType": "apk"
+        },
+        "distribution": "internal"
+      },
+      "production": {}
     },
-    "production": {}
-  },
-  "submit": {
-    "production": {}
+    "submit": {
+      "production": {}
+    }
   }
 }

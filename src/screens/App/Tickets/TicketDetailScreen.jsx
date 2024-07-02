@@ -63,102 +63,104 @@ const TicketDetailScreen = ({ route, navigation }) => {
     <View style={{ flex: 1 }}>
       {/* Barra de herramientas */}
       <Toolbar title={titleWithCode} onBackPress={handleBackPress} />
-      <FlatList
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <FlatList
 
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        ListHeaderComponent={
-          <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          ListHeaderComponent={
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
 
-            {/* Sección GENERAL */}
-            <View style={style.section}>
-              <View style={style.sectionContent}>
-                <Text style={style.sectionTitle}>GENERAL</Text>
-                <Ionicons name="person" size={24} color="#0045AD" style={style.icon} />
+              {/* Sección GENERAL */}
+              <View style={style.section}>
+                <View style={style.sectionContent}>
+                  <Text style={style.sectionTitle}>GENERAL</Text>
+                  <Ionicons name="person" size={24} color="#0045AD" style={style.icon} />
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Cliente: </Text>
+                  <Text style={style.value}>{empresa}</Text>
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Trabajo:</Text>
+                  <Text style={style.value}>{trabajo}</Text>
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Servicios:</Text>
+                  <Text style={style.value}>{servicio}</Text>
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Requeridos:</Text>
+                  <Text style={style.value}>{requeridos}</Text>
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Completado:</Text>
+                  <Text style={style.value}>{estado}</Text>
+                </View>
               </View>
-              <View style={style.field}>
-                <Text style={style.label}>Cliente:</Text>
-                <Text style={style.value}>{empresa}</Text>
+
+              {/* Sección PROGRAMACIÓN */}
+              <View style={style.section}>
+                <View style={style.sectionContent}>
+                  <Text style={style.sectionTitle}>PROGRAMACIÓN</Text>
+                  <Ionicons name="calendar" size={24} color="#0045AD" style={style.icon} />
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Fecha:</Text>
+                  <Text style={style.value}>{fechaCreacion}</Text>
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Dirección:</Text>
+                  <Text style={style.value}>{direccionTarea}</Text>
+                </View>
               </View>
-              <View style={style.field}>
-                <Text style={style.label}>Trabajo:</Text>
-                <Text style={style.value}>{trabajo}</Text>
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Servicios:</Text>
-                <Text style={style.value}>{servicio}</Text>
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Requeridos:</Text>
-                <Text style={style.value}>{requeridos}</Text>
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Completado:</Text>
-                <Text style={style.value}>{estado}</Text>
+
+              {/* Sección PROGRESO */}
+              <View style={style.section}>
+                <View style={style.sectionContent}>
+                  <Text style={style.sectionTitle}>PROGRESO</Text>
+                  <Ionicons name="stats-chart" size={24} color="#0045AD" style={style.icon} />
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Progreso:</Text>
+                  <Text style={style.value}>{prioridad}</Text>
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Inicio:</Text>
+                  <Text style={style.value}>{prioridad}</Text>
+                </View>
+                <View style={style.field}>
+                  <Text style={style.label}>Completado:</Text>
+                  <Text style={style.value}>{prioridad}</Text>
+                </View>
               </View>
             </View>
-
-            {/* Sección PROGRAMACIÓN */}
-            <View style={style.section}>
-              <View style={style.sectionContent}>
-                <Text style={style.sectionTitle}>PROGRAMACIÓN</Text>
-                <Ionicons name="calendar" size={24} color="#0045AD" style={style.icon} />
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Fecha:</Text>
-                <Text style={style.value}>{fechaCreacion}</Text>
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Dirección:</Text>
-                <Text style={style.value}>{direccionTarea}</Text>
-              </View>
-            </View>
-
-            {/* Sección PROGRESO */}
-            <View style={style.section}>
-              <View style={style.sectionContent}>
-                <Text style={style.sectionTitle}>PROGRESO</Text>
-                <Ionicons name="stats-chart" size={24} color="#0045AD" style={style.icon} />
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Progreso:</Text>
-                <Text style={style.value}>{prioridad}</Text>
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Inicio:</Text>
-                <Text style={style.value}>{prioridad}</Text>
-              </View>
-              <View style={style.field}>
-                <Text style={style.label}>Completado:</Text>
-                <Text style={style.value}>{prioridad}</Text>
+          }
+          ListFooterComponent={
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+              {/* Sección ORDENES */}
+              <View style={style.ordersContainer}>
+                <View style={style.sectionContent}>
+                  <Text style={style.sectionTitle}>ORDENES</Text>
+                  <Ionicons name="clipboard" size={24} color="#0045AD" style={style.icon} />
+                </View>
+                {unitsData.length > 0 ? (
+                  <VirtualizedList
+                    data={unitsData}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id_unidad.toString()}
+                    getItemCount={() => unitsData.length}
+                    getItem={(data, index) => data[index]}
+                    style={{ flex: 1 }}
+                  />
+                ) : (
+                  <Text style={style.noDataText}>No hay unidades que listar</Text>
+                )}
               </View>
             </View>
-          </View>
-        }
-        ListFooterComponent={
-          <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-            {/* Sección ORDENES */}
-            <View style={style.ordersContainer}>
-              <View style={style.sectionContent}>
-                <Text style={style.sectionTitle}>ORDENES</Text>
-                <Ionicons name="clipboard" size={24} color="#0045AD" style={style.icon} />
-              </View>
-              {unitsData.length > 0 ? (
-                <VirtualizedList
-                  data={unitsData}
-                  renderItem={renderItem}
-                  keyExtractor={(item) => item.id_unidad.toString()}
-                  getItemCount={() => unitsData.length}
-                  getItem={(data, index) => data[index]}
-                  style={{ flex: 1 }}
-                />
-              ) : (
-                <Text style={style.noDataText}>No hay unidades que listar</Text>
-              )}
-            </View>
-          </View>
-        }
-      />
+          }
+        />
+      </ScrollView>
     </View>
   );
 };

@@ -1,13 +1,11 @@
 {
-  "name": "dsg-application",
-  "displayName": "dsg-application",
   "expo": {
     "extra": {
       "eas": {
         "projectId": "f990977d-e454-427d-865b-27481130d47a"
       }
     },
-    "name": "dsg-application",
+    "name": "DSG",
     "slug": "dsg-application",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -24,8 +22,8 @@
     "android": {
       "package": "com.dsg.application",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/ic_launcher/res/mipmap-hdpi/ic_launcher_adaptive_fore.png",
+        "backgroundImage": "./assets/ic_launcher/res/mipmap-hdpi/ic_launcher_adaptive_back.png"
       }
     },
     "web": {
