@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import AxiosManager from '../../../utils/AxiosManager';
 import Constants from 'expo-constants';
 import ToastManager from '../../../utils/ToastManager';
@@ -31,14 +32,13 @@ class UserService {
                     email: email,
                     password: password,
                 });
-                //console.log(response);
                 // Verificar si el inicio de sesión fue exitoso y el usuario está activo
                 if (response && response.user && response.user.estado_usuario === 'A') {
                     ToastManager.showToast('Inicio de sesión exitoso'); // Muestra un toast en caso de éxito
                     return response; // Devuelve el usuario si el inicio de sesión es exitoso
                 } else {
-                    ToastManager.showError('Inicio de sesión fallido');
-                    throw new Error('Inicio de sesión fallido'); // Lanza un error si el inicio de sesión no fue exitoso
+                    ToastManager.showError('Inicio de sesión fallido (service)');
+                    throw new Error('Inicio de sesión fallido throw'); // Lanza un error si el inicio de sesión no fue exitoso
                 }
             } catch (error) {
                 attempt++;

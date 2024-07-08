@@ -99,7 +99,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
   const onLoginPressed = async () => {
     if (!email.value || !password.value) {
       //showToast();
-      Alert.alert('Error', 'Por favor, ingrese su email y contraseña.'); 
+      Alert.alert('Error', 'Por favor, ingrese su email y contraseña.');
       return;
     }
 
@@ -135,7 +135,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           } else {
             console.log('El usuario no existe en la base de datos local. Se procederá a insertarlo.');
             await insertUserToDatabase(response.user);
-            Alert.alert('Éxito', 'Inicio de sesión exitoso y usuario insertado en la base de datos local.');
+            navigation.replace('DrawerNavigation');
           }
 
         } else {

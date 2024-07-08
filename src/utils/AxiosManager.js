@@ -51,6 +51,7 @@ class AxiosManager {
      * @returns {Promise<Object>} - Promesa que se resuelve con la respuesta de la solicitud.
      */
     async post(endpoint, data, isFormData = false) {
+        console.log(this.baseUrl);
         try {
             const response = await axios.post(
                 `${this.baseUrl}/${endpoint}`,
