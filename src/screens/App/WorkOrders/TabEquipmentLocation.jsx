@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Modal, Pressable, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Modal, Pressable, Text, TextInput, StyleSheet, ToastAndroid } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSave, faEdit } from '@fortawesome/free-solid-svg-icons';
 import SelectManager from '../../../components/atoms/SelectManager';
@@ -65,6 +65,9 @@ const TabEquipmentLocation = ({ route }) => {
 
                 await FormCompletionTracker.markFormAsCompleted("form_equipment_location", tareaId, id_orden_trabajo, userData.id_usuario);
                 console.log('Respuesta de la API:', response);
+
+                ToastAndroid.show("imagen guardada", ToastAndroid.LONG);
+
             } else {
                 console.log("NULL");
             }

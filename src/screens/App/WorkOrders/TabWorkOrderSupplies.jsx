@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, ToastAndroid, ActivityIndicator, Alert } from 'react-native';
 import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import ActionButtons from '../../../components/atoms/ActionButtons';
 import useFetchProducts from '../../../hooks/useFetchProducts';
@@ -39,6 +39,7 @@ const TabWorkOrderSupplies = ({ route }) => {
   };
 
   const handleSave = async () => {
+    console.log('clic');
     const apiService = new ApiService();
     const data = sortedProductsData.map((product) => ({
       id_orden_trabajo: id_orden_trabajo,
@@ -52,6 +53,9 @@ const TabWorkOrderSupplies = ({ route }) => {
     await FormCompletionTracker.markFormAsCompleted("form_work_order_supplies", tareaId, id_orden_trabajo, userData.id_usuario);
 
     console.log('Respuesta de la API:', response);
+    if (response.status === 201) {
+      ToastAndroid.show(response.message, ToastAndroid.LONG);
+    }
   }
 
   const handleEdit = () => {

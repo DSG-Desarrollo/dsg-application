@@ -34,6 +34,7 @@ const TicketsOfDayScreen = () => {
                 estado={task.estado_tarea}
                 empresa={task.customer_service?.descripcion_servicio_cliente || ''}
                 prioridad={task.priority?.prioridad_tarea || ''}
+                fechaInicioTarea={task.fecha_inicio_tarea || ''}
                 fechaCreacion={task.registro_fecha}
                 progresoTarea={task.progreso_tarea}
                 idPrioridadTarea={task.id_prioridad_tarea}
@@ -42,6 +43,9 @@ const TicketsOfDayScreen = () => {
                 colorTipoTarea={task.types_tasks.color_tipo_tarea}
                 direccionTarea={task.direccion_tarea}
                 requeridos={task.numero_solicitud}
+                ordenRequerida={task.orden_requerida}
+                ordenCompletada={task.orden_completada}
+                progresoTareaDescripcion={task.progreso_tarea_descripcion}
               />
             ))}
           </View>

@@ -1,7 +1,29 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 
-const TabWorkOrderDetails = () => {
+const TabWorkOrderDetails = ({ route }) => {
+  // Obtener los parámetros desde route.params
+  const {
+    tareaId,
+    codigo,
+    estado,
+    empresa,
+    prioridad,
+    fechaInicioTarea,
+    fechaCreacion,
+    tipo,
+    trabajo,
+    servicio,
+    direccionTarea,
+    requeridos,
+    ordenRequerida,
+    ordenCompletada,
+    progresoTareaDescripcion,
+    id_orden_trabajo,
+    id_servicio_cliente,
+    id_unidad,
+  } = route.params;
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Sección GENERAL */}
@@ -10,15 +32,15 @@ const TabWorkOrderDetails = () => {
         <View style={styles.card}>
           <View style={styles.row}>
             <Text style={styles.label}>Cliente:</Text>
-            <Text style={styles.text}>Nombre del cliente</Text>
+            <Text style={styles.text}>{empresa}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Servicio:</Text>
-            <Text style={styles.text}>Nombre del servicio</Text>
+            <Text style={styles.text}>{servicio}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Trabajo:</Text>
-            <Text style={styles.text}>Descripción del trabajo</Text>
+            <Text style={styles.text}>{trabajo}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Requerido:</Text>
@@ -26,7 +48,7 @@ const TabWorkOrderDetails = () => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Completado:</Text>
-            <Text style={styles.text}>Cantidad completada</Text>
+            <Text style={styles.text}>{estado}</Text>
           </View>
         </View>
       </View>
@@ -37,15 +59,11 @@ const TabWorkOrderDetails = () => {
         <View style={styles.card}>
           <View style={styles.row}>
             <Text style={styles.label}>Fecha:</Text>
-            <Text style={styles.text}>Fecha del ticket</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Hora:</Text>
-            <Text style={styles.text}>Hora del ticket</Text>
+            <Text style={styles.text}>{fechaCreacion}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Dirección:</Text>
-            <Text style={styles.text}>Dirección del trabajo</Text>
+            <Text style={styles.text}>{direccionTarea}</Text>
           </View>
         </View>
       </View>
@@ -56,7 +74,7 @@ const TabWorkOrderDetails = () => {
         <View style={styles.card}>
           <View style={styles.row}>
             <Text style={styles.label}>Progreso:</Text>
-            <Text style={styles.text}>Progreso del trabajo</Text>
+            <Text style={styles.text}>{progresoTareaDescripcion}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Inicio:</Text>
@@ -109,7 +127,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     color: '#000',
-    width: 80, // Ancho fijo para las etiquetas
+    width: 90, // Ancho fijo para las etiquetas
   },
   text: {
     fontSize: 16,

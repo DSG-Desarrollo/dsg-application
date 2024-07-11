@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import AxiosManager from '../../utils/AxiosManager';
 
 // Definir las claves de los formularios como constantes
 const FORM_KEYS = {
@@ -9,6 +11,8 @@ const FORM_KEYS = {
 };
 
 const FORMS = Object.values(FORM_KEYS);
+const BASE_URL = Constants.expoConfig.extra.wsERPURL;
+const axiosManager = new AxiosManager(BASE_URL);
 
 const FormCompletionTracker = {
     markFormAsCompleted: async (formKey, taskId, workOrderId, userId) => {
@@ -107,18 +111,16 @@ const FormCompletionTracker = {
     },
 
     startWorkOrder: async (taskId, workOrderId, userId) => {
+        console.log('INICIADO');
         try {
-            const response = await fetch(`http://192.168.0.36:8080/api/work-orders/${workOrderId}/start`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id_usuario: userId, id_tarea: taskId }),
+            const response = await axiosManager.post(`api/work-orders/${workOrderId}/start`, {
+                id_usuario: userId,
+                id_tarea: taskId
             });
 
-            if (!response.ok) {
-                throw new Error('Error iniciando la orden de trabajo');
-            }
+            console.log(response);
+
+
 
             console.log(`Orden de trabajo ${workOrderId} iniciada`);
         } catch (error) {
@@ -128,16 +130,10 @@ const FormCompletionTracker = {
 
     completeWorkOrder: async (workOrderId, taskId, userId) => {
         try {
-            const response = await fetch(`http://192.168.0.36:8080/api/work-orders/${workOrderId}/complete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    fin_orden_trabajo: new Date().toISOString(),
-                    comentario_orden: 'Trabajo completado exitosamente',
-                    id_usuario: userId,
-                }),
+            const response = await axiosManager.post(`api/work-orders/${workOrderId}/complete`, {
+                fin_orden_trabajo: new Date().toISOString(),
+                comentario_orden: 'Trabajo completado exitosamente',
+                id_usuario: userId
             });
 
             if (!response.ok) {

@@ -1,51 +1,36 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCamera, faListAlt, faTools, faClipboardCheck, faMapMarkerAlt, faWrench } from '@fortawesome/free-solid-svg-icons';
 import { Text } from 'react-native';
 import {
     TabUnitDetail, TabInstallationType, TabWorkOrderSupplies,
-    TabInstallationSignatureProof, TabEquipmentLocation,
-    TabTakePhoto
+    TabInstallationSignatureProof, TabEquipmentLocation
 } from '../screens/App/WorkOrders/';
-import { faCamera, faListAlt, faTools, faClipboardCheck, faMapMarkerAlt, faWrench } from '@fortawesome/free-solid-svg-icons';
 
 const Tab = createMaterialTopTabNavigator();
 
 const TabNavigatorWorkOrder = ({ route }) => {
-    //console.log("TabNavigatorWorkOrder:",route);
     const {
         tareaId,
         codigo,
         estado,
         empresa,
         prioridad,
+        fechaInicioTarea,
         fechaCreacion,
         tipo,
         trabajo,
         servicio,
         direccionTarea,
         requeridos,
+        ordenRequerida,
+        ordenCompletada,
+        progresoTareaDescripcion,
         id_orden_trabajo,
         id_servicio_cliente,
         id_unidad,
     } = route.params;
-    const renderTabBarIcon = ({ route, color }) => {
-        let iconName;
-
-        if (route.name === 'TabUnitDetail') {
-            iconName = faListAlt;
-        } else if (route.name === 'TabInstallationType') {
-            iconName = faTools;
-        } else if (route.name === 'TabWorkOrderSupplies') {
-            iconName = faClipboardCheck;
-        } else if (route.name === 'TabInstallationSignatureProof') {
-            iconName = faMapMarkerAlt;
-        } else if (route.name === 'TabEquipmentLocation') {
-            iconName = faWrench;
-        }
-
-        return <FontAwesomeIcon icon={iconName} color={color} size={20} />;
-    };
 
     const renderTabBarLabel = ({ route, color }) => {
         let labelName;
@@ -71,12 +56,16 @@ const TabNavigatorWorkOrder = ({ route }) => {
         estado,
         empresa,
         prioridad,
+        fechaInicioTarea,
         fechaCreacion,
         tipo,
         trabajo,
         servicio,
         direccionTarea,
         requeridos,
+        ordenRequerida,
+        ordenCompletada,
+        progresoTareaDescripcion,
         id_orden_trabajo,
         id_servicio_cliente,
         id_unidad,
@@ -103,9 +92,10 @@ const TabNavigatorWorkOrder = ({ route }) => {
                 options={{
                     title: 'Detalle Unidad',
                     tabBarIcon: ({ color }) => (
-                        <FontAwesomeIcon icon={faListAlt} color={color} size={20} />
+                        <FontAwesomeIcon icon={faTools} color={color} size={20} />
                     ),
                 }}
+                initialParams={sharedParams}
             />
             <Tab.Screen
                 name="TabInstallationType"
@@ -130,18 +120,6 @@ const TabNavigatorWorkOrder = ({ route }) => {
                 initialParams={sharedParams}
             />
             <Tab.Screen
-                name="TabEquipmentLocation"
-                component={TabEquipmentLocation}
-                options={{
-                    title: 'Ubicación',
-                    tabBarIcon: ({ color }) => (
-                        <FontAwesomeIcon icon={faWrench} color={color} size={20} />
-                    ),
-                    swipeEnabled: false,
-                }}
-                initialParams={sharedParams}
-            />
-            <Tab.Screen
                 name="TabInstallationSignatureProof"
                 component={TabInstallationSignatureProof}
                 options={{
@@ -152,17 +130,6 @@ const TabNavigatorWorkOrder = ({ route }) => {
                     swipeEnabled: false,
                 }}
                 initialParams={sharedParams}
-            />
-            <Tab.Screen
-                name="TabTakePhoto"
-                component={TabTakePhoto}
-                options={{
-                    title: 'Foto',
-                    tabBarIcon: ({ color }) => (
-                        <FontAwesomeIcon icon={faCamera} color={color} size={20} />
-                    ),
-                    swipeEnabled: false,
-                }}
             />
         </Tab.Navigator>
     );

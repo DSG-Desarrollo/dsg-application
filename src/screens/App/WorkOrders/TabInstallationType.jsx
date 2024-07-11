@@ -41,6 +41,7 @@ const TabInstallationType = ({ route }) => {
   const ticketService = new TicketService();
   const [selectedOption, setSelectedOption] = useState({
     id_tarea: tareaId,
+    id_orden_trabajo: id_orden_trabajo,
     vehicle: null,
     installationType: null,
     powerOffType: null,
@@ -60,7 +61,6 @@ const TabInstallationType = ({ route }) => {
     try {
       // Verificar si todos los campos obligatorios han sido seleccionados
       if (!selectedOption.vehicle || !selectedOption.installationType || !selectedOption.powerOffType || !selectedOption.batteryType) {
-        console.error('Por favor, selecciona una opción para cada campo.');
         // Podrías mostrar un mensaje de error en la interfaz para indicar al usuario que debe seleccionar una opción en cada campo
         return; // Evita que se envíen los datos al servidor si faltan campos obligatorios
       } else {
@@ -69,11 +69,11 @@ const TabInstallationType = ({ route }) => {
         console.log('Respuesta del servidor:', response);
 
         // Verificar si la respuesta indica que la solicitud fue exitosa (código de estado HTTP 201)
-        if (response.status === 201) {
+        if (response.status === 201 || response.status === 200) {
           // La solicitud fue exitosa, puedes manejar la respuesta como desees
-          console.log('Datos del registro insertado:', response.data);
-          console.log('Último ID insertado:', response.last_insert_id);
-          ToastAndroid.show(response.message, ToastAndroid.SHORT);
+          //console.log('Datos del registro insertado:', response.data);
+          //console.log('Último ID insertado:', response.last_insert_id);
+          ToastAndroid.show(response.message, ToastAndroid.LONG);
 
           await FormCompletionTracker.markFormAsCompleted("form_installation_type", tareaId, id_orden_trabajo, userData.id_usuario);
 
@@ -85,7 +85,7 @@ const TabInstallationType = ({ route }) => {
       }
       // Aquí podrías manejar la respuesta del servidor como desees
     } catch (error) {
-      console.error('Error al enviar los datos:', error.message);
+      console.error('Error al enviar los datos_:', error.message);
       // Aquí podrías manejar el error como desees
     }
   };

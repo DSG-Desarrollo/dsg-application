@@ -97,13 +97,13 @@ class TicketService {
     async sendFormData(formData, endpoint) {
         try {
             const response = await this.api.request(endpoint, 'POST', formData);
-
+            console.log("API: ",response);
             // Verificar si la respuesta indica un estado de éxito (código 2xx)
-            if (response.status >= 200 && response.status < 300) {
-                return response; // Devolver los datos de la respuesta
+            if (response.data.status >= 200 && response.data.status < 300) {
+                return response.data; // Devolver los datos de la respuesta
             } else {
                 // Si la respuesta indica un estado de error, lanzar un error apropiado
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
+                throw new Error(`Error ${response.data.status}: ${response.data.statusText}`);
             }
         } catch (error) {
             this.handleHttpError(error);

@@ -25,7 +25,7 @@ const useFetchTickets = () => {
           user_id: null,
         };
         const tickets = await ticketService.getTickets(filters);
-        //console.log(tickets);
+        console.log(tickets);
         setTicketsData(tickets);
         setLoading(false);
         await insertTicketsData(tickets);

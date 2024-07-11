@@ -12,6 +12,7 @@ const TicketList = (props) => {
     estado,
     empresa,
     prioridad,
+    fechaInicioTarea,
     fechaCreacion,
     tipo,
     progresoTarea,
@@ -19,24 +20,32 @@ const TicketList = (props) => {
     servicio,
     colorTipoTarea,
     direccionTarea,
-    requeridos
+    requeridos,
+    ordenRequerida,
+    ordenCompletada,
+    progresoTareaDescripcion
   } = props;
 
   const navigation = useNavigation();
 
   const handleTicketPress = () => {
+    console.log(progresoTareaDescripcion);
     navigation.navigate('TicketDetailScreen', {
       tareaId,
       codigo,
       estado,
       empresa,
       prioridad,
+      fechaInicioTarea,
       fechaCreacion,
       tipo,
       trabajo,
       servicio,
       direccionTarea,
-      requeridos
+      requeridos,
+      ordenRequerida,
+      ordenCompletada,
+      progresoTareaDescripcion
     });
   };
 
