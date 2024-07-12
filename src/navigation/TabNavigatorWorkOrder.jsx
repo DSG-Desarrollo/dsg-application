@@ -42,7 +42,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
         } else if (route.name === 'TabWorkOrderSupplies') {
             labelName = 'Materiales';
         } else if (route.name === 'TabInstallationSignatureProof') {
-            labelName = 'Comprobante';
+            labelName = 'Firma';
         } else if (route.name === 'TabEquipmentLocation') {
             labelName = 'Ubicación';
         }
@@ -75,9 +75,10 @@ const TabNavigatorWorkOrder = ({ route }) => {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarActiveTintColor: '#efb810',
-                tabBarInactiveTintColor: 'black',
+                tabBarInactiveTintColor: 'white',
                 tabBarStyle: [
                     {
+                        backgroundColor: '#003F75',
                         display: "flex"
                     },
                     null
@@ -120,10 +121,22 @@ const TabNavigatorWorkOrder = ({ route }) => {
                 initialParams={sharedParams}
             />
             <Tab.Screen
+                name="TabEquipmentLocation"
+                component={TabEquipmentLocation}
+                options={{
+                    title: 'Ubicación',
+                    tabBarIcon: ({ color }) => (
+                        <FontAwesomeIcon icon={faWrench} color={color} size={20} />
+                    ),
+                    swipeEnabled: false,
+                }}
+                initialParams={sharedParams}
+            />
+            <Tab.Screen
                 name="TabInstallationSignatureProof"
                 component={TabInstallationSignatureProof}
                 options={{
-                    title: 'Comprobante',
+                    title: 'Firma',
                     tabBarIcon: ({ color }) => (
                         <FontAwesomeIcon icon={faMapMarkerAlt} color={color} size={20} />
                     ),
@@ -131,6 +144,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
                 }}
                 initialParams={sharedParams}
             />
+
         </Tab.Navigator>
     );
 };

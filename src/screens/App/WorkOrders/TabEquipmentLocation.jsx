@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
-import { View, Modal, Pressable, Text, TextInput, StyleSheet, ToastAndroid } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faSave, faEdit } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Pressable, Text, ToastAndroid } from 'react-native';
 import SelectManager from '../../../components/atoms/SelectManager';
 import DrawableImage from '../../../components/molecules/DrawableImage';
 import styles from '../../../styles/TabEquipmentLocationStyles';
 import ApiService from '../../../services/api/ApiService';
 import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
 import useUserData from '../../../hooks/useUserData';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faSave, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 const options = [
     { label: 'Vehículo liviano', value: 'Vehículo liviano', image: require('../../../assets/images/vehiculo_liviano.jpg') },
@@ -28,6 +28,7 @@ const TabEquipmentLocation = ({ route }) => {
         id_servicio_cliente,
         id_unidad,
     } = route.params;
+
     const [showDrawableImage, setShowDrawableImage] = useState(false);
     const drawableImageRef = useRef(null);
     const [selectedOption, setSelectedOption] = useState(null);
@@ -69,7 +70,7 @@ const TabEquipmentLocation = ({ route }) => {
                 ToastAndroid.show("imagen guardada", ToastAndroid.LONG);
 
             } else {
-                console.log("NULL");
+                console.log("DrawableImage reference is null");
             }
         } catch (error) {
             console.log('Error al capturar la imagen del lienzo:', error);

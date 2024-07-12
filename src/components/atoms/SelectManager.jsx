@@ -1,5 +1,5 @@
-import React from 'react';
-import RNPickerSelect from 'react-native-picker-select';
+import React, { useState, useRef } from 'react';
+import { Picker } from '@react-native-picker/picker';
 import { StyleSheet, View } from 'react-native';
 
 const SelectManager = ({
@@ -16,6 +16,8 @@ const SelectManager = ({
     customLabelComponent,
     ...props
 }) => {
+    const pickerRef = useRef();
+
     const renderLabel = (item) => {
         if (customLabelComponent) {
             return React.createElement(customLabelComponent, { item });
@@ -29,26 +31,26 @@ const SelectManager = ({
     };
 
     const formattedData = data.map((item) => ({
-        label: renderLabel(item),
+        label: renderLabel(item).toString(), // Convertir label a string
         value: item[valueKey],
     }));
 
     return (
         <View style={[styles.container, style]}>
-            <RNPickerSelect
+            <Picker
+                ref={pickerRef}
+                selectedValue={value}
                 onValueChange={onValueChange}
-                items={formattedData}
-                value={value}
-                placeholder={placeholder}
-                style={{
-                    ...pickerSelectStyles,
-                    iconContainer: {
-                        top: 12,
-                        right: 10,
-                    },
-                }}
+                style={pickerSelectStyles.inputAndroid} // Aplica estilos para Android e iOS
                 {...props}
-            />
+            >
+                {placeholder && (
+                    <Picker.Item label={placeholder.label} value={placeholder.value} />
+                )}
+                {formattedData.map((item, index) => (
+                    <Picker.Item key={index} label={item.label} value={item.value} />
+                ))}
+            </Picker>
         </View>
     );
 };
@@ -68,7 +70,7 @@ const pickerSelectStyles = StyleSheet.create({
         borderColor: '#007bff',
         borderRadius: 10,
         color: '#333',
-        paddingRight: 30, // to ensure the text is never behind the icon
+        paddingRight: 30, // para asegurar que el texto nunca esté detrás del ícono
         backgroundColor: '#fff',
         shadowColor: '#000',
         shadowOffset: {
@@ -87,7 +89,7 @@ const pickerSelectStyles = StyleSheet.create({
         borderColor: '#007bff',
         borderRadius: 10,
         color: '#333',
-        paddingRight: 30, // to ensure the text is never behind the icon
+        paddingRight: 30, // para asegurar que el texto nunca esté detrás del ícono
         backgroundColor: '#fff',
         shadowColor: '#000',
         shadowOffset: {

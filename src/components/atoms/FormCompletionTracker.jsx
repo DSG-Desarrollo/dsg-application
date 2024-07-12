@@ -111,7 +111,6 @@ const FormCompletionTracker = {
     },
 
     startWorkOrder: async (taskId, workOrderId, userId) => {
-        console.log('INICIADO');
         try {
             const response = await axiosManager.post(`api/work-orders/${workOrderId}/start`, {
                 id_usuario: userId,
@@ -136,13 +135,11 @@ const FormCompletionTracker = {
                 id_usuario: userId
             });
 
-            if (!response.ok) {
-                throw new Error('Error completando la orden de trabajo');
-            }
+            console.log(response);
 
             console.log(`Orden de trabajo ${workOrderId} completada y tarea ${taskId} actualizada`);
         } catch (error) {
-            console.error(`Error completando la orden de trabajo ${workOrderId}: `, error);
+            //console.error(`Error completando la orden de trabajo ${workOrderId}: `, error);
         }
     },
 };

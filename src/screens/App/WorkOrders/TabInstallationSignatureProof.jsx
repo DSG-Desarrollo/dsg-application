@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, ToastAndroid } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
 import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -52,6 +52,11 @@ const TabInstallationSignatureProof = ({ route }) => {
         // Enviar los datos utilizando el método sendFormData de ApiService
         const response = await apiService.sendFormData(formData, endpoint);
         console.log('Respuesta de la API:', response);
+        ToastAndroid.showWithGravity(
+          response.message || 'Registro actualizado exitosamente',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM
+        );
 
         await FormCompletionTracker.markFormAsCompleted("form_installation_signature_proof", tareaId, id_orden_trabajo, userData.id_usuario);
 
@@ -60,6 +65,11 @@ const TabInstallationSignatureProof = ({ route }) => {
       }
     } catch (error) {
       console.log('Error al capturar la imagen del lienzo:', error);
+      ToastAndroid.showWithGravity(
+        error.message || 'Hubo un problema al actualizar el registro',
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM
+      );
     }
   };
 
