@@ -15,6 +15,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
     prioridad,
     fechaInicioTarea,
     fechaCreacion,
+    fechaFinTarea,
     tipo,
     progresoTarea,
     trabajo,
@@ -24,7 +25,8 @@ const TicketDetailScreen = ({ route, navigation }) => {
     requeridos,
     ordenRequerida,
     ordenCompletada,
-    progresoTareaDescripcion
+    progresoTareaDescripcion,
+    clienteId
   } = route.params;
   const { unitsData, loading, error } = useFetchUnitWorkOrders(tareaId);
   const navigationRef = useRef();
@@ -43,6 +45,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
       prioridad,
       fechaInicioTarea,
       fechaCreacion,
+      fechaFinTarea,
       tipo,
       trabajo,
       servicio,
@@ -51,6 +54,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
       ordenRequerida,
       ordenCompletada,
       progresoTareaDescripcion,
+      clienteId,
       id_orden_trabajo,
       id_servicio_cliente,
       id_unidad,
@@ -126,15 +130,15 @@ const TicketDetailScreen = ({ route, navigation }) => {
         </View>
         <View style={style.field}>
           <Text style={style.label}>Progreso:</Text>
-          <Text style={style.value}>{prioridad}</Text>
+          <Text style={style.value}>{progresoTareaDescripcion}</Text>
         </View>
         <View style={style.field}>
           <Text style={style.label}>Inicio:</Text>
-          <Text style={style.value}>{prioridad}</Text>
+          <Text style={style.value}>{fechaInicioTarea}</Text>
         </View>
         <View style={style.field}>
           <Text style={style.label}>Completado:</Text>
-          <Text style={style.value}>{prioridad}</Text>
+          <Text style={style.value}>{fechaFinTarea}</Text>
         </View>
       </View>
     </View>

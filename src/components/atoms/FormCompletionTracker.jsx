@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import AxiosManager from '../../utils/AxiosManager';
+import { ToastAndroid } from 'react-native';
 
 // Definir las claves de los formularios como constantes
 const FORM_KEYS = {
@@ -15,8 +16,8 @@ const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 const axiosManager = new AxiosManager(BASE_URL);
 
 const FormCompletionTracker = {
-    markFormAsCompleted: async (formKey, taskId, workOrderId, userId) => {
-        console.log(formKey, taskId, workOrderId, userId);
+    markFormAsCompleted: async (formKey, clientId, taskId, workOrderId, userId) => {
+        //console.log(formKey, clientId, taskId, workOrderId, userId);
         try {
             const formData = {
                 status: 'completed',
@@ -34,12 +35,12 @@ const FormCompletionTracker = {
 
             // Iniciar la OT si es el primer formulario completado
             if (isFirstCompleted) {
-                await FormCompletionTracker.startWorkOrder(taskId, workOrderId, userId);
+                await FormCompletionTracker.startWorkOrder(clientId, taskId, workOrderId, userId);
             }
 
             // Finalizar la OT si todos los formularios están completados
             if (allCompleted.allCompleted) {
-                await FormCompletionTracker.completeWorkOrder(workOrderId, taskId, userId);
+                await FormCompletionTracker.completeWorkOrder(clientId, workOrderId, taskId, userId);
             }
         } catch (error) {
             console.error(`Error marcando el formulario ${formKey} como completado: `, error);
@@ -110,36 +111,36 @@ const FormCompletionTracker = {
         }
     },
 
-    startWorkOrder: async (taskId, workOrderId, userId) => {
+    startWorkOrder: async (clientId, taskId, workOrderId, userId) => {
+        console.log(clientId, taskId, workOrderId, userId);
         try {
             const response = await axiosManager.post(`api/work-orders/${workOrderId}/start`, {
+                id_cliente: clientId,
                 id_usuario: userId,
                 id_tarea: taskId
             });
 
             console.log(response);
-
-
-
             console.log(`Orden de trabajo ${workOrderId} iniciada`);
         } catch (error) {
             console.error(`Error iniciando la orden de trabajo ${workOrderId}: `, error);
         }
     },
 
-    completeWorkOrder: async (workOrderId, taskId, userId) => {
+    completeWorkOrder: async (clientId, workOrderId, taskId, userId) => {
         try {
             const response = await axiosManager.post(`api/work-orders/${workOrderId}/complete`, {
+                id_tarea: taskId,
+                id_cliente: clientId,
                 fin_orden_trabajo: new Date().toISOString(),
                 comentario_orden: 'Trabajo completado exitosamente',
                 id_usuario: userId
             });
-
-            console.log(response);
+            ToastAndroid.show('Orden de trabajo completada con éxito', ToastAndroid.SHORT);
 
             console.log(`Orden de trabajo ${workOrderId} completada y tarea ${taskId} actualizada`);
         } catch (error) {
-            //console.error(`Error completando la orden de trabajo ${workOrderId}: `, error);
+            console.error(`Error completando la orden de trabajo ${workOrderId}: `, error);
         }
     },
 };

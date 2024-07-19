@@ -28,6 +28,7 @@ const NetworkInfo = ({ children }) => {
             <Text style={[NetworkInfoStyles.statusText]}>{i18n.t('connected')} {networkState.isConnected ? 'Yes' : 'No'}</Text>
             <Text style={[NetworkInfoStyles.statusText]}>{i18n.t('networkState')} {networkState.isInternetReachable ? 'Yes' : 'No'}</Text>
             <Text style={[NetworkInfoStyles.statusText]}>{i18n.t('networkType')} {networkState.type}</Text>
+            <Text style={[NetworkInfoStyles.statusText]}>{i18n.t('networkSpeed')} {networkState.details?.downlink ? `${networkState.details.downlink} Mbps` : 'N/A'}</Text>
         </>
     );
 

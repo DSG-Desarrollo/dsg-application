@@ -12,16 +12,7 @@ const TabInstallationType = ({ route }) => {
 
   const {
     tareaId,
-    codigo,
-    estado,
-    empresa,
-    prioridad,
-    fechaCreacion,
-    tipo,
-    trabajo,
-    servicio,
-    direccionTarea,
-    requeridos,
+    clienteId,
     id_orden_trabajo,
     id_servicio_cliente,
     id_unidad,
@@ -66,7 +57,7 @@ const TabInstallationType = ({ route }) => {
       } else {
         // Enviar los datos utilizando el método sendFormData de TicketService
         const response = await ticketService.sendFormData(selectedOption, 'api/work-orders');
-        console.log('Respuesta del servidor:', response);
+        //console.log('Respuesta del servidor:', response);
 
         // Verificar si la respuesta indica que la solicitud fue exitosa (código de estado HTTP 201)
         if (response.status === 201 || response.status === 200) {
@@ -75,7 +66,7 @@ const TabInstallationType = ({ route }) => {
           //console.log('Último ID insertado:', response.last_insert_id);
           ToastAndroid.show(response.message, ToastAndroid.LONG);
 
-          await FormCompletionTracker.markFormAsCompleted("form_installation_type", tareaId, id_orden_trabajo, userData.id_usuario);
+          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.id_usuario);
 
           // Aquí puedes realizar acciones adicionales, como actualizar la interfaz de usuario
         } else {

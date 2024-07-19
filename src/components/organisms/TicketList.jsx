@@ -23,7 +23,8 @@ const TicketList = (props) => {
     requeridos,
     ordenRequerida,
     ordenCompletada,
-    progresoTareaDescripcion
+    progresoTareaDescripcion,
+    clienteId
   } = props;
 
   const navigation = useNavigation();
@@ -45,7 +46,8 @@ const TicketList = (props) => {
       requeridos,
       ordenRequerida,
       ordenCompletada,
-      progresoTareaDescripcion
+      progresoTareaDescripcion,
+      clienteId
     });
   };
 

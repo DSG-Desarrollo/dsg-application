@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  SafeAreaProvider,
-  initialWindowMetrics,
-} from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics, SafeAreaView } from 'react-native-safe-area-context';
 import {
   DefaultTheme,
   DarkTheme,
@@ -44,39 +41,41 @@ const App = () => {
         <DatabaseProvider>
           <NetworkInfo>
             <NavigationContainer>
-              <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
-                <Stack.Screen
-                  name="LoginScreen"
-                  options={{
-                    title: 'Inicio de Sesión',
-                  }}
-                >
-                  {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
-                </Stack.Screen>
+              <SafeAreaView style={{ flex: 1 }}>
+                <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
+                  <Stack.Screen
+                    name="LoginScreen"
+                    options={{
+                      title: 'Inicio de Sesión',
+                    }}
+                  >
+                    {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+                  </Stack.Screen>
 
-                <Stack.Screen name="DrawerNavigation">
-                  {(props) => <DrawerNavigation {...props} setIsAuthenticated={setIsAuthenticated} />}
-                </Stack.Screen>
+                  <Stack.Screen name="DrawerNavigation">
+                    {(props) => <DrawerNavigation {...props} setIsAuthenticated={setIsAuthenticated} />}
+                  </Stack.Screen>
 
-                <Stack.Screen
-                  name="ResetPasswordScreen"
-                  component={ResetPasswordScreen}
-                />
+                  <Stack.Screen
+                    name="ResetPasswordScreen"
+                    component={ResetPasswordScreen}
+                  />
 
-                <Stack.Screen
-                  name="TicketDetailScreen"
-                  component={TicketDetailScreen}
-                  options={{
-                    headerBackTitle: 'Custom Back',
-                    headerBackTitleStyle: { fontSize: 30 },
-                  }}
-                />
+                  <Stack.Screen
+                    name="TicketDetailScreen"
+                    component={TicketDetailScreen}
+                    options={{
+                      headerBackTitle: 'Custom Back',
+                      headerBackTitleStyle: { fontSize: 30 },
+                    }}
+                  />
 
-                <Stack.Screen
-                  name="TabNavigatorWorkOrder"
-                  component={TabNavigatorWorkOrder}
-                />
-              </Stack.Navigator>
+                  <Stack.Screen
+                    name="TabNavigatorWorkOrder"
+                    component={TabNavigatorWorkOrder}
+                  />
+                </Stack.Navigator>
+              </SafeAreaView>
             </NavigationContainer>
           </NetworkInfo>
         </DatabaseProvider>

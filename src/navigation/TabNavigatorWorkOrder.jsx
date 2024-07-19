@@ -19,6 +19,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
         prioridad,
         fechaInicioTarea,
         fechaCreacion,
+        fechaFinTarea,
         tipo,
         trabajo,
         servicio,
@@ -27,6 +28,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
         ordenRequerida,
         ordenCompletada,
         progresoTareaDescripcion,
+        clienteId,
         id_orden_trabajo,
         id_servicio_cliente,
         id_unidad,
@@ -36,7 +38,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
         let labelName;
 
         if (route.name === 'TabUnitDetail') {
-            labelName = 'Detalle Unidad';
+            labelName = 'Unidad';
         } else if (route.name === 'TabInstallationType') {
             labelName = 'Instalación';
         } else if (route.name === 'TabWorkOrderSupplies') {
@@ -58,6 +60,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
         prioridad,
         fechaInicioTarea,
         fechaCreacion,
+        fechaFinTarea,
         tipo,
         trabajo,
         servicio,
@@ -66,6 +69,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
         ordenRequerida,
         ordenCompletada,
         progresoTareaDescripcion,
+        clienteId,
         id_orden_trabajo,
         id_servicio_cliente,
         id_unidad,
@@ -91,7 +95,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
                 name="TabUnitDetail"
                 component={TabUnitDetail}
                 options={{
-                    title: 'Detalle Unidad',
+                    title: 'Unidad',
                     tabBarIcon: ({ color }) => (
                         <FontAwesomeIcon icon={faTools} color={color} size={20} />
                     ),

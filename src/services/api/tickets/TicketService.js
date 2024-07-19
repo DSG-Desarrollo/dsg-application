@@ -60,10 +60,10 @@ class TicketService {
         while (attempt < retries) {
             try {
                 const resultData = await Promise.race([
-                    this.api.get('api/tasks', { params: filters }),
+                    this.api.post('api/tasks', filters ),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout))
                 ]);
-
+                //console.log(resultData);
                 // Verificar si los datos recibidos tienen la estructura esperada
                 if (resultData && Array.isArray(resultData.tasks) && resultData.tasks.length > 0) {
                     //console.log(resultData.tasks);

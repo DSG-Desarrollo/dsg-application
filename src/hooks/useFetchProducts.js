@@ -37,7 +37,7 @@ const useFetchProducts = () => {
                 };
 
                 const responseWithFilter = await productsService.graphqlQuery(query, variables);
-                console.log("Resultado de la api", responseWithFilter);
+                //console.log("Resultado de la api", responseWithFilter);
                 setProductsData(responseWithFilter);
                 setLoading(false);
             } catch (error) {

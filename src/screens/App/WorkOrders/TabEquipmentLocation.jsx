@@ -27,8 +27,8 @@ const TabEquipmentLocation = ({ route }) => {
         id_orden_trabajo,
         id_servicio_cliente,
         id_unidad,
+        clienteId
     } = route.params;
-
     const [showDrawableImage, setShowDrawableImage] = useState(false);
     const drawableImageRef = useRef(null);
     const [selectedOption, setSelectedOption] = useState(null);
@@ -59,13 +59,13 @@ const TabEquipmentLocation = ({ route }) => {
                     "usuario_creacion": userData.id_usuario,
                     "image": base64Image,
                 };
-                console.log(base64Image);
+                //console.log(base64Image);
                 // Endpoint al que se enviarán los datos
                 const endpoint = 'api/img-location-installation-ot';
                 const response = await apiService.sendFormData(formData, endpoint);
 
-                await FormCompletionTracker.markFormAsCompleted("form_equipment_location", tareaId, id_orden_trabajo, userData.id_usuario);
-                console.log('Respuesta de la API:', response);
+                await FormCompletionTracker.markFormAsCompleted("form_equipment_location", clienteId, tareaId, id_orden_trabajo, userData.id_usuario);
+                //console.log('Respuesta de la API:', response);
 
                 ToastAndroid.show("imagen guardada", ToastAndroid.LONG);
 

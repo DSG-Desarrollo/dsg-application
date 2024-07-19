@@ -12,14 +12,32 @@ import i18n from '../../i18n';
  */
 const useNetworkState = (hideDuration = 10000) => {
     const netInfo = useNetInfo();
-
     const [showNetworkInfo, setShowNetworkInfo] = useState(false);
+    const [networkState, setNetworkState] = useState({
+        isConnected: false,
+        effectiveBandwidth: 0,
+        type: null,
+        cellularGeneration: null,
+        error: null,
+    });
 
     useEffect(() => {
         const checkNetworkState = () => {
-            const isConnected = netInfo.isConnected;
+            let isConnected = netInfo.isConnected;
+            const effectiveBandwidth = netInfo.details?.downlink || 0; // downlink in Mbps
+            const type = netInfo.type;
+            const cellularGeneration = netInfo.details?.cellularGeneration || null;
+
+            // Considerar conexiones móviles de baja calidad como sin conexión
+            if (type === 'cellular') {
+                if (['2g', '3g'].includes(cellularGeneration) || effectiveBandwidth < 1) {
+                    isConnected = false;
+                }
+            }
+
             const error = isConnected ? null : i18n.t('networkError');
 
+            setNetworkState({ isConnected, effectiveBandwidth, type, cellularGeneration, error });
             setShowNetworkInfo(true);
 
             setTimeout(() => {
@@ -32,7 +50,7 @@ const useNetworkState = (hideDuration = 10000) => {
         return () => {};
     }, [netInfo, hideDuration]);
 
-    return { networkState: netInfo, showNetworkInfo };
+    return { networkState, showNetworkInfo };
 };
 
 export default useNetworkState;

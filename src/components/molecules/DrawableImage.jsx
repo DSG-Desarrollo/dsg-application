@@ -164,16 +164,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
     },
-    /*canvasBorder: {
-        borderWidth: 2,
-        borderColor: 'black',
-    },
-    canvasPlaceholder: {
-        ...StyleSheet.absoluteFillObject,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f0f0',
-    },*/
     placeholderText: {
         fontSize: 20,
         fontWeight: 'bold',

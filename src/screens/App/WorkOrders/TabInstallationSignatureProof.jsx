@@ -24,6 +24,7 @@ const TabInstallationSignatureProof = ({ route }) => {
     id_orden_trabajo,
     id_servicio_cliente,
     id_unidad,
+    clienteId,
   } = route.params;
   const { userData } = useUserData();
   const [allFormsCompleted, setAllFormsCompleted] = useState(false);
@@ -51,14 +52,14 @@ const TabInstallationSignatureProof = ({ route }) => {
 
         // Enviar los datos utilizando el método sendFormData de ApiService
         const response = await apiService.sendFormData(formData, endpoint);
-        console.log('Respuesta de la API:', response);
+        //console.log('Respuesta de la API:', response);
         ToastAndroid.showWithGravity(
           response.message || 'Registro actualizado exitosamente',
           ToastAndroid.LONG,
           ToastAndroid.BOTTOM
         );
 
-        await FormCompletionTracker.markFormAsCompleted("form_installation_signature_proof", tareaId, id_orden_trabajo, userData.id_usuario);
+        await FormCompletionTracker.markFormAsCompleted("form_installation_signature_proof", clienteId, tareaId, id_orden_trabajo, userData.id_usuario);
 
       } else {
         console.log("Null");

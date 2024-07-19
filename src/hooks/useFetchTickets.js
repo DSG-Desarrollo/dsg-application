@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import TicketService from '../services/api/tickets/TicketService';
 import useNetworkState from './useNetworkState';
+import { getUserDataFromStorage } from '../utils/storageUtils';
 
 const useFetchTickets = () => {
   const ticketService = new TicketService();
@@ -9,6 +10,20 @@ const useFetchTickets = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { networkState } = useNetworkState();
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const data = await getUserDataFromStorage();
+        setUserData(data);
+      } catch (err) {
+        setError('Error al cargar los datos del usuario');
+      }
+    };
+
+    loadUserData();
+  }, []);
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -20,12 +35,10 @@ const useFetchTickets = () => {
 
       try {
         const filters = {
-          progreso_tarea: 'S',
-          estado_asignacion: 'A',
-          user_id: null,
+          "id_puesto_empleado": 7,
         };
         const tickets = await ticketService.getTickets(filters);
-        console.log(tickets);
+        //console.log(tickets);
         setTicketsData(tickets);
         setLoading(false);
         await insertTicketsData(tickets);
@@ -37,13 +50,13 @@ const useFetchTickets = () => {
     };
 
     fetchTickets();
-  }, [networkState]);
+  }, [networkState, userData]);
 
   const insertTicketsData = async (tickets) => {
     try {
-      console.log(tickets.length);
+      //console.log(tickets.length);
       const formattedSql = ticketsData.map(ticket => formatTicketDataToSql(ticket)).join(';');
-      console.log(formattedSql);
+      //console.log(formattedSql);
       //await executeSql(formattedSql);
 
     } catch (error) {

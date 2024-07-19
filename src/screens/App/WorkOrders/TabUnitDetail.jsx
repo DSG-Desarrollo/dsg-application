@@ -11,6 +11,7 @@ const TabWorkOrderDetails = ({ route }) => {
     prioridad,
     fechaInicioTarea,
     fechaCreacion,
+    fechaFinTarea,
     tipo,
     trabajo,
     servicio,
@@ -44,11 +45,7 @@ const TabWorkOrderDetails = ({ route }) => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Requerido:</Text>
-            <Text style={styles.text}>Cantidad requerida</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Completado:</Text>
-            <Text style={styles.text}>{estado}</Text>
+            <Text style={styles.text}>{requeridos}</Text>
           </View>
         </View>
       </View>
@@ -78,11 +75,11 @@ const TabWorkOrderDetails = ({ route }) => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Inicio:</Text>
-            <Text style={styles.text}>Fecha de inicio</Text>
+            <Text style={styles.text}>{fechaInicioTarea}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Completado:</Text>
-            <Text style={styles.text}>Fecha de finalización</Text>
+            <Text style={styles.text}>{fechaFinTarea}</Text>
           </View>
         </View>
       </View>

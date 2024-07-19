@@ -54,9 +54,12 @@ class AxiosManager {
         try {
             const response = await axios.post(
                 `${this.baseUrl}/${endpoint}`,
-                isFormData ? data : JSON.stringify(data),
+                isFormData ? data : data,
                 {
-                    headers: this.headers,
+                    headers: {
+                        ...this.headers,
+                        'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
+                    },
                     validateStatus: false, // Para manejar respuestas no exitosas personalizadas
                 },
             );

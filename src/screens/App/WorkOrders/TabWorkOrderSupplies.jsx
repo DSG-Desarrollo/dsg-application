@@ -11,6 +11,7 @@ const TabWorkOrderSupplies = ({ route }) => {
   const { userData } = useUserData();
   const {
     tareaId,
+    clienteId,
     codigo,
     estado,
     empresa,
@@ -39,18 +40,20 @@ const TabWorkOrderSupplies = ({ route }) => {
   };
 
   const handleSave = async () => {
-    console.log('clic');
+    //console.log('clic');
     const apiService = new ApiService();
-    const data = sortedProductsData.map((product) => ({
-      id_orden_trabajo: id_orden_trabajo,
-      id_aprovisionamiento: product.id,
-      cantidad: parseInt(productQuantities[product.id], 10) || 0,
-    }));
+    const data = sortedProductsData
+      .filter(product => productQuantities[product.id] && parseInt(productQuantities[product.id], 10) > 0)
+      .map((product) => ({
+        id_orden_trabajo: id_orden_trabajo,
+        id_aprovisionamiento: product.id,
+        cantidad: parseInt(productQuantities[product.id], 10),
+      }));
 
     const endpoint = 'api/materials-order';
     const response = await apiService.sendFormData(data, endpoint);
 
-    await FormCompletionTracker.markFormAsCompleted("form_work_order_supplies", tareaId, id_orden_trabajo, userData.id_usuario);
+    await FormCompletionTracker.markFormAsCompleted("form_work_order_supplies", clienteId, tareaId, id_orden_trabajo, userData.id_usuario);
 
     console.log('Respuesta de la API:', response);
     if (response.status === 201) {

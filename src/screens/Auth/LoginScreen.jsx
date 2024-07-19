@@ -27,21 +27,25 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
   const databaseContext = useDatabase();
   const [rememberSession, setRememberSession] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [userId, setUserId] = useState(null);
   const [error, setError] = useState(null);
   const [email, setUsuario] = useState({
     value: 'emerson.martinez',
     error: '',
   });
   const [password, setPassword] = useState({ value: 'Dsg2022Wt5', error: '' });
+
+  // Función para manejar el cambio de estado de "Recordar sesión"
   const onRememberMeChange = async (value) => {
     setRememberSession(value);
     await storeAuthenticationState(value);
   };
+
+  // Función para mostrar una alerta
   const showToast = () => {
     ToastManager.showToast('¡Esto es una tostada de ejemplo!');
   };
 
+  // Función para insertar un usuario en la base de datos local
   async function insertUserToDatabase(userData) {
     const args = [
       userData.id_usuario,
@@ -62,6 +66,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     }
   }
 
+  // Cargar el estado de "Recordar sesión" al montar el componente
   useEffect(() => {
     const loadRememberSessionState = async () => {
       const rememberSessionState = await getRememberSessionState();
@@ -71,76 +76,60 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     loadRememberSessionState();
   }, []);
 
+  // Obtener datos del usuario almacenados al montar el componente
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Intentamos obtener userData del almacenamiento
         const userDataFromStorage = await getUserDataFromStorage();
-
-        // Si userDataFromStorage es null, significa que no hay datos de usuario en el almacenamiento
         if (userDataFromStorage === null) {
           setError('No se encontraron datos de usuario en el almacenamiento.');
         } else {
-          // Si se encontraron datos de usuario, los establecemos en el estado
           setUserData(userDataFromStorage);
         }
       } catch (error) {
-        // Si hay un error al recuperar userData del almacenamiento, lo manejamos aquí
         setError('Error al recuperar datos de usuario del almacenamiento.');
-      } finally {
-        // Finalizamos la carga, independientemente de si fue exitosa o hubo un error
-        //setLoading(false);
       }
     };
 
     fetchUserData();
   }, []);
 
+  // Función para manejar el inicio de sesión
   const onLoginPressed = async () => {
     if (!email.value || !password.value) {
-      //showToast();
       Alert.alert('Error', 'Por favor, ingrese su email y contraseña.');
       return;
     }
 
     try {
-      console.log("Conectado a internet", isConnected);
       if (!isConnected) {
+        // Sin conexión a internet
         const userId = userData ? userData.id_usuario : null;
         const usersDB = await databaseContext.executeSql(users.getUserById, [userId]);
-        console.log('ID', usersDB);
-        // Si no hay conexión a internet, usar los datos locales para verificar el inicio de sesión
+        console.log(userId);
         if (usersDB.length > 0) {
           setIsAuthenticated(true);
           Alert.alert('Éxito', 'Inicio de sesión exitoso sin conexión.');
         } else {
-          console.log('Usuario no encontrado en la base de datos local');
           Alert.alert('Error', 'Usuario no encontrado en la base de datos local.');
-          //showToast();
           return;
         }
       } else {
-        // Si hay conexión a internet, realizar la solicitud HTTP para iniciar sesión
+        // Con conexión a internet
         const response = await userService.login(email.value, password.value);
 
         if (response && response.user && response.user.estado_usuario === 'A') {
           setIsAuthenticated(true);
           await AsyncStorage.setItem('userData', JSON.stringify(response.user));
-          console.log(response.user.id_usuario);
           const usersHttpDB = await databaseContext.executeSql(users.getUserById, [response.user.id_usuario]);
+          await insertUserToDatabase(response.user);
 
           if (usersHttpDB.length > 0) {
-            console.log('El usuario ya existe en la base de datos local.');
             Alert.alert('Éxito', 'Inicio de sesión exitoso con conexión.');
           } else {
-            console.log('El usuario no existe en la base de datos local. Se procederá a insertarlo.');
-            await insertUserToDatabase(response.user);
             navigation.replace('DrawerNavigation');
           }
-
         } else {
-          console.log('Inicio de sesión fallido');
-          //showToast();
           Alert.alert('Error', 'Inicio de sesión fallido.');
         }
       }
