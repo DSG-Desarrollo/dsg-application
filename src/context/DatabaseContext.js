@@ -61,7 +61,7 @@ export const DatabaseProvider = ({ children }) => {
   const getFirstAsyncSql = async (sql, params = []) => {
     try {
       if (databaseService) {
-        return await databaseService.getFirstAsync(sql, params);
+        return await databaseService.getFirstRow(sql, params);
       }
     } catch (error) {
       console.error('Error al ejecutar la consulta SQL:', error);

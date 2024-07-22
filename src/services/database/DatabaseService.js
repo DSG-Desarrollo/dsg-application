@@ -125,11 +125,11 @@ class DatabaseService {
     async getAllRows(sqlStatement, args = []) {
         try {
             const allRows = await this.db.getAllAsync(sqlStatement, ...args);
-            this.log('Todos los resultados de la consulta:', allRows);
+            this.log('Todos los resultados de la consulta (getAllRows):', allRows);
             return allRows;
         } catch (error) {
-            this.handleError('Error al obtener todos los resultados de la consulta:', error);
-            throw new Error('Error al obtener todos los resultados de la consulta');
+            this.handleError('Error al obtener todos los resultados de la consulta (getAllRows):', error);
+            throw new Error('Error al obtener todos los resultados de la consulta (getAllRows)');
         }
     }
 

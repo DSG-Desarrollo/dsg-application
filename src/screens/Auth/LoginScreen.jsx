@@ -24,15 +24,16 @@ const { users, userInserts } = queries;
 export default function LoginScreen({ navigation, setIsAuthenticated }) {
   const { networkState } = useNetworkState();
   const { isConnected } = networkState;
-  const databaseContext = useDatabase();
+  const { databaseContext, getAllAsyncSql, getFirstAsyncSql, isDatabaseInitialized } = useDatabase();
   const [rememberSession, setRememberSession] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [usuaruis, setUsuarios] = useState([]);
   const [error, setError] = useState(null);
   const [email, setUsuario] = useState({
-    value: 'emerson.martinez',
+    value: '',
     error: '',
   });
-  const [password, setPassword] = useState({ value: 'Dsg2022Wt5', error: '' });
+  const [password, setPassword] = useState({ value: '', error: '' });
 
   // Función para manejar el cambio de estado de "Recordar sesión"
   const onRememberMeChange = async (value) => {
@@ -94,6 +95,18 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     fetchUserData();
   }, []);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (isDatabaseInitialized) {
+        const result = await getAllAsyncSql(users.getUsersAll);
+        setUsuarios(result.rows);
+      }
+    };
+
+    fetchUsers();
+  }, [isDatabaseInitialized]);
+  //console.log("ID",userData);
+
   // Función para manejar el inicio de sesión
   const onLoginPressed = async () => {
     if (!email.value || !password.value) {
@@ -105,8 +118,8 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
       if (!isConnected) {
         // Sin conexión a internet
         const userId = userData ? userData.id_usuario : null;
-        const usersDB = await databaseContext.executeSql(users.getUserById, [userId]);
-        console.log(userId);
+        const usersDB = await getAllAsyncSql(users.getUserById, [userId]);
+        console.log(usersDB);
         if (usersDB.length > 0) {
           setIsAuthenticated(true);
           Alert.alert('Éxito', 'Inicio de sesión exitoso sin conexión.');
@@ -121,14 +134,12 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
         if (response && response.user && response.user.estado_usuario === 'A') {
           setIsAuthenticated(true);
           await AsyncStorage.setItem('userData', JSON.stringify(response.user));
-          const usersHttpDB = await databaseContext.executeSql(users.getUserById, [response.user.id_usuario]);
+          //const usersHttpDB = await getFirstAsyncSql(users.getUserById, [response.user.id_usuario]);
           await insertUserToDatabase(response.user);
 
-          if (usersHttpDB.length > 0) {
-            Alert.alert('Éxito', 'Inicio de sesión exitoso con conexión.');
-          } else {
+
             navigation.replace('DrawerNavigation');
-          }
+
         } else {
           Alert.alert('Error', 'Inicio de sesión fallido.');
         }
@@ -138,7 +149,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
       Alert.alert('Error', `Error al iniciar sesión: ${error.message}`);
     }
   };
-
+  //console.log(users.getUserById);
   return (
     <Background>
       <Logo
