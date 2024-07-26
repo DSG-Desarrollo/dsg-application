@@ -13,6 +13,7 @@ const userQueries = {
                   FROM user WHERE employee_id = ?`,
     getUsersAll: `SELECT * FROM user`,
     truncateUsers: `DELETE FROM user`,
+    checkUserExistence: `SELECT * FROM user WHERE employee_id = ?`,
 };
 
 const userInsertQueries = {

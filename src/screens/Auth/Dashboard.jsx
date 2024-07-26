@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUsers, faChartLine, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 
 const Dashboard = () => {
+
   // Datos quemados para los gráficos
   const data = {
     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],

@@ -43,24 +43,24 @@ const App = () => {
             <NavigationContainer>
               <SafeAreaView style={{ flex: 1 }}>
                 <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
-                  <Stack.Screen
-                    name="LoginScreen"
-                    options={{
-                      title: 'Inicio de Sesión',
-                    }}
-                  >
-                    {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
-                  </Stack.Screen>
-
-                  <Stack.Screen name="DrawerNavigation">
-                    {(props) => <DrawerNavigation {...props} setIsAuthenticated={setIsAuthenticated} />}
-                  </Stack.Screen>
-
+                  {isAuthenticated ? (
+                    <Stack.Screen name="DrawerNavigation">
+                      {(props) => <DrawerNavigation {...props} setIsAuthenticated={setIsAuthenticated} />}
+                    </Stack.Screen>
+                  ) : (
+                    <Stack.Screen
+                      name="LoginScreen"
+                      options={{
+                        title: 'Inicio de Sesión',
+                      }}
+                    >
+                      {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+                    </Stack.Screen>
+                  )}
                   <Stack.Screen
                     name="ResetPasswordScreen"
                     component={ResetPasswordScreen}
                   />
-
                   <Stack.Screen
                     name="TicketDetailScreen"
                     component={TicketDetailScreen}
@@ -69,7 +69,6 @@ const App = () => {
                       headerBackTitleStyle: { fontSize: 30 },
                     }}
                   />
-
                   <Stack.Screen
                     name="TabNavigatorWorkOrder"
                     component={TabNavigatorWorkOrder}

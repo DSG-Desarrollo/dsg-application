@@ -13,9 +13,9 @@ const filteredRoutes = Object.entries(routes)
     return acc;
   }, {});
 
-const DrawerNavigation = () => {
+const DrawerNavigation = ({ setIsAuthenticated }) => {
   return (
-    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} setIsAuthenticated={setIsAuthenticated} />}>
       {Object.keys(filteredRoutes).map((routeName) => (
         <Drawer.Screen
           key={routeName}

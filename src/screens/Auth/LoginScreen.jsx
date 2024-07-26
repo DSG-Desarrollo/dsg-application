@@ -24,16 +24,16 @@ const { users, userInserts } = queries;
 export default function LoginScreen({ navigation, setIsAuthenticated }) {
   const { networkState } = useNetworkState();
   const { isConnected } = networkState;
-  const { databaseContext, getAllAsyncSql, getFirstAsyncSql, isDatabaseInitialized } = useDatabase();
+  const { databaseContext, getAllAsyncSql, getFirstAsyncSql, isDatabaseInitialized, executeSql } = useDatabase();
   const [rememberSession, setRememberSession] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [usuaruis, setUsuarios] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [error, setError] = useState(null);
   const [email, setUsuario] = useState({
-    value: '',
+    value: 'emerson.martinez',
     error: '',
   });
-  const [password, setPassword] = useState({ value: '', error: '' });
+  const [password, setPassword] = useState({ value: 'Dsg2022Wt5', error: '' });
 
   // Función para manejar el cambio de estado de "Recordar sesión"
   const onRememberMeChange = async (value) => {
@@ -59,11 +59,30 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
       userData.registro_usuario
     ];
 
+    const checkArgs = [userData.id_usuario];
+
     try {
-      await databaseContext.executeSql(userInserts.insertUser, args);
+      const existingUsers = await getAllAsyncSql(users.checkUserExistence, checkArgs);
+      if (existingUsers.length > 0) {
+        console.log('El usuario ya existe, no se insertará.');
+        return;
+      }
+
+      await executeSql(userInserts.insertUser, args);
       console.log('Inserción de usuario exitosa');
+      //fetchAllUsers();
     } catch (error) {
       console.error('Error al insertar usuario:', error);
+    }
+  }
+
+  async function fetchAllUsers() {
+    try {
+      const allUsers = await getAllAsyncSql(users.getUsersAll);
+      setUsuarios(allUsers);
+      //console.log('Usuarios obtenidos:', allUsers);
+    } catch (error) {
+      console.error('Error al obtener usuarios:', error);
     }
   }
 
@@ -136,10 +155,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           await AsyncStorage.setItem('userData', JSON.stringify(response.user));
           //const usersHttpDB = await getFirstAsyncSql(users.getUserById, [response.user.id_usuario]);
           await insertUserToDatabase(response.user);
-
-
-            navigation.replace('DrawerNavigation');
-
+          navigation.replace('DrawerNavigation');
         } else {
           Alert.alert('Error', 'Inicio de sesión fallido.');
         }
