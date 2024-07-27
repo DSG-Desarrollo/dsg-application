@@ -35,7 +35,7 @@ const useFetchTickets = () => {
 
       try {
         const filters = {
-          "id_puesto_empleado": 7,
+          "id_puesto_empleado": userData.employee.id_empleado,
         };
         const tickets = await ticketService.getTickets(filters);
         //console.log(tickets);

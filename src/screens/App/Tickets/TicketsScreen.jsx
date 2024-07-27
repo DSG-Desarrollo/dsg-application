@@ -2,7 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faInfoCircle, faComment, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
-import { TicketsOfDayScreen, TicketDetails, TicketComments } from './index';
+import { TicketsOfDayScreen, TicketDetails, TicketComments, TicketAlarms } from './index';
 
 const Tab = createMaterialTopTabNavigator();
 

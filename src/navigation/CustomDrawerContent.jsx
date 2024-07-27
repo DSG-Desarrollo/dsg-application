@@ -2,6 +2,7 @@ import React from 'react';
 import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import CustomLogo from '../components/atoms/CustomLogo';
+import { CommonActions } from '@react-navigation/native';
 
 const CustomDrawerContent = (props) => {
   const { navigation, setIsAuthenticated } = props;
@@ -10,6 +11,16 @@ const CustomDrawerContent = (props) => {
     navigation.navigate(routeName);
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'LoginScreen' }],
+      })
+    );
+  };
+  
   return (
     <DrawerContentScrollView {...props}>
       <CustomLogo
@@ -25,9 +36,7 @@ const CustomDrawerContent = (props) => {
       />
       <DrawerItem
         label="Cerrar sesión"
-        onPress={() => {
-          setIsAuthenticated(false);
-        }}
+        onPress={handleLogout}
         icon={({ color, size }) => (
           <MaterialCommunityIcons name="logout" color={color} size={size} />
         )}
