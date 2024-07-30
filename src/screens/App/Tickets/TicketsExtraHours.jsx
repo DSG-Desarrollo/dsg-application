@@ -5,10 +5,10 @@ import CustomAlert from "../../../components/atoms/CustomAlert";
 import CustomScrollView from "../../../components/atoms/CustomScrollView";
 import useFetchTickets from "../../../hooks/useFetchTickets";
 
-const TicketAlarms = () => {
+const TicketsExtraHours = () => {
   const filters = {
     id_puesto_empleado: 7,
-    alarms: true,
+    extra_hours: true,
   };
   const { ticketsData, loading, error } = useFetchTickets(filters);
   const [alertError, setAlertError] = React.useState(null);
@@ -75,4 +75,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TicketAlarms;
+export default TicketsExtraHours;

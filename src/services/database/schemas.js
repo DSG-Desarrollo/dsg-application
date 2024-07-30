@@ -101,6 +101,19 @@ const schemas = {
         }
     },
 
+    service: {
+        tableName: 'service',
+        columns: {
+            id_servicio: 'INTEGER PRIMARY KEY', // Identificador único para el servicio
+            id_empresa: 'INTEGER', // Relación con la empresa
+            codigo_servicio: 'TEXT', // Código del servicio
+            servicio: 'TEXT', // Nombre del servicio
+            descripcion_servicio: 'TEXT NULL', // Descripción opcional del servicio
+            estado_servicio: 'TEXT', // Estado del servicio (activo, inactivo, etc.)
+            registro_servicio: 'TEXT' // Fecha de registro del servicio
+        }
+    },
+
     task: {
         tableName: 'task',
         columns: {

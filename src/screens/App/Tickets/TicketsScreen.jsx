@@ -1,8 +1,20 @@
-import React from 'react';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faInfoCircle, faComment, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
-import { TicketsOfDayScreen, TicketDetails, TicketComments, TicketAlarms } from './index';
+import React from "react";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  faBell,
+  faCheckCircle,
+  faPlayCircle,
+  faCalendarCheck,
+  faHourglassHalf,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  TicketsOfDayScreen,
+  TicketsStarted,
+  TicketsCompleted,
+  TicketAlarms,
+  TicketsExtraHours,
+} from "./index";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -16,12 +28,22 @@ const TicketsScreen = () => {
         tabBarIcon: ({ color, size }) => {
           let icon;
 
-          if (route.name === 'Details') {
-            icon = faInfoCircle;
-          } else if (route.name === 'Comments') {
-            icon = faComment;
-          } else if (route.name === 'TicketsOfDayScreen') {
-            icon = faCalendarAlt;
+          switch (route.name) {
+            case "TicketsStarted":
+              icon = faPlayCircle;
+              break;
+            case "TicketsCompleted":
+              icon = faCheckCircle;
+              break;
+            case "TicketsOfDayScreen":
+              icon = faCalendarCheck;
+              break;
+            case "Alarms":
+              icon = faBell;
+              break;
+            case "TicketsExtraHours":
+              icon = faHourglassHalf;
+              break;
           }
 
           return <FontAwesomeIcon icon={icon} size={size} color={color} />;
@@ -29,8 +51,10 @@ const TicketsScreen = () => {
       })}
     >
       <Tab.Screen name="TicketsOfDayScreen" component={TicketsOfDayScreen} />
-      <Tab.Screen name="Details" component={TicketDetails} />
-      <Tab.Screen name="Comments" component={TicketComments} />
+      <Tab.Screen name="TicketsStarted" component={TicketsStarted} />
+      <Tab.Screen name="Alarms" component={TicketAlarms} />
+      <Tab.Screen name="TicketsExtraHours" component={TicketsExtraHours} />
+      <Tab.Screen name="TicketsCompleted" component={TicketsCompleted} />
     </Tab.Navigator>
   );
 };

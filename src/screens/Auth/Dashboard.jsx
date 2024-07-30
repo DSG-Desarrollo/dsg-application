@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Button } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUsers, faChartLine, faDollarSign } from '@fortawesome/free-solid-svg-icons';
+//import { exportDatabase } from '../../services/database/exportDatabaseFunction';
 
 const Dashboard = () => {
 

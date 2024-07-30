@@ -21,6 +21,10 @@
     },
     "android": {
       "package": "com.dsg.application",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/ic_launcher/res/mipmap-hdpi/ic_launcher_adaptive_fore.png",
         "backgroundImage": "./assets/ic_launcher/res/mipmap-hdpi/ic_launcher_adaptive_back.png"

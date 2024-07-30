@@ -4,7 +4,7 @@ import TicketService from '../services/api/tickets/TicketService';
 import useNetworkState from './useNetworkState';
 import { getUserDataFromStorage } from '../utils/storageUtils';
 
-const useFetchTickets = () => {
+const useFetchTickets = (filter) => {
   const ticketService = new TicketService();
   const [ticketsData, setTicketsData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +35,7 @@ const useFetchTickets = () => {
 
       try {
         const filters = {
+          ...filter,
           "id_puesto_empleado": userData.employee.id_empleado,
         };
         const tickets = await ticketService.getTickets(filters);
@@ -52,19 +53,16 @@ const useFetchTickets = () => {
     fetchTickets();
   }, [networkState, userData]);
 
-  const insertTicketsData = async (tickets) => {
+  /*const insertTicketsData = async (tickets) => {
     try {
-      //console.log(tickets.length);
       const formattedSql = ticketsData.map(ticket => formatTicketDataToSql(ticket)).join(';');
-      //console.log(formattedSql);
-      //await executeSql(formattedSql);
 
     } catch (error) {
       console.error("Error al insertar datos de tickets:", error);
     }
-  }
+  }*/
 
-  const formatTicketDataToSql = (ticketData) => {
+  /*const formatTicketDataToSql = (ticketData) => {
     const ticketColumns = Object.keys(ticketData).filter(key => {
       return typeof ticketData[key] !== 'object' && key !== 'customer_service' && key !== 'priority' && key !== 'author';
     });
@@ -78,7 +76,7 @@ const useFetchTickets = () => {
     const values = ticketValues.join(', ');
 
     return `INSERT INTO task (${columns}) VALUES (${values})`;
-  }
+  }*/
 
   return { ticketsData, loading, error };
 };

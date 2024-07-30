@@ -1,14 +1,17 @@
-// TicketsOfDayScreen.js (Componente para la lista de tickets)
-import React from 'react';
-import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
-import TicketList from '../../../components/organisms/TicketList';
-import CustomAlert from '../../../components/atoms/CustomAlert';
-import CustomScrollView from '../../../components/atoms/CustomScrollView';
-import useFetchTickets from '../../../hooks/useFetchTickets';
+import React from "react";
+import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
+import TicketList from "../../../components/organisms/TicketList";
+import CustomAlert from "../../../components/atoms/CustomAlert";
+import CustomScrollView from "../../../components/atoms/CustomScrollView";
+import useFetchTickets from "../../../hooks/useFetchTickets";
 
-const TicketsOfDayScreen = () => {
-  const { ticketsData, loading, error } = useFetchTickets();
-  const [alertError, setAlertError] = React.useState(null); // Define el estado para el mensaje de error
+const TicketsCompleted = () => {
+  const filters = {
+    id_puesto_empleado: 7,
+    progress: 'C'
+  };
+  const { ticketsData, loading, error } = useFetchTickets(filters);
+  const [alertError, setAlertError] = React.useState(null);
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -21,7 +24,7 @@ const TicketsOfDayScreen = () => {
           <CustomAlert
             message={<Text>{error}</Text>}
             type="error"
-            onClose={() => setAlertError(null)} // Utiliza setAlertError para limpiar el mensaje de error
+            onClose={() => setAlertError(null)}
           />
         )}
         {ticketsData.length > 0 ? (
@@ -32,9 +35,11 @@ const TicketsOfDayScreen = () => {
                 tareaId={task.id_tarea}
                 codigo={task.codigo_tarea}
                 estado={task.estado_tarea}
-                empresa={task.customer_service?.descripcion_servicio_cliente || ''}
-                prioridad={task.priority?.prioridad_tarea || ''}
-                fechaInicioTarea={task.fecha_inicio_tarea || ''}
+                empresa={
+                  task.customer_service?.descripcion_servicio_cliente || ""
+                }
+                prioridad={task.priority?.prioridad_tarea || ""}
+                fechaInicioTarea={task.fecha_inicio_tarea || ""}
                 fechaCreacion={task.registro_fecha}
                 fechaFinTarea={task.fecha_fin_tarea}
                 progresoTarea={task.progreso_tarea}
@@ -63,11 +68,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   ticketsContainer: {
     flex: 1,
   },
 });
 
-export default TicketsOfDayScreen;
+export default TicketsCompleted;
