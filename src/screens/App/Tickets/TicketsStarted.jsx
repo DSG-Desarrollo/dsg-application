@@ -5,7 +5,7 @@ import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
 import TicketList from '../../../components/organisms/TicketList';
 import CustomAlert from '../../../components/atoms/CustomAlert';
 import CustomScrollView from '../../../components/atoms/CustomScrollView';
-import useFetchTickets from '../../../hooks/useFetchTickets';
+import useFetchTickets from '../../../hooks/tickets/useFetchTickets';
 
 const TicketsStarted = () => {
   const filters = {

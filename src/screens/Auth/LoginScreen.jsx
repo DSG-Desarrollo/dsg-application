@@ -41,11 +41,6 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     await storeAuthenticationState(value);
   };
 
-  // Función para mostrar una alerta
-  const showToast = () => {
-    ToastManager.showToast('¡Esto es una tostada de ejemplo!');
-  };
-
   // Función para insertar un usuario en la base de datos local
   async function insertUserToDatabase(userData) {
     const args = [
