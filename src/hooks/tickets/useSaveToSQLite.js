@@ -13,7 +13,7 @@ const useSaveToSQLite = (data) => {
         console.log('Ejecutando saveData - Inserción en SQLite'); // Registro para depuración
         try {
           setIsSaved(true);
-          processObject(data, 'task');
+          upsertDataToTables(data, 'task');
           hasRun.current = true; // Marcamos que la operación se ha realizado
         } catch (error) {
           console.error('Error al guardar los datos en SQLite:', error);
@@ -24,9 +24,20 @@ const useSaveToSQLite = (data) => {
     saveData();
   }, [data, isSaved]);
 
-  const processObject = (data, tableName) => {
-    data.forEach((obj) => {
-      delete obj.revision_user; // Eliminar el nodo 'revision_user' antes de procesar
+/**
+ * Procesa un array de objetos y los inserta en la base de datos SQLite. 
+ * Primero elimina el campo 'revision_user' de cada objeto. Luego, 
+ * inserta datos en las tablas correspondientes según el contenido 
+ * de cada objeto, manejando tablas relacionadas y evitando duplicados 
+ * utilizando claves primarias.
+ * 
+ * @param {Array} data - Array de objetos a procesar e insertar en la base de datos.
+ * @param {string} tableName - Nombre de la tabla principal donde se insertarán los datos.
+ * @returns {Promise<void>} - Promesa que se resuelve cuando todos los datos han sido procesados e insertados.
+ */
+  const upsertDataToTables = async (data, tableName) => {
+    for (const obj of data) {
+      delete obj.revision_user; // Remove 'revision_user' node before processing
 
       let primaryData = {};
       for (const [key, value] of Object.entries(obj)) {
@@ -35,39 +46,73 @@ const useSaveToSQLite = (data) => {
         } else if (typeof value === 'object' && value !== null) {
           switch (key) {
             case 'customer_service':
-              insertDataIntoTable('customer_service', value);
+              await upsertDataIntoTable('customer_service', value, 'id_servicio_cliente');
               break;
             case 'priority':
-              insertDataIntoTable('priority', value);
+              await upsertDataIntoTable('priority', value, 'id_prioridad_tarea');
               break;
             case 'author':
-              insertDataIntoTable('author', value);
+              await upsertDataIntoTable('author', value, 'id_usuario');
               break;
             case 'types_tasks':
               const { service, ...rest } = value;
-              insertDataIntoTable('types_tasks', rest);
-              if (service) insertDataIntoTable('service', service);
+              await upsertDataIntoTable('types_tasks', rest, 'id_tipo_tarea');
+              if (service) await upsertDataIntoTable('service', service, 'id_servicio');
               break;
             default:
               break;
           }
         }
       }
-      insertDataIntoTable(tableName, primaryData);
-    });
+      await upsertDataIntoTable(tableName, primaryData, 'id_tarea');
+    }
   };
 
-  const insertDataIntoTable = async (tableName, data) => {
+  /**
+   * Inserta o actualiza datos en una tabla de la base de datos SQLite.
+   * 
+   * @param {string} tableName - Nombre de la tabla donde se insertarán o actualizarán los datos.
+   * @param {Object} data - Objeto que contiene los datos a insertar o actualizar.
+   * @param {string} secondaryIdField - Nombre del campo que se utiliza como identificador único secundario.
+   * @returns {Promise<void>} - Promesa que se resuelve cuando los datos han sido insertados o actualizados.
+   */
+  const upsertDataIntoTable = async (tableName, data, secondaryIdField) => {
     const columns = Object.keys(data);
     const values = columns.map((column) => data[column] || null);
     const placeholders = columns.map(() => '?').join(', ');
-    const query = `INSERT OR IGNORE INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
-    
+
+    await executeSql('BEGIN TRANSACTION');
+
     try {
-      //await executeSql(query, values);
-      //console.log(`Data inserted into ${tableName} - ${query}`);
+      const existingDataQuery = `SELECT * FROM ${tableName} WHERE ${secondaryIdField} = ? LIMIT 1`;
+      const existingData = await getAllAsyncSql(existingDataQuery, [data[secondaryIdField]]);
+
+      if (existingData.length === 0) {
+        const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
+        await executeSql(query, values);
+        console.log(`Data inserted into ${tableName} - ${query}`);
+      } else {
+        const existingRecord = existingData[0];
+        let needsUpdate = false;
+        for (const [key, value] of Object.entries(data)) {
+          if (existingRecord[key] !== value) {
+            needsUpdate = true;
+            break;
+          }
+        }
+        if (needsUpdate) {
+          const updateColumns = columns.map(column => `${column} = ?`).join(', ');
+          const updateQuery = `UPDATE ${tableName} SET ${updateColumns} WHERE ${secondaryIdField} = ?`;
+          await executeSql(updateQuery, [...values, data[secondaryIdField]]);
+          console.log(`Data updated in ${tableName} - ${updateQuery}`);
+        } else {
+          console.log(`Data already up-to-date in ${tableName} for ${secondaryIdField}: ${data[secondaryIdField]}`);
+        }
+      }
+      await executeSql('COMMIT');
     } catch (error) {
-      console.error(`Error inserting data into ${tableName}:`, error);
+      await executeSql('ROLLBACK');
+      console.error(`Error upserting data into ${tableName}:`, error);
     }
   };
 
@@ -129,15 +174,6 @@ const useSaveToSQLite = (data) => {
       console.error('Error fetching tasks:', error);
     }
   };
-  
-  // Ejemplo de uso
-  /*useEffect(() => {
-    fetchInsertedTasks();
-  }, []);*/
-  
-  useEffect(() => {
-    //fetchTaskById(4444);
-  }, []);
 
   return { isSaved, savedData, fetchAllSavedTickets };
 };

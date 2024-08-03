@@ -81,6 +81,34 @@ class DatabaseService {
     }
 
     /**
+     * Ejecuta una serie de consultas SQL dentro de una transacción.
+     * @param {Array<{sql: string, args: Array}>} operations - Array de operaciones SQL a ejecutar.
+     * @returns {Promise<void>} - Promesa que se resuelve cuando todas las operaciones se han completado.
+     * @throws {Error} - Lanza un error si alguna operación falla.
+     */
+    async executeTransaction(operations) {
+        if (!this.db) {
+            throw new Error('Base de datos no inicializada');
+        }
+
+        try {
+            await this.db.execAsync('BEGIN TRANSACTION'); // Iniciar transacción
+
+            for (const operation of operations) {
+                const { sql, args } = operation;
+                await this.db.runAsync(sql, ...args);
+            }
+
+            await this.db.execAsync('COMMIT'); // Confirmar transacción
+            this.log('Transacción completada correctamente.');
+        } catch (error) {
+            await this.db.execAsync('ROLLBACK'); // Revertir transacción en caso de error
+            this.handleError('Error en la transacción:', error);
+            throw new Error('Error en la transacción');
+        }
+    }
+
+    /**
      * Ejecuta una consulta SQL en la base de datos SQLite.
      * @param {string} sqlStatement - La consulta SQL que se va a ejecutar.
      * @param {Array} args - Los argumentos opcionales que se pueden pasar a la consulta SQL.
