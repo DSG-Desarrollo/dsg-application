@@ -190,7 +190,6 @@ const schemas = {
             estado_tarea: 'TEXT NULL',
             registro_fecha: 'TEXT NULL',
             id_cuenta: 'INTEGER NULL',
-            id_servicio_cliente: 'INTEGER NULL',
             progreso_tarea_descripcion: 'TEXT NULL',
         },
         FOREIGN_KEYS: {

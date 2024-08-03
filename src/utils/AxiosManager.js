@@ -58,6 +58,8 @@ class AxiosManager {
                 {
                     headers: {
                         ...this.headers,
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
                         'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
                     },
                     validateStatus: false, // Para manejar respuestas no exitosas personalizadas

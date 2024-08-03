@@ -71,6 +71,53 @@ const useSaveToSQLite = (data) => {
     }
   };
 
+  const fetchAllSavedTickets = async (taskId) => {
+    const query = `
+      SELECT DISTINCT
+        task.id,
+        task.id_tarea,
+        task.codigo_tarea,
+        task.estado_tarea,
+        task.descripcion_tarea,
+        task.fecha_inicio_tarea,
+        task.registro_fecha,
+        task.fecha_fin_tarea,
+        task.progreso_tarea,
+        task.id_prioridad_tarea,
+        task.direccion_tarea,
+        task.numero_solicitud,
+        task.orden_requerida,
+        task.orden_completada,
+
+        customer_service.id_cliente,
+        customer_service.id_servicio_cliente,
+        customer_service.descripcion_servicio_cliente,
+
+        types_tasks.tipo_tarea,
+        types_tasks.color_tipo_tarea,
+
+        service.servicio,
+        priority.prioridad_tarea
+      FROM task
+      JOIN customer_service ON task.id_servicio_cliente = customer_service.id_servicio_cliente
+      JOIN types_tasks ON task.id_tipo_tarea = types_tasks.id_tipo_tarea
+      JOIN service on types_tasks.id_servicio = service.id_servicio
+      JOIN priority ON task.id_prioridad_tarea = priority.id_prioridad_tarea
+      ORDER BY task.id_tarea DESC
+      ;
+    `;
+
+    try {
+      const result = await getAllAsyncSql(query);
+      setSavedData(result);
+      //console.log('Task data:', result);
+      return result; // Devuelve el resultado obtenido
+    } catch (error) {
+      console.error('Error fetching task by ID:', error);
+      return [];
+    }
+  };  
+
   const fetchInsertedTasks = async () => {
     try {
       const query = "SELECT * FROM customer_service WHERE id_servicio_cliente = 56";
@@ -84,11 +131,15 @@ const useSaveToSQLite = (data) => {
   };
   
   // Ejemplo de uso
-  useEffect(() => {
+  /*useEffect(() => {
     fetchInsertedTasks();
+  }, []);*/
+  
+  useEffect(() => {
+    //fetchTaskById(4444);
   }, []);
 
-  return { isSaved, savedData };
+  return { isSaved, savedData, fetchAllSavedTickets };
 };
 
 export default useSaveToSQLite;
