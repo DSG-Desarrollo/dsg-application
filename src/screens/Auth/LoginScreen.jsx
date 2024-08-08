@@ -30,10 +30,10 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
   const [usuarios, setUsuarios] = useState([]);
   const [error, setError] = useState(null);
   const [email, setUsuario] = useState({
-    value: 'emerson.martinez',
+    value: 'diego.martinez',
     error: '',
   });
-  const [password, setPassword] = useState({ value: 'Dsg2022Wt5', error: '' });
+  const [password, setPassword] = useState({ value: 'Diego0809', error: '' });
 
   // Función para manejar el cambio de estado de "Recordar sesión"
   const onRememberMeChange = async (value) => {

@@ -219,6 +219,65 @@ const schemas = {
             },
         }
     },
+
+    units: {
+        tableName: 'units',
+        columns: {
+            id: 'INTEGER PRIMARY KEY',
+            id_tarea: 'INTEGER',
+            id_orden_trabajo: 'INTEGER',
+            id_unidad: 'INTEGER',
+            id_servicio_cliente: 'INTEGER',
+            unidad: 'TEXT',
+            unidad_marca: 'TEXT',
+            unidad_modelo: 'TEXT',
+            unidad_color: 'TEXT'
+        },
+        FOREIGN_KEYS: {
+            task_id: {
+                tableName: 'task',
+                foreignKey: 'id_tarea',
+            },
+            work_order_id: {
+                tableName: 'work_orders',
+                foreignKey: 'id_orden_trabajo',
+            },
+            customer_service_id: {
+                tableName: 'customer_service',
+                foreignKey: 'id_servicio_cliente',
+            },
+        }
+    },
+
+    work_orders: {
+        tableName: 'work_orders',
+        columns: {
+            id: 'INTEGER PRIMARY KEY',
+            id_orden_trabajo: 'INTEGER',
+            id_tarea: 'INTEGER',
+            id_municipio: 'INTEGER',
+            numero_orden: 'INTEGER',
+            actual: 'TEXT',
+            cambio: 'TEXT',
+            instalacion: 'TEXT',
+            direccion_orden_trabajo: 'TEXT',
+            progreso_orden_trabajo: 'TEXT',
+            inicio_orden_trabajo: 'TEXT',
+            fin_orden_trabajo: 'TEXT',
+            estado_orden_trabajo: 'TEXT',
+            estado_orden_trabajo: 'TEXT'
+        },
+        FOREIGN_KEYS: {
+            task_id: {
+                tableName: 'task',
+                foreignKey: 'id_tarea',
+            },
+            municipality_id: {
+                tableName: 'municipality',
+                foreignKey: 'id_municipio',
+            },
+        }
+    }
 };
 
 export default schemas;

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import style from '../../../styles/TicketDetailScreenStyles';
 import useFetchUnitWorkOrders from '../../../hooks/useFetchUnitWorkOrders';
 import { useNavigation } from '@react-navigation/native';
+import useMethodSaveToSQLite from '../../../hooks/useMethodSaveToSQLite';
 
 const TicketDetailScreen = ({ route, navigation }) => {
   const {
@@ -31,6 +32,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
   const { unitsData, loading, error } = useFetchUnitWorkOrders(tareaId);
   const navigationRef = useRef();
   const titleWithCode = `Detalle Ticket - ${codigo}`;
+  console.log(typeof unitsData);
 
   const handleBackPress = () => {
     navigation.goBack();

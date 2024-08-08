@@ -117,7 +117,7 @@ class DatabaseService {
     async executeSql(sqlStatement, args = []) {
         try {
             const results = await this.db.runAsync(sqlStatement, ...args);
-            this.log('Resultado de la consulta:', results);
+            //this.log('Resultado de la consulta:', results);
             return results;
         } catch (error) {
             this.handleError('Error al ejecutar la consulta:', error);

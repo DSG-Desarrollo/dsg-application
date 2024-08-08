@@ -4,6 +4,8 @@ import TicketService from '../../services/api/tickets/TicketService';
 import useNetworkState from '../useNetworkState';
 
 const useFetchTickets = (filters) => {
+  console.log("Filtros: ",filters);
+  
   const { networkState } = useNetworkState();
   const ticketService = new TicketService();
   const [ticketsData, setTicketsData] = useState([]);
