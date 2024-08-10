@@ -8,10 +8,12 @@ import useFetchTickets from "../../../hooks/tickets/useFetchTickets";
 import useSaveToSQLite from "../../../hooks/tickets/useSaveToSQLite";
 import { getUserDataFromStorage } from "../../../utils/storageUtils";
 
-const TicketsOfDayScreen = () => {
+const TicketsOfDayScreen = ({ route }) => {
+  const { userData } = route.params;
+  console.log(userData);
   const { networkState } = useNetworkState();
   const filters = {
-    id_puesto_empleado: 7,
+    id_puesto_empleado: userData.employee.id_empleado,
   };
   const { ticketsData, error, isLoading } = useFetchTickets(filters); // Añadido isLoading
   const { isSaved, savedData, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);

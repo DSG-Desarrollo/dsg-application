@@ -15,37 +15,14 @@ class TicketService {
     }
 
     /**
-     * Función para suspender una promesa hasta que se resuelva.
-     * @param {Promise} promise - La promesa que se desea suspender.
-     * @returns {Object} - Un objeto con la función read para esperar la resolución de la promesa.
+     * Función de espera con backoff exponencial.
+     * @param {number} attempt - Número de intento actual.
+     * @param {number} baseDelay - Tiempo base de retraso en milisegundos.
+     * @returns {Promise} - Una promesa que se resuelve después de un retraso calculado.
      */
-    getSuspender(promise) {
-        let status = 'pending';
-        let response;
-
-        const suspender = promise.then(
-            (res) => {
-                status = 'success';
-                response = res;
-            },
-            (err) => {
-                status = 'error';
-                response = err;
-            }
-        );
-
-        const read = () => {
-            switch (status) {
-                case 'pending':
-                    throw suspender;
-                case 'error':
-                    throw response;
-                default:
-                    return response;
-            }
-        };
-
-        return { read };
+    async exponentialBackoff(attempt, baseDelay = 1000) {
+        const delay = baseDelay * Math.pow(2, attempt); // Retraso exponencial
+        await new Promise(resolve => setTimeout(resolve, delay));
     }
 
     /**
@@ -56,31 +33,28 @@ class TicketService {
      * @returns {Object} - Un objeto que contiene los datos de los tickets o el mensaje de error.
      */
     async getTickets(filters, timeout = 10000, retries = 3) {
+        console.log("http:", filters);
+        
         let attempt = 0;
         while (attempt < retries) {
             try {
                 const resultData = await Promise.race([
-                    this.api.post('api/tasks', filters ),
+                    this.api.post('api/tasks', filters),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout))
                 ]);
-                //console.log(resultData);
-                // Verificar si los datos recibidos tienen la estructura esperada
-                if (resultData && Array.isArray(resultData.tasks) && resultData.tasks.length > 0) {
-                    //console.log(resultData.tasks);
-                    return resultData.tasks; // Devolver los tickets obtenidos dentro de un objeto
+
+                if (resultData && Array.isArray(resultData.tasks)) {
+                    return resultData.tasks;
                 } else {
-                    // Devolver un objeto que contenga el mensaje de error
                     return { error: 'La estructura de datos de la API no es la esperada o el array de tareas está vacío.' };
                 }
             } catch (error) {
                 this.handleHttpError(error);
 
-                // Si hay un error, intentar nuevamente después de un breve período de tiempo
                 attempt++;
                 if (attempt < retries) {
-                    await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos antes de intentar nuevamente
+                    await this.exponentialBackoff(attempt);
                 } else {
-                    // Devolver un objeto que contenga el mensaje de error después de todos los intentos
                     return { error: 'Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.' };
                 }
             }
@@ -97,27 +71,23 @@ class TicketService {
     async sendFormData(formData, endpoint) {
         try {
             const response = await this.api.request(endpoint, 'POST', formData);
-            console.log("API: ",response);
-            // Verificar si la respuesta indica un estado de éxito (código 2xx)
+            console.log("API: ", response);
+
             if (response.data.status >= 200 && response.data.status < 300) {
-                return response.data; // Devolver los datos de la respuesta
+                return response.data;
             } else {
-                // Si la respuesta indica un estado de error, lanzar un error apropiado
                 throw new Error(`Error ${response.data.status}: ${response.data.statusText}`);
             }
         } catch (error) {
             this.handleHttpError(error);
 
-            // Si la solicitud no pudo ser realizada (por ejemplo, problemas de red)
             if (!error.response) {
                 throw new Error('Error de red. Por favor, verifica tu conexión e inténtalo de nuevo.');
             }
 
-            // Si la respuesta tiene un mensaje de error del servidor, lo lanzamos
             if (error.response.data && error.response.data.message) {
                 throw new Error(error.response.data.message);
             } else {
-                // Si no, lanzamos un mensaje genérico de error
                 throw new Error('Error desconocido. Por favor, inténtalo de nuevo más tarde.');
             }
         }
@@ -130,14 +100,11 @@ class TicketService {
      */
     handleHttpError(error) {
         if (!error.response) {
-            // Si no hay una respuesta, puede ser un error de red
             throw new Error('Error de red. Por favor, verifica tu conexión e inténtalo de nuevo.');
         }
 
-        // Extraer el código de estado y el mensaje del error de la respuesta
         const { status, data } = error.response;
 
-        // Manejar los errores más comunes basados en el código de estado
         switch (status) {
             case 400:
                 throw new Error(`Error de solicitud: ${data.message || 'Datos de solicitud inválidos.'}`);
@@ -150,11 +117,9 @@ class TicketService {
             case 500:
                 throw new Error(`Error interno del servidor: ${data.message || 'Error en el servidor.'}`);
             default:
-                // Si el código de estado no está manejado, lanzar un mensaje genérico
                 throw new Error('Error desconocido. Por favor, inténtalo de nuevo más tarde.');
         }
     }
-
 }
 
 export default TicketService;

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -8,6 +9,7 @@ import {
   faCalendarCheck,
   faHourglassHalf,
 } from "@fortawesome/free-solid-svg-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   TicketsOfDayScreen,
   TicketsStarted,
@@ -19,6 +21,33 @@ import {
 const Tab = createMaterialTopTabNavigator();
 
 const TicketsScreen = () => {
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem('userData');
+        const parsedUserData = jsonValue != null ? JSON.parse(jsonValue) : null;
+        setUserData(parsedUserData);
+      } catch (e) {
+        console.error("Error reading userData from storage", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -50,11 +79,31 @@ const TicketsScreen = () => {
         },
       })}
     >
-      <Tab.Screen name="TicketsOfDayScreen" component={TicketsOfDayScreen} />
-      <Tab.Screen name="TicketsStarted" component={TicketsStarted} />
-      <Tab.Screen name="Alarms" component={TicketAlarms} />
-      <Tab.Screen name="TicketsExtraHours" component={TicketsExtraHours} />
-      <Tab.Screen name="TicketsCompleted" component={TicketsCompleted} />
+      <Tab.Screen
+        name="TicketsOfDayScreen"
+        component={TicketsOfDayScreen}
+        initialParams={{ userData }}
+      />
+      <Tab.Screen
+        name="TicketsStarted"
+        component={TicketsStarted}
+        initialParams={{ userData }}
+      />
+      <Tab.Screen
+        name="Alarms"
+        component={TicketAlarms}
+        initialParams={{ userData }}
+      />
+      <Tab.Screen
+        name="TicketsExtraHours"
+        component={TicketsExtraHours}
+        initialParams={{ userData }}
+      />
+      <Tab.Screen
+        name="TicketsCompleted"
+        component={TicketsCompleted}
+        initialParams={{ userData }}
+      />
     </Tab.Navigator>
   );
 };
