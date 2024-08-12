@@ -7,9 +7,11 @@ import CustomAlert from '../../../components/atoms/CustomAlert';
 import CustomScrollView from '../../../components/atoms/CustomScrollView';
 import useFetchTickets from '../../../hooks/tickets/useFetchTickets';
 
-const TicketsStarted = () => {
+const TicketsStarted = ({ route }) => {
+  const { userData } = route.params;
   const filters = {
-
+    id_puesto_empleado: userData.employee.id_empleado,
+    progress: 'I',
   }
   const { ticketsData, loading, error } = useFetchTickets(filters);
   const [alertError, setAlertError] = React.useState(null);

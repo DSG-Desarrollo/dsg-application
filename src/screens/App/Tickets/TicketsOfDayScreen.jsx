@@ -10,7 +10,6 @@ import { getUserDataFromStorage } from "../../../utils/storageUtils";
 
 const TicketsOfDayScreen = ({ route }) => {
   const { userData } = route.params;
-  console.log(userData);
   const { networkState } = useNetworkState();
   const filters = {
     id_puesto_empleado: userData.employee.id_empleado,
