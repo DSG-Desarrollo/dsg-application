@@ -13,6 +13,8 @@ const TicketsOfDayScreen = ({ route }) => {
   const { networkState } = useNetworkState();
   const filters = {
     id_puesto_empleado: userData.employee.id_empleado,
+    alarms: false,
+    progress: "[P]"
   };
   const { ticketsData, error, isLoading } = useFetchTickets(filters); // Añadido isLoading
   const { isSaved, savedData, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);

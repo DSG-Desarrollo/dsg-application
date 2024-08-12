@@ -5,10 +5,12 @@ import CustomAlert from "../../../components/atoms/CustomAlert";
 import CustomScrollView from "../../../components/atoms/CustomScrollView";
 import useFetchTickets from "../../../hooks/tickets/useFetchTickets";
 
-const TicketAlarms = () => {
+const TicketAlarms = ({ route }) => {
+  const { userData } = route.params;
   const filters = {
-    id_puesto_empleado: 7,
+    id_puesto_empleado: userData.employee.id_empleado,
     alarms: true,
+    process: "[C, V, T, S, A]"
   };
   const { ticketsData, loading, error } = useFetchTickets(filters);
   const [alertError, setAlertError] = React.useState(null);
