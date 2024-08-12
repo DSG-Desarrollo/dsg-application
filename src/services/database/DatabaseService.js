@@ -120,7 +120,7 @@ class DatabaseService {
             //this.log('Resultado de la consulta:', results);
             return results;
         } catch (error) {
-            this.handleError('Error al ejecutar la consulta:', error);
+            this.handleError('Error al ejecutar la consulta DB:', error);
             throw new Error('Error al ejecutar la consulta');
         }
     }

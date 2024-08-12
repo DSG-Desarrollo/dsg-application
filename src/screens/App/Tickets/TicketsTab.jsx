@@ -1,40 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
-import TicketList from "../../../components/organisms/TicketList";
-import CustomAlert from "../../../components/atoms/CustomAlert";
-import CustomScrollView from "../../../components/atoms/CustomScrollView";
-import useNetworkState from "../../../hooks/useNetworkState";
-import useFetchTickets from "../../../hooks/tickets/useFetchTickets";
-import useSaveToSQLite from "../../../hooks/tickets/useSaveToSQLite";
-import { getUserDataFromStorage } from "../../../utils/storageUtils";
+import React, { useState, useEffect } from 'react';
+import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+import TicketList from '../../../components/organisms/TicketList';
+import CustomAlert from '../../../components/atoms/CustomAlert';
+import CustomScrollView from '../../../components/atoms/CustomScrollView';
+import useNetworkState from '../../../hooks/useNetworkState';
+import useFetchTickets from '../../../hooks/tickets/useFetchTickets';
+import useSaveToSQLite from '../../../hooks/tickets/useSaveToSQLite';
 
-const TicketsOfDayScreen = ({ route }) => {
-  const { userData } = route.params;
-  console.log(userData);
-  const { networkState } = useNetworkState();
-  const filters = {
-    id_puesto_empleado: userData.employee.id_empleado,
-  };
-  const { ticketsData, error, isLoading } = useFetchTickets(filters); // Añadido isLoading
-  const { isSaved, savedData, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);
+const TicketsTab = ({ filters, checkNetwork }) => {
   const [alertError, setAlertError] = useState(null);
   const [dataToDisplay, setDataToDisplay] = useState([]);
-  
+  const { networkState } = useNetworkState();
+  const { ticketsData, error, isLoading } = useFetchTickets(filters);
+  const { isSaved, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (networkState.isConnected) {
-          // Obtener datos de la red y guardar en SQLite
+        if (checkNetwork && networkState.isConnected) {
           if (ticketsData.length > 0) {
             await fetchAllSavedTickets();
             setDataToDisplay(ticketsData.map(mapTicketData));
           } else {
-            // Obtener datos guardados si no hay datos en ticketsData
             setDataToDisplay(await fetchAllSavedTickets().then(result => result.map(mapTicketData)));
           }
-        } else {
-          // Obtener datos guardados cuando no hay conexión
+        } else if (checkNetwork) {
           setDataToDisplay(await fetchAllSavedTickets().then(result => result.map(mapTicketData)));
+        } else {
+          setDataToDisplay(ticketsData.map(mapTicketData));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -43,7 +36,7 @@ const TicketsOfDayScreen = ({ route }) => {
     };
 
     fetchData();
-  }, [networkState.isConnected, ticketsData]); // Dependencia añadida para ticketsData
+  }, [networkState.isConnected, ticketsData]);
 
   const mapTicketData = (task) => ({
     tareaId: task.id_tarea,
@@ -97,11 +90,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   ticketsContainer: {
     flex: 1,
   },
 });
 
-export default TicketsOfDayScreen;
+export default TicketsTab;
