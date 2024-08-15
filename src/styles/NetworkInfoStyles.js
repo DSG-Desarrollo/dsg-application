@@ -1,6 +1,7 @@
 // NetworkInfoStyles.js
 
 import { StyleSheet } from 'react-native';
+import theme from '../themes/theme';
 
 const NetworkInfoStyles = StyleSheet.create({
     container: {
@@ -12,13 +13,13 @@ const NetworkInfoStyles = StyleSheet.create({
         marginBottom: 0,
     },
     errorContainer: {
-        backgroundColor: '#FF6666', // Rojo intenso para indicar error
+        backgroundColor: theme.colors.danger, // Utiliza el color de peligro de la paleta
     },
     successContainer: {
-        backgroundColor: '#66CC66', // Verde intenso para indicar conexión exitosa
+        backgroundColor: theme.colors.success, // Utiliza el color de éxito de la paleta
     },
     errorText: {
-        color: 'white',
+        color: theme.colors.textPrimary, // Texto blanco para mejor legibilidad
     },
     statusTextContainer: {
         flexDirection: 'row',
@@ -27,7 +28,7 @@ const NetworkInfoStyles = StyleSheet.create({
     },
     statusText: {
         marginVertical: 4,
-        color: 'white', // Texto blanco para mejor legibilidad
+        color: theme.colors.textPrimary, // Texto blanco para mejor legibilidad
     },
 });
 

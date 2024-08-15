@@ -10,13 +10,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSave, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 const options = [
-    { label: 'Vehículo liviano', value: 'Vehículo liviano', image: require('../../../assets/images/vehiculo_liviano.jpg') },
+    { label: 'Vehículo liviano', value: 'Vehículo liviano', image: require('../../../assets/images/drawingdatabase/automobile.png') },
     { label: 'Motocicleta', value: 'Motocicleta', image: require('../../../assets/images/Yamaha-YZF-600R-Thundercat-1996-.png') },
     { label: 'Planta eléctrica', value: 'Planta eléctrica' },
     { label: 'Retro escavador', value: 'Retro escavador' },
     { label: 'Bocad', value: 'Bocad' },
     { label: 'Volqueta', value: 'Volqueta', image: require('../../../assets/images/zil-mmz-585.png') },
-    { label: 'Cabezal', value: 'Cabezal' },
+    { label: 'Cabezal', value: 'Cabezal', image: require('../../../assets/images/vehiculo_liviano.jpg') },
     { label: 'Grua', value: 'Grua', image: require('../../../assets/images/scania-vabis-l-36-super.png') },
 ];
 
@@ -106,8 +106,6 @@ const TabEquipmentLocation = ({ route }) => {
                         dynamicImageSource={selectedOption.image}
                         strokeColor="red"
                         strokeWidth={4}
-                        containerStyle={styles.fixedImageContainer}
-                        imageStyle={styles.fixedImage}
                         clearPaths={clearPaths}
                         onPathsCleared={handleClearPaths}
                         blankCanvas={false}

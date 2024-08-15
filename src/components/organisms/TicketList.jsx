@@ -30,7 +30,6 @@ const TicketList = (props) => {
   const navigation = useNavigation();
 
   const handleTicketPress = () => {
-    console.log(progresoTareaDescripcion);
     navigation.navigate('TicketDetailScreen', {
       tareaId,
       codigo,
@@ -53,10 +52,8 @@ const TicketList = (props) => {
 
   const badgeColor = ticketListStyles.badgeColors[progresoTarea] || ticketListStyles.badgeColors.default;
   const cardColor = ticketListStyles.cardColors[progresoTarea] || ticketListStyles.cardColors.default;
-
   const priorityIconName = ticketListStyles.priorityIcons[prioridad] || 'priority-high';
   const priorityIconColor = ticketListStyles.priorityIconColors[prioridad] || '#399866';
-
   const progressTask = ticketListStyles.progressTasks[progresoTarea] || 'Sin especificar';
 
   // Calcula el progreso basado en la fase actual (0 a 4)

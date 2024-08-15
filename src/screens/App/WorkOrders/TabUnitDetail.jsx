@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import theme from '../../../themes/theme';
 
 const TabWorkOrderDetails = ({ route }) => {
   // Obtener los parámetros desde route.params
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontFamily: 'Roboto',
     fontSize: 15,
-    backgroundColor: '#4CAF50',
+    backgroundColor: theme.colors.successDark,
     color: '#FFFFFF',
     paddingVertical: 5,
     paddingHorizontal: 10,

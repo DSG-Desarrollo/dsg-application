@@ -1,6 +1,7 @@
 // TicketDetailScreenStyles.js
 import { StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import theme from '../themes/theme';
 
 const style = StyleSheet.create({
     section: {
@@ -12,8 +13,8 @@ const style = StyleSheet.create({
     sectionContent: {
         fontFamily: 'Roboto',
         fontSize: 15,
-        backgroundColor: '#4CAF50',
-        color: '#FFFFFF',
+        backgroundColor: theme.colors.primary,
+        color: theme.colors.textPrimary,
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 5,
@@ -50,10 +51,12 @@ const style = StyleSheet.create({
     },
     orderItem: {
         marginBottom: 8,
-        paddingVertical: 8,
-        paddingHorizontal: 16,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
         borderRadius: 8,
-        backgroundColor: '#F0F0F0',
+        flexDirection: 'row', // Para alinear el icono y los textos horizontalmente
+        padding: 0,
+        marginVertical: 0,
     },
     value: {
         flex: 1,
@@ -62,15 +65,25 @@ const style = StyleSheet.create({
         marginBottom: 4,
     },
     itemRow: {
-        flexDirection: 'row', // Cambiar la dirección de flexión a 'row'
+        flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 4,
-    },
+        justifyContent: 'space-between', // Distribuye el espacio entre el icono y los textos
+      },
     labelList: {
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 4,
         marginRight: 4,
+    },
+    textContainer: {
+        flex: 1,
+        marginLeft: 8, // Espacio entre el icono y los textos
+    },
+    textLine: {
+        flexDirection: 'row',
+        justifyContent: 'space-between', // Espacio entre el label y el info
+        alignItems: 'center',
+        marginBottom: 4, // Espacio entre líneas de texto
     },
     errorContainer: {
         flex: 1,
@@ -88,7 +101,10 @@ const style = StyleSheet.create({
         marginTop: 20,
     },
     dynamicFontSize: {
-        fontSize: RFValue(10),
+        fontSize: RFValue(12),
+    },
+    textWhite: {
+        color: '#FFFFFF',
     },
 });
 

@@ -23,17 +23,7 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         width: '100%',
-        marginBottom: 20,
-    },
-    fixedImageContainer: {
-        width: '100%',
         height: '100%',
-        margin: 10,
-    },
-    fixedImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'contain',
     },
     buttonContainer: {
         flexDirection: 'row',
