@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import CustomDrawerContent from './CustomDrawerContent';
@@ -15,7 +15,15 @@ const filteredRoutes = Object.entries(routes)
 
 const DrawerNavigation = ({ setIsAuthenticated }) => {
   return (
-    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} setIsAuthenticated={setIsAuthenticated} />}>
+    <Drawer.Navigator
+      drawerContent={(props) => <CustomDrawerContent {...props} setIsAuthenticated={setIsAuthenticated} />}
+      screenOptions={{
+        drawerLabelStyle: {
+          fontFamily: 'Roboto', // Tipografía moderna
+          fontSize: 16, // Tamaño de fuente adecuado
+        },
+      }}
+    >
       {Object.keys(filteredRoutes).map((routeName) => (
         <Drawer.Screen
           key={routeName}
@@ -24,7 +32,11 @@ const DrawerNavigation = ({ setIsAuthenticated }) => {
           options={{
             drawerLabel: filteredRoutes[routeName].title,
             drawerIcon: ({ color, size }) => (
-              <FontAwesomeIcon icon={filteredRoutes[routeName].iconName} color={color} size={size} />
+              <FontAwesomeIcon
+                icon={filteredRoutes[routeName].iconName}
+                color={color}
+                size={size}
+              />
             ),
           }}
         />

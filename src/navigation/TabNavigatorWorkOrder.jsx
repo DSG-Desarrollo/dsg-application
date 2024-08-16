@@ -19,6 +19,7 @@ import {
 } from "../screens/App/WorkOrders/";
 import Toolbar from "../components/atoms/Toolbar";
 import { useNavigation } from "@react-navigation/native";
+import theme from '../themes/theme';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -100,10 +101,10 @@ const TabNavigatorWorkOrder = ({ route }) => {
       />
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          tabBarActiveTintColor: "#efb810",
+          tabBarActiveTintColor: theme.colors.accent,
           tabBarInactiveTintColor: "white",
           tabBarStyle: {
-            backgroundColor: "#003F75",
+            backgroundColor: theme.colors.secondaryDark,
           },
           tabBarIcon: ({ color }) => renderTabBarIcon({ route, color }),
           tabBarLabel: ({ color }) => renderTabBarLabel({ route, color }),

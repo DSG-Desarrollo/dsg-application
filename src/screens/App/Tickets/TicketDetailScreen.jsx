@@ -14,8 +14,10 @@ import useFetchUnitWorkOrders from "../../../hooks/useFetchUnitWorkOrders";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import useMethodSaveToSQLite from "../../../hooks/useMethodSaveToSQLite";
 import theme from '../../../themes/theme';
+import { useIsFocused } from '@react-navigation/native';
 
 const TicketDetailScreen = ({ route, navigation }) => {
+  const isFocused = useIsFocused();
   const {
     tareaId,
     codigo,
@@ -270,6 +272,12 @@ const TicketDetailScreen = ({ route, navigation }) => {
       </View>
     </View>
   );
+
+  useEffect(() => {
+    if (isFocused) {
+      handleRefresh();
+    }
+  }, [isFocused]);
 
   // Manejar la acción de actualización
   const handleRefresh = () => {

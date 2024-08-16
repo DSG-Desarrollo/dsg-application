@@ -19,6 +19,7 @@ const theme = {
     border: '#303030',
     hover: '#0A74DA',
     hoverDark: '#0759A0', // Versión oscura del hover
+    accent: '#C9980A',
   },
 };
 

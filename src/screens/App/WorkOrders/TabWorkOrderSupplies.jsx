@@ -1,35 +1,30 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView, ToastAndroid, ActivityIndicator, Alert } from 'react-native';
-import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import ActionButtons from '../../../components/atoms/ActionButtons';
-import useFetchProducts from '../../../hooks/useFetchProducts';
-import ApiService from '../../../services/api/ApiService';
-import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
-import useUserData from '../../../hooks/useUserData';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  ToastAndroid,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { faSave, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import ActionButtons from "../../../components/atoms/ActionButtons";
+import useFetchProducts from "../../../hooks/useFetchProducts";
+import ApiService from "../../../services/api/ApiService";
+import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
+import useUserData from "../../../hooks/useUserData";
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { userData } = useUserData();
-  const {
-    tareaId,
-    clienteId,
-    codigo,
-    estado,
-    empresa,
-    prioridad,
-    fechaCreacion,
-    tipo,
-    trabajo,
-    servicio,
-    direccionTarea,
-    requeridos,
-    id_orden_trabajo,
-    id_servicio_cliente,
-    id_unidad,
-  } = route.params;
+  const { tareaId, clienteId, id_orden_trabajo } = route.params;
 
   const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
-  const sortedProductsData = productsData.sort((a, b) => a.productName.localeCompare(b.productName));
+  const sortedProductsData = productsData.sort((a, b) =>
+    a.productName.localeCompare(b.productName)
+  );
 
   // Handle input change
   const handleQuantityChange = (id, value) => {
@@ -43,31 +38,39 @@ const TabWorkOrderSupplies = ({ route }) => {
     //console.log('clic');
     const apiService = new ApiService();
     const data = sortedProductsData
-      .filter(product => productQuantities[product.id] && parseInt(productQuantities[product.id], 10) > 0)
+      .filter(
+        (product) =>
+          productQuantities[product.id] &&
+          parseInt(productQuantities[product.id], 10) > 0
+      )
       .map((product) => ({
         id_orden_trabajo: id_orden_trabajo,
         id_aprovisionamiento: product.id,
         cantidad: parseInt(productQuantities[product.id], 10),
       }));
 
-    const endpoint = 'api/materials-order';
+    const endpoint = "api/materials-order";
     const response = await apiService.sendFormData(data, endpoint);
 
-    await FormCompletionTracker.markFormAsCompleted("form_work_order_supplies", clienteId, tareaId, id_orden_trabajo, userData.id_usuario);
+    await FormCompletionTracker.markFormAsCompleted(
+      "form_work_order_supplies",
+      clienteId,
+      tareaId,
+      id_orden_trabajo,
+      userData.id_usuario
+    );
 
-    console.log('Respuesta de la API:', response);
+    console.log("Respuesta de la API:", response);
     if (response.status === 201) {
       ToastAndroid.show(response.message, ToastAndroid.LONG);
     }
-  }
-
-  const handleEdit = () => {
-
   };
 
+  const handleEdit = () => {};
+
   const buttons = [
-    { text: 'Guardar', icon: faSave, onPress: handleSave },
-    { text: 'Editar', icon: faEdit, onPress: handleEdit },
+    { text: "Guardar", icon: faSave, onPress: handleSave },
+    { text: "Editar", icon: faEdit, onPress: handleEdit },
   ];
 
   return (
@@ -75,7 +78,7 @@ const TabWorkOrderSupplies = ({ route }) => {
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Materiales usados</Text>
       </View>
-      <View>
+      <View style={styles.productsContainer}>
         {sortedProductsData.map((product) => (
           <View key={product.id} style={styles.productContainer}>
             <View style={styles.productInfo}>
@@ -86,7 +89,7 @@ const TabWorkOrderSupplies = ({ route }) => {
               style={styles.input}
               placeholder="Cantidad usada"
               keyboardType="numeric"
-              value={productQuantities[product.id] || ''}
+              value={productQuantities[product.id] || ""}
               onChangeText={(value) => handleQuantityChange(product.id, value)}
             />
           </View>
@@ -106,6 +109,7 @@ const TabWorkOrderSupplies = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
     padding: 16,
     backgroundColor: '#f5f5f5',
   },
@@ -115,9 +119,11 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
     color: '#333',
+    textAlign: 'center',
+  },
+  productsContainer: {
+    marginBottom: 20,
   },
   productContainer: {
     flexDirection: 'row',
@@ -160,6 +166,27 @@ const styles = StyleSheet.create({
   },
   customButtonContainer: {
     marginBottom: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#ff0000',
   },
 });
 

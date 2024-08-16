@@ -268,12 +268,12 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     marginTop: 5,
-    backgroundColor: '#ffcccc',
+    backgroundColor: '#F8D7DA',
     padding: 5,
     borderRadius: 5,
   },
   errorMessage: {
-    color: '#ff0000',
+    color: '#C0392B',
     fontSize: 14,
     fontWeight: 'bold',
   },

@@ -17,10 +17,12 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 20,
+
   },
   logo: {
-    marginRight: 10,
+    width: 150,
+    height: 40,
+    resizeMode: 'contain', // or 'stretch', 'center', 'cover' or 'repeat'
   },
 });
 
