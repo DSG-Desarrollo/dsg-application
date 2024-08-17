@@ -5,11 +5,27 @@ import i18n from '../../../../i18n';
 import TicketService from '../../../services/api/tickets/TicketService';
 import FormValidation from '../../../components/molecules/FormValidation';
 import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
-import useUserData from '../../../hooks/useUserData';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TabInstallationType = ({ route }) => {
-  const { userData, loading, error } = useUserData();
+  //const { userData, loading, error } = useUserData();
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem('userData');
+        setUserData(jsonValue ? JSON.parse(jsonValue) : null);
+      } catch (e) {
+        console.error("Error reading userData from storage", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
   const {
     tareaId,
     clienteId,
@@ -65,8 +81,8 @@ const TabInstallationType = ({ route }) => {
           //console.log('Datos del registro insertado:', response.data);
           //console.log('Último ID insertado:', response.last_insert_id);
           ToastAndroid.show(response.message, ToastAndroid.LONG);
-
-          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.id_usuario);
+          
+          await FormCompletionTracker.markFormAsCompleted("form_installation_type", tareaId, id_orden_trabajo, userData.employee.id_empleado);
 
           // Aquí puedes realizar acciones adicionales, como actualizar la interfaz de usuario
         } else {

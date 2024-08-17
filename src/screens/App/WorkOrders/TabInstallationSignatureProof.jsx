@@ -7,24 +7,41 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
-  Text, Dimensions 
+  Text,
+  Dimensions,
 } from "react-native";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
+import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
 import DrawableImage from "../../../components/molecules/DrawableImage";
 import ActionButtons from "../../../components/atoms/ActionButtons";
 import ApiService from "../../../services/api/ApiService";
 import FormValidation from "../../../components/molecules/FormValidation";
-import useUserData from "../../../hooks/useUserData";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 // Define el tamaño del canvas (por ejemplo, 80% del tamaño de la pantalla)
 const canvasSize = screenWidth * 0.9;
 
 const TabInstallationSignatureProof = ({ route }) => {
-  
-  const { tareaId, id_orden_trabajo } = route.params;
-  const { userData } = useUserData();
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("userData");
+        setUserData(jsonValue ? JSON.parse(jsonValue) : null);
+      } catch (e) {
+        console.error("Error reading userData from storage", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+  const { tareaId, id_orden_trabajo, clienteId } = route.params;
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const drawableImageRef = useRef(null);
 
@@ -53,11 +70,27 @@ const TabInstallationSignatureProof = ({ route }) => {
         const endpoint = "api/client-signature";
         const response = await apiService.sendFormData(formData, endpoint);
 
-        ToastAndroid.showWithGravity(
-          response.message || "Registro actualizado exitosamente",
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM
-        );
+        if (response.status === 200 && response.statusText === "OK") {
+          ToastAndroid.showWithGravity(
+            response.message || "Registro actualizado exitosamente",
+            ToastAndroid.LONG,
+            ToastAndroid.BOTTOM
+          );
+          await FormCompletionTracker.markFormAsCompleted(
+            "form_installation_signature_proof",
+            clienteId,
+            tareaId,
+            id_orden_trabajo,
+            userData.employee.id_empleado
+          );
+        } else {
+          // Manejar posibles respuestas con errores
+          ToastAndroid.showWithGravity(
+            response.message || "Hubo un problema al actualizar el registro",
+            ToastAndroid.LONG,
+            ToastAndroid.BOTTOM
+          );
+        }
       }
     } catch (error) {
       ToastAndroid.showWithGravity(
@@ -76,11 +109,6 @@ const TabInstallationSignatureProof = ({ route }) => {
   const handleEdit = () => {
     console.log("Editar acción ejecutada");
   };
-
-  const buttons = [
-    { text: "Guardar", icon: faSave, onPress: handleSave },
-    { text: "Editar", icon: faEdit, onPress: handleEdit },
-  ];
 
   return (
     <KeyboardAvoidingView
@@ -109,8 +137,10 @@ const TabInstallationSignatureProof = ({ route }) => {
                     blankCanvas={true}
                     strokeColor="black"
                     strokeWidth={4}
-                    containerStyle={[styles.canvasContainer, { width: canvasSize, height: canvasSize }]}
-
+                    containerStyle={[
+                      styles.canvasContainer,
+                      { width: canvasSize, height: canvasSize },
+                    ]}
                     imageStyle={styles.fixedImage}
                   />
                 )}
@@ -174,15 +204,15 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   canvasContainer: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-},
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   fixedImage: {
     width: "100%",
     height: "100%",
@@ -206,9 +236,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   errorText: {
-    color: '#C0392B',
+    color: "#C0392B",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   buttonContainer: {
     marginTop: 20,

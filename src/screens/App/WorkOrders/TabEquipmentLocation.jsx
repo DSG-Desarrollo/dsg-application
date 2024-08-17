@@ -4,8 +4,8 @@ import SelectManager from "../../../components/atoms/SelectManager";
 import DrawableImage from "../../../components/molecules/DrawableImage";
 import styles from "../../../styles/TabEquipmentLocationStyles";
 import ApiService from "../../../services/api/ApiService";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
-import useUserData from "../../../hooks/useUserData";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
 import ActionButtons from "../../../components/atoms/ActionButtons";
@@ -42,7 +42,23 @@ const options = [
 ];
 
 const TabEquipmentLocation = ({ route }) => {
-  const { userData } = useUserData();
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem('userData');
+        setUserData(jsonValue ? JSON.parse(jsonValue) : null);
+      } catch (e) {
+        console.error("Error reading userData from storage", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
   const {
     tareaId,
     id_orden_trabajo,
@@ -90,7 +106,7 @@ const TabEquipmentLocation = ({ route }) => {
           clienteId,
           tareaId,
           id_orden_trabajo,
-          userData.id_usuario
+          userData.employee.id_empleado
         );
         //console.log('Respuesta de la API:', response);
 

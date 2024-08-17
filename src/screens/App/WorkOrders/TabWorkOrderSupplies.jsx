@@ -13,13 +13,28 @@ import { faSave, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ActionButtons from "../../../components/atoms/ActionButtons";
 import useFetchProducts from "../../../hooks/useFetchProducts";
 import ApiService from "../../../services/api/ApiService";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
-import useUserData from "../../../hooks/useUserData";
 
 const TabWorkOrderSupplies = ({ route }) => {
-  const { userData } = useUserData();
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem('userData');
+        setUserData(jsonValue ? JSON.parse(jsonValue) : null);
+      } catch (e) {
+        console.error("Error reading userData from storage", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
   const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
   const sortedProductsData = productsData.sort((a, b) =>
@@ -57,7 +72,7 @@ const TabWorkOrderSupplies = ({ route }) => {
       clienteId,
       tareaId,
       id_orden_trabajo,
-      userData.id_usuario
+      userData.employee.id_empleado
     );
 
     console.log("Respuesta de la API:", response);
