@@ -60,6 +60,7 @@ const TabEquipmentLocation = ({ route }) => {
     fetchUserData();
   }, []);
   const {
+    onCompleteForm,
     tareaId,
     id_orden_trabajo,
     id_servicio_cliente,
@@ -111,6 +112,8 @@ const TabEquipmentLocation = ({ route }) => {
         //console.log('Respuesta de la API:', response);
 
         ToastAndroid.show("imagen guardada", ToastAndroid.LONG);
+        onCompleteForm("TabEquipmentLocation");
+
       } else {
         console.log("DrawableImage reference is null");
       }

@@ -9,6 +9,7 @@ export const routes = {
     name: 'Dashboard',
     requiredLevel: [1, 5],
     order: 1,
+    isActive: 0,
   },
   TicketsScreen: {
     screen: TicketsScreen,
@@ -17,6 +18,7 @@ export const routes = {
     name: 'Listado de Tickets',
     requiredLevel: [5, 7],
     order: 2,
+    isActive: 1,
   },
   ProfileScreen: {
     screen: ProfileScreen,
@@ -25,5 +27,6 @@ export const routes = {
     name: 'Perfil',
     requiredLevel: [2, 5],
     order: 3,
+    isActive: 0,
   },
 };

@@ -27,6 +27,7 @@ const TabInstallationType = ({ route }) => {
     fetchUserData();
   }, []);
   const {
+    onCompleteForm,
     tareaId,
     clienteId,
     id_orden_trabajo,
@@ -82,8 +83,8 @@ const TabInstallationType = ({ route }) => {
           //console.log('Último ID insertado:', response.last_insert_id);
           ToastAndroid.show(response.message, ToastAndroid.LONG);
           
-          await FormCompletionTracker.markFormAsCompleted("form_installation_type", tareaId, id_orden_trabajo, userData.employee.id_empleado);
-
+          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_empleado);
+          onCompleteForm("TabInstallationType");
           // Aquí puedes realizar acciones adicionales, como actualizar la interfaz de usuario
         } else {
           // La solicitud no fue exitosa, manejar el caso de manera adecuada
