@@ -14,7 +14,7 @@ const options = [
   {
     label: "Vehículo liviano",
     value: "Vehículo liviano",
-    image: require("../../../assets/images/drawingdatabase/automobile.png"),
+    image: require("../../../assets/images/vehiculo_liviano.jpg"),
   },
   {
     label: "Motocicleta",
