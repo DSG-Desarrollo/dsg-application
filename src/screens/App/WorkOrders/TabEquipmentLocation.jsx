@@ -9,6 +9,7 @@ import FormCompletionTracker from "../../../components/atoms/FormCompletionTrack
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
 import ActionButtons from "../../../components/atoms/ActionButtons";
+import { useNavigation } from '@react-navigation/native'; // Importar useNavigation
 
 const options = [
   {
@@ -42,6 +43,7 @@ const options = [
 ];
 
 const TabEquipmentLocation = ({ route }) => {
+  const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -106,7 +108,8 @@ const TabEquipmentLocation = ({ route }) => {
           clienteId,
           tareaId,
           id_orden_trabajo,
-          userData.employee.id_usuario_empleado
+          userData.employee.id_usuario_empleado,
+          navigation
         );
         //console.log('Respuesta de la API:', response);
 

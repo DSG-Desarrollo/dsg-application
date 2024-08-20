@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
-  faCamera,
-  faListAlt,
+  faCircleInfo,
   faTools,
   faClipboardCheck,
   faMapMarkerAlt,
@@ -19,7 +19,7 @@ import {
 } from "../screens/App/WorkOrders/";
 import Toolbar from "../components/atoms/Toolbar";
 import { useNavigation } from "@react-navigation/native";
-import theme from '../themes/theme';
+import theme from "../themes/theme";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -47,25 +47,8 @@ const TabNavigatorWorkOrder = ({ route }) => {
     id_servicio_cliente,
     id_unidad,
     numero_orden,
-    progresoOrdenTrabajo
+    progresoOrdenTrabajo,
   } = route.params;
-  const renderTabBarLabel = ({ route, color }) => {
-    let labelName;
-
-    if (route.name === "TabUnitDetail") {
-      labelName = "Unidad";
-    } else if (route.name === "TabInstallationType") {
-      labelName = "Instalación";
-    } else if (route.name === "TabWorkOrderSupplies") {
-      labelName = "Materiales";
-    } else if (route.name === "TabInstallationSignatureProof") {
-      labelName = "Firma";
-    } else if (route.name === "TabEquipmentLocation") {
-      labelName = "Ubicación";
-    }
-
-    return <Text style={{ color }}>{labelName}</Text>;
-  };
   const sharedParams = {
     tareaId,
     codigo,
@@ -88,17 +71,93 @@ const TabNavigatorWorkOrder = ({ route }) => {
     id_servicio_cliente,
     id_unidad,
     numero_orden,
-    progresoOrdenTrabajo
+    progresoOrdenTrabajo,
   };
-  const ticketCode = `${sharedParams.codigo} OT#${sharedParams.numero_orden} `;
-  console.log(sharedParams);
+  const [completedForms, setCompletedForms] = useState([]);
+
+  // Función para verificar qué formularios han sido completados
+  const checkCompletedForms = async () => {
+    try {
+      const taskIdStr = tareaId.toString();
+      const workOrderIdStr = id_orden_trabajo.toString();
+
+      const ticketData =
+        JSON.parse(await AsyncStorage.getItem(taskIdStr)) || {};
+      const workOrderData = ticketData[workOrderIdStr] || {};
+
+      const completed = Object.keys(workOrderData).filter(
+        (formKey) => workOrderData[formKey].status === "completed"
+      );
+
+      setCompletedForms(completed);
+    } catch (error) {
+      console.error("Error al verificar los formularios completados: ", error);
+    }
+  };
+
+  useEffect(() => {
+    checkCompletedForms();
+  }, []);
+
+  const renderTabBarLabel = ({ route, color }) => {
+    let labelName;
+    let tabKey;
+
+    if (route.name === "TabUnitDetail") {
+      labelName = "Unidad";
+    } else if (route.name === "TabInstallationType") {
+      labelName = "Instalación";
+      tabKey = "form_installation_type";
+    } else if (route.name === "TabWorkOrderSupplies") {
+      labelName = "Materiales";
+      tabKey = "form_work_order_supplies";
+    } else if (route.name === "TabInstallationSignatureProof") {
+      labelName = "Firma";
+      tabKey = "form_installation_signature_proof";
+    } else if (route.name === "TabEquipmentLocation") {
+      labelName = "Ubicación";
+      tabKey = "form_equipment_location";
+    }
+
+    const isCompleted = completedForms.includes(tabKey);
+
+    return (
+      <Text style={{ color: isCompleted ? "green" : color }}>{labelName}</Text>
+    );
+  };
+
+  const renderTabBarIcon = ({ route, color }) => {
+    let iconName;
+    let tabKey;
   
+    if (route.name === "TabUnitDetail") {
+      iconName = faCircleInfo;
+    } else if (route.name === "TabInstallationType") {
+      iconName = faTools;
+      tabKey = "form_installation_type";
+    } else if (route.name === "TabWorkOrderSupplies") {
+      iconName = faClipboardCheck;
+      tabKey = "form_work_order_supplies";
+    } else if (route.name === "TabEquipmentLocation") {
+      iconName = faWrench;
+      tabKey = "form_equipment_location";
+    } else if (route.name === "TabInstallationSignatureProof") {
+      iconName = faMapMarkerAlt;
+      tabKey = "form_installation_signature_proof";
+    }
+  
+    const isCompleted = completedForms.includes(tabKey);
+    const iconColor = isCompleted ? "green" : color;
+  
+    return <FontAwesomeIcon icon={iconName} color={iconColor} size={20} />;
+  };
+  
+
+  const ticketCode = `${sharedParams.codigo} OT#${sharedParams.numero_orden} `;
+
   return (
     <View style={{ flex: 1 }}>
-      <Toolbar
-        title={ticketCode}
-        onBackPress={() => navigation.goBack()}
-      />
+      <Toolbar title={ticketCode} onBackPress={() => navigation.goBack()} />
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarActiveTintColor: theme.colors.accent,
@@ -116,7 +175,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
           options={{
             title: "Unidad",
             tabBarIcon: ({ color }) => (
-              <FontAwesomeIcon icon={faTools} color={color} size={20} />
+              <FontAwesomeIcon icon={faCircleInfo} color={color} size={20} />
             ),
           }}
           initialParams={sharedParams}

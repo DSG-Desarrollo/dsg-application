@@ -15,8 +15,10 @@ import useFetchProducts from "../../../hooks/useFetchProducts";
 import ApiService from "../../../services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
+import { useNavigation } from '@react-navigation/native'; // Importar useNavigation
 
 const TabWorkOrderSupplies = ({ route }) => {
+  const navigation = useNavigation();
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +74,8 @@ const TabWorkOrderSupplies = ({ route }) => {
       clienteId,
       tareaId,
       id_orden_trabajo,
-      userData.employee.id_usuario_empleado
+      userData.employee.id_usuario_empleado,
+      navigation
     );
 
     console.log("Respuesta de la API:", response);
