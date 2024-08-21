@@ -21,8 +21,7 @@ const FormCompletionTracker = {
     clientId,
     taskId,
     workOrderId,
-    userId,
-    navigation
+    userId
   ) => {
     try {
       const taskIdStr = taskId.toString();
@@ -94,7 +93,6 @@ const FormCompletionTracker = {
           taskIdStr,
           userId
         );
-        navigation.navigate('TicketDetailScreen'); 
       }
     } catch (error) {
       console.error(

@@ -17,7 +17,6 @@ import ActionButtons from "../../../components/atoms/ActionButtons";
 import ApiService from "../../../services/api/ApiService";
 import FormValidation from "../../../components/molecules/FormValidation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from '@react-navigation/native'; // Importar useNavigation
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -25,7 +24,6 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const canvasSize = screenWidth * 0.9;
 
 const TabInstallationSignatureProof = ({ route }) => {
-  const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -83,8 +81,7 @@ const TabInstallationSignatureProof = ({ route }) => {
             clienteId,
             tareaId,
             id_orden_trabajo,
-            userData.employee.id_usuario_empleado,
-            navigation
+            userData.employee.id_usuario_empleado
           );
         } else {
           // Manejar posibles respuestas con errores

@@ -6,10 +6,8 @@ import TicketService from '../../../services/api/tickets/TicketService';
 import FormValidation from '../../../components/molecules/FormValidation';
 import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native'; // Importar useNavigation
 
 const TabInstallationType = ({ route }) => {
-  const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -83,7 +81,7 @@ const TabInstallationType = ({ route }) => {
           //console.log('Último ID insertado:', response.last_insert_id);
           ToastAndroid.show(response.message, ToastAndroid.LONG);
           
-          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado, navigation);
+          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
           // Aquí puedes realizar acciones adicionales, como actualizar la interfaz de usuario
         } else {
           // La solicitud no fue exitosa, manejar el caso de manera adecuada
