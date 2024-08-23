@@ -65,7 +65,6 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
 
       await executeSql(userInserts.insertUser, args);
       console.log('Inserción de usuario exitosa');
-      //fetchAllUsers();
     } catch (error) {
       console.error('Error al insertar usuario:', error);
     }
@@ -75,7 +74,6 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     try {
       const allUsers = await getAllAsyncSql(users.getUsersAll);
       setUsuarios(allUsers);
-      //console.log('Usuarios obtenidos:', allUsers);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
     }

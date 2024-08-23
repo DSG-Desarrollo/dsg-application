@@ -42,11 +42,13 @@ class TicketService {
                     this.api.post('api/tasks', filters),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout))
                 ]);
-
-                if (resultData && Array.isArray(resultData.tasks)) {
-                    return resultData.tasks;
+                if (resultData.status === 'success') {
+                    if (resultData && Array.isArray(resultData.tasks)) {
+                        return resultData.tasks;
+                    } 
                 } else {
-                    return { error: 'La estructura de datos de la API no es la esperada o el array de tareas está vacío.' };
+                    // Manejo de respuesta inesperada o errores
+                    return { error: resultData.message || 'Error inesperado en la respuesta de la API.' };
                 }
             } catch (error) {
                 this.handleHttpError(error);

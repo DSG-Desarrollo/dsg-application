@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
   faBell,
   faCheckCircle,
   faPlayCircle,
   faCalendarCheck,
   faHourglassHalf,
-} from '@fortawesome/free-solid-svg-icons';
-import TicketsTab from './TicketsTab';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "@fortawesome/free-solid-svg-icons";
+import TicketsTab from "./TicketsTab";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -19,17 +19,17 @@ const tabScreensConfig = [
     name: "TicketsOfDayScreen",
     icon: faCalendarCheck,
     filters: {
-      alarms: false,
-      progress: ['P']
+      id_tipo_usuario: 5,
+      progressTask: ["P"],
     },
     checkNetwork: true,
   },
   {
     name: "TicketsStarted",
     icon: faPlayCircle,
-    filters: { 
-      alarms: false,
-      progress: ['I'] 
+    filters: {
+      id_tipo_usuario: 5,
+      progressTask: ["I"],
     },
     checkNetwork: false,
   },
@@ -37,22 +37,18 @@ const tabScreensConfig = [
     name: "Alarms",
     icon: faBell,
     filters: {
-      alarms: true,
+      id_tipo_usuario: 5,
+      id_tipo_tarea: 18,
+      progressTask: ["I", "P", "C"],
     },
     checkNetwork: false,
   },
-  /*{
-    name: "TicketsExtraHours",
-    icon: faHourglassHalf,
-    filters: { extra_hours: true },
-    checkNetwork: false,
-  },*/
   {
     name: "TicketsCompleted",
     icon: faCheckCircle,
-    filters: { 
-      alarms: false,
-      progress: ['C'] 
+    filters: {
+      id_tipo_usuario: 5,
+      progressTask: ["C"],
     },
     checkNetwork: false,
   },
@@ -65,7 +61,7 @@ const TicketsScreen = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const jsonValue = await AsyncStorage.getItem('userData');
+        const jsonValue = await AsyncStorage.getItem("userData");
         setUserData(jsonValue ? JSON.parse(jsonValue) : null);
       } catch (e) {
         console.error("Error reading userData from storage", e);
@@ -87,12 +83,15 @@ const TicketsScreen = () => {
 
   return (
     <Tab.Navigator
+      initialRouteName="TicketsOfDayScreen" // Set the default tab to the first one
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: 'blue',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: "blue",
+        tabBarInactiveTintColor: "gray",
         tabBarShowLabel: false,
         tabBarIcon: ({ color }) => {
-          const { icon } = tabScreensConfig.find(screen => screen.name === route.name);
+          const { icon } = tabScreensConfig.find(
+            (screen) => screen.name === route.name
+          );
           return <FontAwesomeIcon icon={icon} size={20} color={color} />;
         },
       })}
@@ -103,7 +102,11 @@ const TicketsScreen = () => {
           name={name}
           children={() => (
             <TicketsTab
-              filters={{ ...filters, id_puesto_empleado: userData.employee.id_empleado }}
+              filters={{
+                ...filters,
+                id_usuario: userData.employee.id_empleado,
+                id_tipo_usuario: userData.id_tipo_usuario,
+              }}
               checkNetwork={checkNetwork}
               userData={userData}
             />

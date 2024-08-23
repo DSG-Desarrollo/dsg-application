@@ -9,7 +9,7 @@ export const routes = {
     name: 'Dashboard',
     requiredLevel: [1, 5],
     order: 1,
-    isActive: 0,
+    isActive: 1,
   },
   TicketsScreen: {
     screen: TicketsScreen,

@@ -25,8 +25,8 @@ const DrawerNavigation = ({ setIsAuthenticated }) => {
       )}
       screenOptions={{
         drawerLabelStyle: {
-          fontFamily: "Roboto", // Tipografía moderna
-          fontSize: 16, // Tamaño de fuente adecuado
+          fontFamily: "Roboto",
+          fontSize: 16,
         },
       }}
     >

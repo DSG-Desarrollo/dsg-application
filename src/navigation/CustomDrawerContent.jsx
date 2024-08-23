@@ -2,7 +2,7 @@ import React from 'react';
 import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import CustomLogo from '../components/atoms/CustomLogo';
-import { CommonActions } from '@react-navigation/native';
+import { CommonActions, StackActions } from '@react-navigation/native';
 
 const CustomDrawerContent = (props) => {
   const { navigation, setIsAuthenticated } = props;
