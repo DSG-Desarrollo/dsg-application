@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -7,7 +7,6 @@ import {
   faCheckCircle,
   faPlayCircle,
   faCalendarCheck,
-  faHourglassHalf,
 } from "@fortawesome/free-solid-svg-icons";
 import TicketsTab from "./TicketsTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +22,7 @@ const tabScreensConfig = [
       progressTask: ["P"],
     },
     checkNetwork: true,
+    badgeCount: 5, // Simulated badge count
   },
   {
     name: "TicketsStarted",
@@ -32,6 +32,7 @@ const tabScreensConfig = [
       progressTask: ["I"],
     },
     checkNetwork: false,
+    badgeCount: 3, // Simulated badge count
   },
   {
     name: "Alarms",
@@ -42,6 +43,7 @@ const tabScreensConfig = [
       progressTask: ["I", "P", "C"],
     },
     checkNetwork: false,
+    badgeCount: 7, // Simulated badge count
   },
   {
     name: "TicketsCompleted",
@@ -51,6 +53,7 @@ const tabScreensConfig = [
       progressTask: ["C"],
     },
     checkNetwork: false,
+    badgeCount: 2, // Simulated badge count
   },
 ];
 
@@ -83,18 +86,29 @@ const TicketsScreen = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="TicketsOfDayScreen" // Set the default tab to the first one
-      screenOptions={({ route }) => ({
-        tabBarActiveTintColor: "blue",
-        tabBarInactiveTintColor: "gray",
-        tabBarShowLabel: false,
-        tabBarIcon: ({ color }) => {
-          const { icon } = tabScreensConfig.find(
-            (screen) => screen.name === route.name
-          );
-          return <FontAwesomeIcon icon={icon} size={20} color={color} />;
-        },
-      })}
+      initialRouteName="TicketsOfDayScreen"
+      screenOptions={({ route }) => {
+        const { icon, badgeCount } = tabScreensConfig.find(
+          (screen) => screen.name === route.name
+        );
+
+        return {
+          tabBarActiveTintColor: "blue",
+          tabBarInactiveTintColor: "gray",
+          tabBarShowLabel: false,
+          tabBarIcon: ({ color }) => (
+            <FontAwesomeIcon icon={icon} size={20} color={color} />
+          ),
+          tabBarBadge:
+            badgeCount > 0
+              ? () => (
+                  <View style={styles.badgeContainer}>
+                    <Text style={styles.badgeText}>{badgeCount}</Text>
+                  </View>
+                )
+              : null,
+        };
+      }}
     >
       {tabScreensConfig.map(({ name, filters, checkNetwork }) => (
         <Tab.Screen
@@ -116,5 +130,33 @@ const TicketsScreen = () => {
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  badgeContainer: {
+    backgroundColor: "#4CAF50", // Rojo brillante para captar la atención
+    borderRadius: 10, // Bordes redondeados, más pronunciado para modernidad
+    minWidth: 20, // Ancho mínimo para acomodar el número
+    paddingHorizontal: 6, // Relleno horizontal para el texto
+    height: 20, // Altura fija
+    alignItems: "center", // Centrar el texto horizontalmente
+    justifyContent: "center", // Centrar el texto verticalmente
+    position: "absolute", // Posición absoluta para superponer el icono
+    top: 6, // Mover hacia arriba para acercar a la parte superior
+    right: 28, // Mover hacia la derecha para acercar a la esquina derecha
+    borderWidth: 2, // Borde para hacer el badge más visible
+    borderColor: "#FFFFFF", // Blanco para resaltar el borde sobre el fondo rojo
+    shadowColor: "#000", // Sombra para darle un efecto de profundidad
+    shadowOffset: { width: 0, height: 2 }, // Desplazamiento de la sombra
+    shadowOpacity: 0.3, // Opacidad de la sombra
+    shadowRadius: 2, // Radio de la sombra
+    elevation: 3, // Elevación para sombra en Android
+  },
+  badgeText: {
+    color: "white", // Color del texto
+    fontSize: 12, // Tamaño del texto ligeramente más grande para legibilidad
+    fontWeight: "bold", // Texto en negrita para destacar
+    textAlign: "center", // Centrar el texto
+  },
+});
 
 export default TicketsScreen;

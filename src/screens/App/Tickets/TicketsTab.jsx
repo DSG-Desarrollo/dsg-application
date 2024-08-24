@@ -6,19 +6,19 @@ import CustomScrollView from "../../../components/atoms/CustomScrollView";
 import useNetworkState from "../../../hooks/useNetworkState";
 import useFetchTickets from "../../../hooks/tickets/useFetchTickets";
 import useSaveToSQLite from "../../../hooks/tickets/useSaveToSQLite";
-import { useFocusEffect } from '@react-navigation/native';
+import SearchFilter from "../../../components/molecules/SearchFilter";
 
 const TicketsTab = ({ filters, checkNetwork }) => {
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log(`Tab with filters:`, filters);
-    }, [filters])
-  );
   const [alertError, setAlertError] = useState(null);
   const [dataToDisplay, setDataToDisplay] = useState([]);
   const { networkState } = useNetworkState();
   const { ticketsData, error, isLoading } = useFetchTickets(filters);
   const { isSaved, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);
+  const [filteredData, setFilteredData] = useState([]);
+
+  const handleFilterChange = (filters) => {
+    // Lógica para filtrar datos basada en los filtros recibidos
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +72,7 @@ const TicketsTab = ({ filters, checkNetwork }) => {
   return (
     <CustomScrollView>
       <View style={styles.container}>
+      <SearchFilter onFilterChange={handleFilterChange} />
         {alertError && (
           <CustomAlert
             message={<Text>{alertError}</Text>}
