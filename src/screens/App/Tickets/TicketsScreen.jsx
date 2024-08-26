@@ -21,7 +21,6 @@ const tabScreensConfig = [
       id_tipo_usuario: 5,
       progressTask: ["P"],
     },
-    checkNetwork: true,
     badgeCount: 5, // Simulated badge count
   },
   {
@@ -31,7 +30,6 @@ const tabScreensConfig = [
       id_tipo_usuario: 5,
       progressTask: ["I"],
     },
-    checkNetwork: false,
     badgeCount: 3, // Simulated badge count
   },
   {
@@ -42,7 +40,6 @@ const tabScreensConfig = [
       id_tipo_tarea: 18,
       progressTask: ["I", "P", "C"],
     },
-    checkNetwork: false,
     badgeCount: 7, // Simulated badge count
   },
   {
@@ -52,7 +49,6 @@ const tabScreensConfig = [
       id_tipo_usuario: 5,
       progressTask: ["C"],
     },
-    checkNetwork: false,
     badgeCount: 2, // Simulated badge count
   },
 ];

@@ -8,7 +8,7 @@ import useFetchTickets from "../../../hooks/tickets/useFetchTickets";
 import useSaveToSQLite from "../../../hooks/tickets/useSaveToSQLite";
 import SearchFilter from "../../../components/molecules/SearchFilter";
 
-const TicketsTab = ({ filters, checkNetwork }) => {
+const TicketsTab = ({ filters }) => {
   const [alertError, setAlertError] = useState(null);
   const [dataToDisplay, setDataToDisplay] = useState([]);
   const { networkState } = useNetworkState();
@@ -24,16 +24,17 @@ const TicketsTab = ({ filters, checkNetwork }) => {
     const fetchData = async () => {
       try {
         if (networkState.isConnected) {
+          // Obtener datos de la red y guardar en SQLite
           if (ticketsData.length > 0) {
             await fetchAllSavedTickets();
             setDataToDisplay(ticketsData.map(mapTicketData));
           } else {
+            // Obtener datos guardados si no hay datos en ticketsData
             setDataToDisplay(await fetchAllSavedTickets().then(result => result.map(mapTicketData)));
           }
-        } else if (checkNetwork) {
-          setDataToDisplay(await fetchAllSavedTickets().then(result => result.map(mapTicketData)));
         } else {
-          setDataToDisplay(ticketsData.map(mapTicketData));
+          // Obtener datos guardados cuando no hay conexión
+          setDataToDisplay(await fetchAllSavedTickets().then(result => result.map(mapTicketData)));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
