@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useDatabase } from '../../context/DatabaseContext';
 
 const useSaveToSQLite = (data) => {
+  console.log(data);
   const [isSaved, setIsSaved] = useState(false);
   const [savedData, setSavedData] = useState([]);
   const hasRun = useRef(false); // Usamos useRef para mantener un valor persistente

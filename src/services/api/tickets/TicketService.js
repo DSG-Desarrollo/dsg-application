@@ -42,6 +42,8 @@ class TicketService {
                     this.api.post('api/tasks', filters),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout))
                 ]);
+                console.log(resultData);
+                
                 if (resultData.status === 'success') {
                     if (resultData && Array.isArray(resultData.tasks)) {
                         return resultData.tasks;
