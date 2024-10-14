@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
   faBell,
@@ -12,7 +13,7 @@ import {
 import TicketsTab from "./TicketsTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Tab = createMaterialTopTabNavigator();
+const Tab = createBottomTabNavigator();
 
 const tabScreensConfig = [
   {
@@ -88,6 +89,7 @@ const TicketsScreen = () => {
         tabBarActiveTintColor: "blue",
         tabBarInactiveTintColor: "gray",
         tabBarShowLabel: false,
+        headerShown: false,
         tabBarIcon: ({ color }) => {
           const { icon } = tabScreensConfig.find(
             (screen) => screen.name === route.name
