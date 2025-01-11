@@ -67,31 +67,27 @@ const TabInstallationType = ({ route }) => {
     try {
       // Verificar si todos los campos obligatorios han sido seleccionados
       if (!selectedOption.vehicle || !selectedOption.installationType || !selectedOption.powerOffType || !selectedOption.batteryType) {
-        // Podrías mostrar un mensaje de error en la interfaz para indicar al usuario que debe seleccionar una opción en cada campo
         return; // Evita que se envíen los datos al servidor si faltan campos obligatorios
       } else {
         // Enviar los datos utilizando el método sendFormData de TicketService
         const response = await ticketService.sendFormData(selectedOption, 'api/work-orders');
-        //console.log('Respuesta del servidor:', response);
+        console.log('Respuesta del servidor:', response);
 
         // Verificar si la respuesta indica que la solicitud fue exitosa (código de estado HTTP 201)
         if (response.status === 201 || response.status === 200) {
-          // La solicitud fue exitosa, puedes manejar la respuesta como desees
-          //console.log('Datos del registro insertado:', response.data);
-          //console.log('Último ID insertado:', response.last_insert_id);
+          // La solicitud fue exitosa
+          console.log('Datos del registro insertado:', response.data);
+          console.log('Último ID insertado:', response.last_insert_id);
           ToastAndroid.show(response.message, ToastAndroid.LONG);
           
           await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
-          // Aquí puedes realizar acciones adicionales, como actualizar la interfaz de usuario
         } else {
           // La solicitud no fue exitosa, manejar el caso de manera adecuada
           console.error('La solicitud no fue exitosa:', response.statusText);
         }
       }
-      // Aquí podrías manejar la respuesta del servidor como desees
     } catch (error) {
       console.error('Error al enviar los datos_:', error.message);
-      // Aquí podrías manejar el error como desees
     }
   };
 
