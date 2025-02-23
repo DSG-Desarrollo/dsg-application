@@ -15,12 +15,32 @@
     },
     "production": {
       "android": {
-        "buildType": "apk"
+        "buildType": "app-bundle"
       },
       "distribution": "store"
     }
   },
   "submit": {
-    "production": {}
+      "development": {
+        "android": {
+          "serviceAccountKeyPath": "./credentials/divine-anthem-450513-g0-ec0a4a9c08b5.json",
+          "track": "internal",
+          "releaseStatus": "draft"
+        }
+      },
+      "preview": {
+        "android": {
+          "serviceAccountKeyPath": "./credentials/divine-anthem-450513-g0-ec0a4a9c08b5.json",
+          "track": "internal",
+          "releaseStatus": "draft"
+        }
+      },
+      "production": {
+        "android": {
+          "serviceAccountKeyPath": "./credentials/divine-anthem-450513-g0-ec0a4a9c08b5.json",
+          "track": "production",
+          "releaseStatus": "completed"
+        }
+      }
   }
 }
