@@ -17,7 +17,6 @@ const filteredRoutes = Object.entries(routes)
 const DrawerNavigation = ({ setIsAuthenticated }) => {
   return (
     <Drawer.Navigator
-      useLegacyImplementation={false}
       drawerContent={(props) => (
         <CustomDrawerContent
           {...props}

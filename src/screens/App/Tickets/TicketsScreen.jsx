@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Text } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -78,6 +78,14 @@ const TicketsScreen = () => {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (!userData || !userData.employee) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 16 }}>
+        <Text>No se pudo cargar la información del usuario. Por favor, inicia sesión nuevamente.</Text>
       </View>
     );
   }

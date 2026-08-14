@@ -16,7 +16,10 @@ const useNetworkState = (hideDuration = 10000) => {
   const netInfo = useNetInfo();
   const [showNetworkInfo, setShowNetworkInfo] = useState(false);
   const [networkState, setNetworkState] = useState({
-    isConnected: false,
+    // Optimista: hasta que NetInfo confirme el estado real (isConnected es
+    // null durante el primer render), no queremos que pantallas como el
+    // login traten a un usuario conectado como si estuviera sin conexión.
+    isConnected: true,
     effectiveBandwidth: 0,
     type: null,
     cellularGeneration: null,
@@ -25,6 +28,13 @@ const useNetworkState = (hideDuration = 10000) => {
 
   useEffect(() => {
     const checkNetworkState = () => {
+      // NetInfo reporta null mientras determina el estado real de la red.
+      // En ese caso no actualizamos (nos quedamos con el último valor
+      // conocido / el optimista inicial) en vez de asumir "sin conexión".
+      if (netInfo.isConnected === null || netInfo.isConnected === undefined) {
+        return;
+      }
+
       let isConnected = netInfo.isConnected;
       const effectiveBandwidth = netInfo.details?.downlink || 0; // downlink in Mbps
       const type = netInfo.type;

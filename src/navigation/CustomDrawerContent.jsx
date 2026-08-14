@@ -2,7 +2,7 @@ import React from 'react';
 import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import CustomLogo from '../components/atoms/CustomLogo';
-import { CommonActions, StackActions } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CustomDrawerContent = (props) => {
   const { navigation, setIsAuthenticated } = props;
@@ -11,14 +11,19 @@ const CustomDrawerContent = (props) => {
     navigation.navigate(routeName);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Limpiamos la sesión persistida; si no, con "recordar sesión" activo
+      // la app volvería a entrar automáticamente con el usuario anterior
+      // la próxima vez que se abra.
+      await AsyncStorage.multiRemove(['userData', 'isAuthenticated']);
+    } catch (error) {
+      console.error('Error al limpiar la sesión almacenada:', error);
+    }
+    // No usar navigation.dispatch(CommonActions.reset(...)) aquí: App.js ya
+    // cambia el stack a LoginScreen en cuanto isAuthenticated es false.
+    // Despachar un reset además de eso produce "RESET action not handled".
     setIsAuthenticated(false);
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'LoginScreen' }],
-      })
-    );
   };
   
   return (

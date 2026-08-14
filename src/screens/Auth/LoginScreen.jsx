@@ -2,20 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Switch, View, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import Background from '@components/atoms/Background';
-import Logo from '../../components/atoms/Logo';
-import Header from '../../components/atoms/Header';
-import Button from '../../components/atoms/Button';
-import TextInput from '../../components/atoms/TextInput';
-import PasswordInput from '../../components/molecules/PasswordInput';
+import Logo from '@components/atoms/Logo';
+import Header from '@components/atoms/Header';
+import Button from '@components/atoms/Button';
+import TextInput from '@components/atoms/TextInput';
+import PasswordInput from '@components/molecules/PasswordInput';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import { loginScreenStyles } from '../../styles';
-import ToastManager from '../../utils/ToastManager';
 import i18n from '../../../i18n';
-import { useDatabase } from '../../context/DatabaseContext';
-import UserService from '../../services/api/users/UserService';
-import { queries } from '../../services/database/queries';
-import useNetworkState from '../../hooks/useNetworkState';
-import { getUserDataFromStorage, storeAuthenticationState, getRememberSessionState } from '../../utils/storageUtils';
+import { useDatabase } from '@context/DatabaseContext';
+import UserService from '@services/api/users/UserService';
+import { queries } from '@services/database/queries';
+import useNetworkState from '@hooks/useNetworkState';
+import { getUserDataFromStorage, storeAuthenticationState, getRememberSessionState } from '@utils/storageUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const userService = new UserService();
@@ -144,11 +143,23 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
         const response = await userService.login(email.value, password.value);
 
         if (response && response.user && response.user.estado_usuario === 'A') {
-          setIsAuthenticated(true);
+          if (!response.user.employee) {
+            // El login fue exitoso pero el backend no devolvió la relación
+            // 'employee' (User::with('employee.position')) para este usuario.
+            // Sin esto, pantallas como Tickets no pueden resolver
+            // userData.employee.id_empleado.
+            console.warn('El usuario autenticado no tiene datos de "employee" asociados:', response.user);
+          }
+          // Persistimos los datos ANTES de marcar al usuario como autenticado,
+          // ya que el cambio de isAuthenticated desmonta LoginScreen y monta
+          // DrawerNavigation (que lee 'userData' de AsyncStorage de inmediato).
           await AsyncStorage.setItem('userData', JSON.stringify(response.user));
           //const usersHttpDB = await getFirstAsyncSql(users.getUserById, [response.user.id_usuario]);
           await insertUserToDatabase(response.user);
-          navigation.replace('DrawerNavigation');
+          // No usar navigation.replace aquí: App.js ya cambia de stack a
+          // DrawerNavigation en cuanto isAuthenticated es true. Llamar a
+          // replace además de eso produce "RESET action not handled".
+          setIsAuthenticated(true);
         } else {
           Alert.alert('Error', 'Inicio de sesión fallido.');
         }
@@ -158,6 +169,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
       Alert.alert('Error', `Error al iniciar sesión: ${error.message}`);
     }
   };
+  
   //console.log(users.getUserById);
   return (
     <Background>
