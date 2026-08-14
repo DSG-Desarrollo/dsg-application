@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 export default ({ config }) => ({
   ...config,
-  plugins: ['expo-localization', "expo-asset"],
+  plugins: ['expo-localization', "expo-asset", "@react-native-community/datetimepicker"],
   extra: {
     wsERPURL: process.env.WS_BASE_URL,
     DBNAME: process.env.DB_NAME,
