@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Switch, View, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
-import Background from '../../components/atoms/Background';
+import Background from '@components/atoms/Background';
 import Logo from '../../components/atoms/Logo';
 import Header from '../../components/atoms/Header';
 import Button from '../../components/atoms/Button';
