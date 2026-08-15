@@ -12,6 +12,34 @@ class DatabaseService {
     constructor(dbName) {
         this.dbName = dbName;
         this.db = null;
+        this.writeQueue = Promise.resolve();
+    }
+
+    /**
+     * Ejecuta `callback` dentro de una transacción, encolada respecto a cualquier otra
+     * llamada a `runExclusive` sobre esta misma conexión. Varias pantallas (tabs) pueden
+     * estar montadas a la vez y disparar guardados en SQLite de forma concurrente; como la
+     * conexión es única, dos transacciones abiertas al mismo tiempo provocan errores como
+     * "cannot start a transaction within a transaction". Encolarlas aquí las serializa.
+     * @param {() => Promise<any>} callback
+     */
+    async runExclusive(callback) {
+        const previous = this.writeQueue.catch(() => {});
+        const run = async () => {
+            await this.db.execAsync('BEGIN TRANSACTION');
+            try {
+                const result = await callback();
+                await this.db.execAsync('COMMIT');
+                return result;
+            } catch (error) {
+                await this.db.execAsync('ROLLBACK');
+                throw error;
+            }
+        };
+
+        const task = previous.then(run);
+        this.writeQueue = task.catch(() => {});
+        return task;
     }
 
     /**
@@ -43,8 +71,31 @@ class DatabaseService {
             try {
                 await this.db.execAsync(createTableSQL);
                 this.log(`Tabla '${schema.tableName}' creada correctamente.`);
+                await this.syncTableColumns(schema);
             } catch (error) {
                 this.handleError(`Error al crear la tabla '${schema.tableName}':`, error);
+            }
+        }
+    }
+
+    /**
+     * Agrega a una tabla ya existente las columnas del esquema que aún no tenga.
+     * `CREATE TABLE IF NOT EXISTS` no actualiza tablas ya creadas en instalaciones previas,
+     * así que esto evita errores tipo "no such column" tras agregar campos al esquema.
+     * @param {object} schema - Esquema de la tabla a sincronizar.
+     */
+    async syncTableColumns(schema) {
+        const existingColumns = await this.db.getAllAsync(`PRAGMA table_info(${schema.tableName})`);
+        const existingColumnNames = new Set(existingColumns.map((col) => col.name));
+
+        for (const [columnName, columnType] of Object.entries(schema.columns)) {
+            if (!existingColumnNames.has(columnName)) {
+                try {
+                    await this.db.execAsync(`ALTER TABLE ${schema.tableName} ADD COLUMN ${columnName} ${columnType}`);
+                    this.log(`Columna '${columnName}' agregada a la tabla '${schema.tableName}'.`);
+                } catch (error) {
+                    this.handleError(`Error al agregar la columna '${columnName}' a '${schema.tableName}':`, error);
+                }
             }
         }
     }

@@ -160,6 +160,7 @@ const schemas = {
         columns: {
             id: 'INTEGER PRIMARY KEY',
             id_tarea: 'INTEGER',
+            id_cliente: 'INTEGER NULL',
             id_tipo_tarea: 'INTEGER',
             id_servicio_cliente: 'INTEGER',
             id_prioridad_tarea: 'INTEGER',
@@ -183,6 +184,7 @@ const schemas = {
             fecha_programacion: 'TEXT NULL',
             solicitud_programacion: 'TEXT NULL',
             comentario_programacion: 'TEXT NULL',
+            comentario_cliente: 'TEXT NULL',
             id_autorizacion_programacion: 'INTEGER NULL',
             fecha_revision: 'TEXT NULL',
             comentario_rechazo: 'TEXT NULL',

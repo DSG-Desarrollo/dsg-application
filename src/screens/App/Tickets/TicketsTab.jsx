@@ -16,32 +16,44 @@ const TicketsTab = ({ filters, checkNetwork }) => {
   );
   const [alertError, setAlertError] = useState(null);
   const [dataToDisplay, setDataToDisplay] = useState([]);
+  const [isResolvingDisplay, setIsResolvingDisplay] = useState(true);
   const { networkState } = useNetworkState();
   const { ticketsData, error, isLoading } = useFetchTickets(filters);
   const { isSaved, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchData = async () => {
+      setIsResolvingDisplay(true);
       try {
+        let result;
         if (networkState.isConnected) {
           if (ticketsData.length > 0) {
             await fetchAllSavedTickets();
-            setDataToDisplay(ticketsData.map(mapTicketData));
+            result = ticketsData.map(mapTicketData);
           } else {
-            setDataToDisplay(await fetchAllSavedTickets().then(result => result.map(mapTicketData)));
+            result = (await fetchAllSavedTickets()).map(mapTicketData);
           }
         } else if (checkNetwork) {
-          setDataToDisplay(await fetchAllSavedTickets().then(result => result.map(mapTicketData)));
+          result = (await fetchAllSavedTickets()).map(mapTicketData);
         } else {
-          setDataToDisplay(ticketsData.map(mapTicketData));
+          result = ticketsData.map(mapTicketData);
         }
+        if (!cancelled) setDataToDisplay(result);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setAlertError("Error al obtener los datos. Intenta de nuevo más tarde.");
+        if (!cancelled) setAlertError("Error al obtener los datos. Intenta de nuevo más tarde.");
+      } finally {
+        if (!cancelled) setIsResolvingDisplay(false);
       }
     };
 
     fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [networkState.isConnected, ticketsData]);
 
   const mapTicketData = (task) => ({
@@ -79,7 +91,7 @@ const TicketsTab = ({ filters, checkNetwork }) => {
             onClose={() => setAlertError(null)}
           />
         )}
-        {isLoading ? (
+        {isLoading || isResolvingDisplay ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : dataToDisplay.length > 0 ? (
           <View style={styles.ticketsContainer}>

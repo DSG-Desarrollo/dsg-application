@@ -5,7 +5,7 @@ const useSaveToSQLite = (data) => {
   const [isSaved, setIsSaved] = useState(false);
   const [savedData, setSavedData] = useState([]);
   const hasRun = useRef(false); // Usamos useRef para mantener un valor persistente
-  const { getAllAsyncSql, executeSql } = useDatabase();
+  const { getAllAsyncSql, executeSql, runExclusive } = useDatabase();
 
   useEffect(() => {
     const saveData = async () => {
@@ -81,37 +81,35 @@ const useSaveToSQLite = (data) => {
     const values = columns.map((column) => data[column] || null);
     const placeholders = columns.map(() => '?').join(', ');
 
-    await executeSql('BEGIN TRANSACTION');
-
     try {
-      const existingDataQuery = `SELECT * FROM ${tableName} WHERE ${secondaryIdField} = ? LIMIT 1`;
-      const existingData = await getAllAsyncSql(existingDataQuery, [data[secondaryIdField]]);
+      await runExclusive(async () => {
+        const existingDataQuery = `SELECT * FROM ${tableName} WHERE ${secondaryIdField} = ? LIMIT 1`;
+        const existingData = await getAllAsyncSql(existingDataQuery, [data[secondaryIdField]]);
 
-      if (existingData.length === 0) {
-        const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
-        await executeSql(query, values);
-        //console.log(`Data inserted into ${tableName} - ${query}`);
-      } else {
-        const existingRecord = existingData[0];
-        let needsUpdate = false;
-        for (const [key, value] of Object.entries(data)) {
-          if (existingRecord[key] !== value) {
-            needsUpdate = true;
-            break;
+        if (existingData.length === 0) {
+          const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
+          await executeSql(query, values);
+          //console.log(`Data inserted into ${tableName} - ${query}`);
+        } else {
+          const existingRecord = existingData[0];
+          let needsUpdate = false;
+          for (const [key, value] of Object.entries(data)) {
+            if (existingRecord[key] !== value) {
+              needsUpdate = true;
+              break;
+            }
+          }
+          if (needsUpdate) {
+            const updateColumns = columns.map(column => `${column} = ?`).join(', ');
+            const updateQuery = `UPDATE ${tableName} SET ${updateColumns} WHERE ${secondaryIdField} = ?`;
+            await executeSql(updateQuery, [...values, data[secondaryIdField]]);
+            //console.log(`Data updated in ${tableName} - ${updateQuery}`);
+          } else {
+            //console.log(`Data already up-to-date in ${tableName} for ${secondaryIdField}: ${data[secondaryIdField]}`);
           }
         }
-        if (needsUpdate) {
-          const updateColumns = columns.map(column => `${column} = ?`).join(', ');
-          const updateQuery = `UPDATE ${tableName} SET ${updateColumns} WHERE ${secondaryIdField} = ?`;
-          await executeSql(updateQuery, [...values, data[secondaryIdField]]);
-          //console.log(`Data updated in ${tableName} - ${updateQuery}`);
-        } else {
-          //console.log(`Data already up-to-date in ${tableName} for ${secondaryIdField}: ${data[secondaryIdField]}`);
-        }
-      }
-      await executeSql('COMMIT');
+      });
     } catch (error) {
-      await executeSql('ROLLBACK');
       console.error(`Error upserting data into ${tableName}:`, error);
     }
   };

@@ -69,11 +69,18 @@ export const DatabaseProvider = ({ children }) => {
     return null;
   }
 
+  const runExclusive = async (callback) => {
+    if (databaseService) {
+      return await databaseService.runExclusive(callback);
+    }
+    return null;
+  };
+
   return (
     <DatabaseContext.Provider value={
       {
         getTableStructure, executeSql, getAllAsyncSql,
-        getFirstAsyncSql, isDatabaseInitialized, errorInitializingDatabase
+        getFirstAsyncSql, runExclusive, isDatabaseInitialized, errorInitializingDatabase
       }
     }>
       {children}
