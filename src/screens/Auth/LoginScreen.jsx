@@ -14,8 +14,10 @@ import { useDatabase } from '@context/DatabaseContext';
 import UserService from '@services/api/users/UserService';
 import { queries } from '@services/database/queries';
 import useNetworkState from '@hooks/useNetworkState';
-import { getUserDataFromStorage, storeAuthenticationState, getRememberSessionState } from '@utils/storageUtils';
+import { storeAuthenticationState, getRememberSessionState } from '@utils/storageUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { md5 } from '@utils/md5';
+import LoadingOverlay from '@components/atoms/LoadingOverlay';
 
 const userService = new UserService();
 const { users, userInserts } = queries;
@@ -25,14 +27,13 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
   const { isConnected } = networkState;
   const { databaseContext, getAllAsyncSql, getFirstAsyncSql, isDatabaseInitialized, executeSql } = useDatabase();
   const [rememberSession, setRememberSession] = useState(false);
-  const [userData, setUserData] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
-  const [error, setError] = useState(null);
   const [email, setUsuario] = useState({
     value: '',
     error: '',
   });
   const [password, setPassword] = useState({ value: '', error: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Función para manejar el cambio de estado de "Recordar sesión"
   const onRememberMeChange = async (value) => {
@@ -88,24 +89,6 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     loadRememberSessionState();
   }, []);
 
-  // Obtener datos del usuario almacenados al montar el componente
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userDataFromStorage = await getUserDataFromStorage();
-        if (userDataFromStorage === null) {
-          setError('No se encontraron datos de usuario en el almacenamiento.');
-        } else {
-          setUserData(userDataFromStorage);
-        }
-      } catch (error) {
-        setError('Error al recuperar datos de usuario del almacenamiento.');
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
   useEffect(() => {
     const fetchUsers = async () => {
       if (isDatabaseInitialized) {
@@ -125,17 +108,30 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
       return;
     }
 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     try {
       if (!isConnected) {
-        // Sin conexión a internet
-        const userId = userData ? userData.id_usuario : null;
-        const usersDB = await getAllAsyncSql(users.getUserById, [userId]);
-        console.log(usersDB);
-        if (usersDB.length > 0) {
+        // Sin conexión a internet: antes esta rama solo comprobaba si
+        // existía *algún* usuario cacheado ligado a la última sesión
+        // (userData.id_usuario), ignorando por completo el email/contraseña
+        // que la persona acababa de escribir en el formulario — cualquier
+        // texto en el campo de contraseña quedaba autenticado si había una
+        // sesión previa guardada. Ahora sí validamos las credenciales
+        // ingresadas contra la copia local (SQLite) del último login
+        // exitoso, igual que hace el backend (usuario + hash MD5 de clave).
+        const localUser = await getFirstAsyncSql(users.getUserByUsername, [email.value]);
+        const credentialsMatch =
+          localUser &&
+          localUser.estado_usuario === 'A' &&
+          localUser.clave === md5(password.value);
+
+        if (credentialsMatch) {
           setIsAuthenticated(true);
           Alert.alert('Éxito', 'Inicio de sesión exitoso sin conexión.');
         } else {
-          Alert.alert('Error', 'Usuario no encontrado en la base de datos local.');
+          Alert.alert('Error', 'Usuario o contraseña incorrectos.');
           return;
         }
       } else {
@@ -166,63 +162,81 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
-      Alert.alert('Error', `Error al iniciar sesión: ${error.message}`);
+      if (error.isCredentialsError) {
+        // El servidor respondió y rechazó explícitamente el usuario/clave.
+        Alert.alert('Error', 'Usuario o contraseña incorrectos.');
+      } else {
+        // Falla de red/servidor (timeout, sin conexión al backend, etc.),
+        // no un rechazo de credenciales.
+        Alert.alert(
+          'Error',
+          'No se pudo conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.'
+        );
+      }
+    } finally {
+      // Si el login fue exitoso, setIsAuthenticated(true) ya desmontó (o está
+      // por desmontar) esta pantalla; actualizar isSubmitting en ese caso es
+      // inofensivo. En cualquier otro desenlace, esto reactiva el botón.
+      setIsSubmitting(false);
     }
   };
   
   //console.log(users.getUserById);
   return (
-    <Background>
-      <Logo
-        source={require('../../assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}
-        size={110}
-        style={{ marginBottom: 16, borderWidth: 2 }}
-      />
-      <Header>{i18n.t('welcome')}</Header>
-      <TextInput
-        label={i18n.t('username')}
-        returnKeyType="next"
-        value={email.value}
-        onChangeText={(text) => setUsuario({ value: text, error: '' })}
-        error={!!email.error}
-        errorText={email.error}
-        autoCapitalize="none"
-        autoCompleteType="email"
-        textContentType="emailAddress"
-        keyboardType="email-address"
-      />
-      <PasswordInput
-        label={i18n.t('password')}
-        value={password.value}
-        onChangeText={(text) => setPassword({ value: text, error: '' })}
-        errorText={password.error}
-      />
-      <View style={loginScreenStyles.forgotRememberContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('ResetPasswordScreen')}
-        >
-          <Text style={loginScreenStyles.forgot}>{i18n.t('forgotPassword')}</Text>
-        </TouchableOpacity>
-        <View style={loginScreenStyles.rememberContainer}>
-          <Text style={loginScreenStyles.rememberText}>{i18n.t('rememberSession')}</Text>
-          <Switch
-            value={rememberSession}
-            onValueChange={onRememberMeChange}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={rememberSession ? '#003F75' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
-          />
+    <LoadingOverlay visible={isSubmitting} fullscreen text="Conectando con el servidor...">
+      <Background>
+        <Logo
+          source={require('../../assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}
+          size={110}
+          style={{ marginBottom: 16, borderWidth: 2 }}
+        />
+        <Header>{i18n.t('welcome')}</Header>
+        <TextInput
+          label={i18n.t('username')}
+          returnKeyType="next"
+          value={email.value}
+          onChangeText={(text) => setUsuario({ value: text, error: '' })}
+          error={!!email.error}
+          errorText={email.error}
+          autoCapitalize="none"
+          autoCompleteType="email"
+          textContentType="emailAddress"
+          keyboardType="email-address"
+        />
+        <PasswordInput
+          label={i18n.t('password')}
+          value={password.value}
+          onChangeText={(text) => setPassword({ value: text, error: '' })}
+          errorText={password.error}
+        />
+        <View style={loginScreenStyles.forgotRememberContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ResetPasswordScreen')}
+          >
+            <Text style={loginScreenStyles.forgot}>{i18n.t('forgotPassword')}</Text>
+          </TouchableOpacity>
+          <View style={loginScreenStyles.rememberContainer}>
+            <Text style={loginScreenStyles.rememberText}>{i18n.t('rememberSession')}</Text>
+            <Switch
+              value={rememberSession}
+              onValueChange={onRememberMeChange}
+              trackColor={{ false: '#767577', true: '#81b0ff' }}
+              thumbColor={rememberSession ? '#003F75' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+            />
+          </View>
         </View>
-      </View>
-      <Button
-        mode="contained"
-        onPress={onLoginPressed}
-        icon={({ color, size }) => (
-          <MaterialCommunityIcons name="account" color={color} size={size} />
-        )}
-      >
-        {i18n.t('login')}
-      </Button>
-    </Background>
+        <Button
+          mode="contained"
+          onPress={onLoginPressed}
+          disabled={isSubmitting}
+          icon={({ color, size }) => (
+            <MaterialCommunityIcons name="account" color={color} size={size} />
+          )}
+        >
+          {i18n.t('login')}
+        </Button>
+      </Background>
+    </LoadingOverlay>
   );
 }

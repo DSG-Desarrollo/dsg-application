@@ -68,7 +68,12 @@ class UserService {
         // La pantalla (LoginScreen) ya muestra un Alert con este mismo
         // mensaje en su catch; no duplicarlo aquí.
         ToastManager.showError(backendMessage);
-        throw new Error(backendMessage);
+        const rejectionError = new Error(backendMessage);
+        // Marca este error como un rechazo de credenciales (respuesta real
+        // del servidor), a diferencia de una falla de red/conexión, para
+        // que LoginScreen pueda mostrar un alert distinto en cada caso.
+        rejectionError.isCredentialsError = true;
+        throw rejectionError;
     }
 }
 
