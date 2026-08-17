@@ -29,10 +29,10 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
   const [rememberSession, setRememberSession] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [email, setUsuario] = useState({
-    value: '',
+    value: 'emerson.martinez',
     error: '',
   });
-  const [password, setPassword] = useState({ value: '', error: '' });
+  const [password, setPassword] = useState({ value: 'Dsg2022Wt5', error: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Función para manejar el cambio de estado de "Recordar sesión"
