@@ -5,6 +5,7 @@ const { getDefaultConfig } = require('expo/metro-config');
 const config = getDefaultConfig(__dirname);
 
 const aliases = {
+  '@assets': path.resolve(__dirname, 'src/assets'),
   '@components': path.resolve(__dirname, 'src/components'),
   '@services': path.resolve(__dirname, 'src/services'),
   '@styles': path.resolve(__dirname, 'src/styles'),
