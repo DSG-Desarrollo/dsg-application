@@ -2,7 +2,7 @@
   "welcome": "Bienvenido",
   "username": "Nombre de usuario",
   "password": "Contraseña",
-  "forgotPassword": "Olvidé mi contraseña",
+  "forgotPassword": "Olvidaste tu contraseña?",
   "rememberSession": "Recordar sesión",
   "login": "Iniciar sesión",
   "connected": "Conectado:",

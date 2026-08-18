@@ -186,9 +186,9 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     <LoadingOverlay visible={isSubmitting} fullscreen text="Conectando con el servidor...">
       <Background>
         <Logo
-          source={require('../../assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}
+          source={require('@assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}
           size={110}
-          style={{ marginBottom: 16, borderWidth: 2 }}
+          style={{ marginBottom: 16 }}
         />
         <Header>{i18n.t('welcome')}</Header>
         <TextInput
