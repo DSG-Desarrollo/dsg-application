@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import AxiosManager from "../../utils/AxiosManager";
+import AxiosManager from "@utils/AxiosManager";
 import { ToastAndroid } from "react-native";
 
 // Definir las claves de los formularios como constantes

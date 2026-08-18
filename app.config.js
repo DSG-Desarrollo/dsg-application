@@ -6,6 +6,7 @@ export default ({ config }) => ({
   extra: {
     wsERPURL: process.env.WS_BASE_URL,
     DBNAME: process.env.DB_NAME,
+    URL_INTERNET_CONNECTIVITY_TEST: process.env.URL_INTERNET_CONNECTIVITY_TEST,
     eas: {
       projectId: 'b19a1a48-d69b-4f7d-8b5f-b5aafb61b42d'
     }

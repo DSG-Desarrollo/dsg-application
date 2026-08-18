@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
+import Constants from "expo-constants";
 import NetInfo, { useNetInfo } from '@react-native-community/netinfo';
-import i18n from '../../i18n';
+import i18n from '@i18n/i18n';
+
+const {URL_INTERNET_CONNECTIVITY_TEST} = Constants.expoConfig.extra;
 
 NetInfo.configure({
-    reachabilityUrl: 'https://clients3.google.com/generate_204',
+    reachabilityUrl: URL_INTERNET_CONNECTIVITY_TEST,
     reachabilityMethod: 'HEAD',
     reachabilityTest: async (response) => response.status === 204,
     reachabilityShortTimeout: 5000,

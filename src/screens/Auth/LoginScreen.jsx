@@ -9,7 +9,7 @@ import TextInput from '@components/atoms/TextInput';
 import PasswordInput from '@components/molecules/PasswordInput';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import { loginScreenStyles } from '../../styles';
-import i18n from '../../../i18n';
+import i18n from '@i18n/i18n';
 import { useDatabase } from '@context/DatabaseContext';
 import UserService from '@services/api/users/UserService';
 import { queries } from '@services/database/queries';

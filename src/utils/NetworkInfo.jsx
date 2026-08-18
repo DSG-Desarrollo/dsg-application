@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import i18n from '../../i18n';
+import i18n from '@i18n/i18n';
 import { NetworkInfoStyles } from '../styles';
-import useNetworkState from '../hooks/useNetworkState';
+import useNetworkState from '@hooks/useNetworkState';
 
 const NetworkInfo = ({ children }) => {
     const insets = useSafeAreaInsets();

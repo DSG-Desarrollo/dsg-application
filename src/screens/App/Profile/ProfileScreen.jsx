@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import i18n from '../../../../i18n';
-import { useDatabase } from '../../../context/DatabaseContext';
+import i18n from '@i18n/i18n';
+import { useDatabase } from '@context/DatabaseContext';
 
 const ProfileScreen = () => {
   const { executeSql } = useDatabase();

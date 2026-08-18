@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, Text, ToastAndroid, TextInput, TouchableOpacity, Pressable } from 'react-native';
 import { RadioButton } from 'react-native-paper';
-import i18n from '../../../../i18n';
-import TicketService from '../../../services/api/tickets/TicketService';
-import FormValidation from '../../../components/molecules/FormValidation';
-import FormCompletionTracker from '../../../components/atoms/FormCompletionTracker';
+import i18n from '@i18n/i18n';
+import TicketService from '@services/api/tickets/TicketService';
+import FormValidation from '@components/molecules/FormValidation';
+import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TabInstallationType = ({ route }) => {
