@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Background from '@components/atoms/Background';
 import BackButton from '@components/atoms/BackButton';
-import Logo from '@components/atoms/Logo';
-import Header from '@components/atoms/Header';
-import TextInput from '@components/atoms/TextInput';
 import Button from '@components/atoms/Button';
+import Header from '@components/atoms/Header';
+import Logo from '@components/atoms/Logo';
+import TextInput from '@components/atoms/TextInput';
 import { emailValidator } from '@helpers/emailValidator';
 import i18n from '@i18n/i18n';
 
