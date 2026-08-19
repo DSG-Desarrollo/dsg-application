@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import Background from '../../components/atoms/Background';
-import BackButton from '../../components/atoms/BackButton';
-import Logo from '../../components/atoms/Logo';
-import Header from '../../components/atoms/Header';
-import TextInput from '../../components/atoms/TextInput';
-import Button from '../../components/atoms/Button';
-import { emailValidator } from '../../helpers/emailValidator';
-import { Toolbar } from '../../components/atoms/Toolbar';
+import Background from '@components/atoms/Background';
+import BackButton from '@components/atoms/BackButton';
+import Logo from '@components/atoms/Logo';
+import Header from '@components/atoms/Header';
+import TextInput from '@components/atoms/TextInput';
+import Button from '@components/atoms/Button';
+import { emailValidator } from '@helpers/emailValidator';
 
 export default function ResetPasswordScreen({ navigation }) {
   const [email, setEmail] = useState({ value: '', error: '' });
@@ -26,7 +25,7 @@ export default function ResetPasswordScreen({ navigation }) {
       <Logo
         source={require('../../assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}
         size={110}
-        style={{ marginBottom: 16, borderWidth: 2 }}
+        style={{ marginBottom: 16 }}
       />
       <Header>Restore Password</Header>
       <TextInput
