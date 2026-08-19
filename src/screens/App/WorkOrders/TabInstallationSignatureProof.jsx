@@ -11,11 +11,11 @@ import {
   Dimensions,
 } from "react-native";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
-import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
-import DrawableImage from "../../../components/molecules/DrawableImage";
-import ActionButtons from "../../../components/atoms/ActionButtons";
-import ApiService from "../../../services/api/ApiService";
-import FormValidation from "../../../components/molecules/FormValidation";
+import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import DrawableImage from "@components/molecules/DrawableImage";
+import ActionButtons from "@components/atoms/ActionButtons";
+import ApiService from "@services/api/ApiService";
+import FormValidation from "@components/molecules/FormValidation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");

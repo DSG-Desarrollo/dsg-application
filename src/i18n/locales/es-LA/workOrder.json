@@ -10,5 +10,24 @@
   "powerOffSAR": "SAR",
   "batteryType": "Batería",
   "batteryBI": "BI",
-  "batterySBI": "SBI"
+  "batterySBI": "SBI",
+
+  "general": "GENERAL",
+  "client": "Cliente",
+  "work": "Trabajo",
+  "services": "Servicios",
+  "required": "Requeridos",
+  "status": "Completado",
+
+  "scheduling": "PROGRAMACIÓN",
+  "date": "Fecha",
+  "address": "Dirección",
+
+  "progress": "PROGRESO",
+  "progressValue": "Progreso",
+  "start": "Inicio",
+  "completed": "Completado:",
+
+  "noDataText": "No hay unidades que listar",
+  "orders": "ORDENES"
 }

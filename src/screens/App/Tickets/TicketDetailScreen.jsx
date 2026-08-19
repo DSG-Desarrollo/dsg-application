@@ -15,6 +15,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import useMethodSaveToSQLite from "../../../hooks/useMethodSaveToSQLite";
 import theme from '../../../themes/theme';
 import { useIsFocused } from '@react-navigation/native';
+import i18n from '@i18n/i18n';
 
 const TicketDetailScreen = ({ route, navigation }) => {
   const isFocused = useIsFocused();
@@ -150,7 +151,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
     <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
       <View style={style.section}>
         <View style={style.sectionContent}>
-          <Text style={style.sectionTitle}>GENERAL</Text>
+          <Text style={style.sectionTitle}>{i18n.t('workOrder:general')}</Text>
           <Ionicons
             name="person"
             size={24}
@@ -159,30 +160,30 @@ const TicketDetailScreen = ({ route, navigation }) => {
           />
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Cliente: </Text>
+          <Text style={style.label}>{i18n.t('workOrder:client')} </Text>
           <Text style={style.value}>{empresa}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Trabajo:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:work')}</Text>
           <Text style={style.value}>{trabajo}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Servicios:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:services')}</Text>
           <Text style={style.value}>{servicio}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Requeridos:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:required')}</Text>
           <Text style={style.value}>{requeridos}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Completado:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:status')}</Text>
           <Text style={style.value}>{estado}</Text>
         </View>
       </View>
 
       <View style={style.section}>
         <View style={style.sectionContent}>
-          <Text style={style.sectionTitle}>PROGRAMACIÓN</Text>
+          <Text style={style.sectionTitle}>{i18n.t('workOrder:scheduling')}</Text>
           <Ionicons
             name="calendar"
             size={24}
@@ -191,18 +192,18 @@ const TicketDetailScreen = ({ route, navigation }) => {
           />
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Fecha:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:date')}:</Text>
           <Text style={style.value}>{fechaCreacion}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Dirección:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:address')}:</Text>
           <Text style={style.value}>{direccionTarea}</Text>
         </View>
       </View>
 
       <View style={style.section}>
         <View style={style.sectionContent}>
-          <Text style={style.sectionTitle}>PROGRESO</Text>
+          <Text style={style.sectionTitle}>{i18n.t('workOrder:progress')}</Text>
           <Ionicons
             name="stats-chart"
             size={24}
@@ -211,15 +212,15 @@ const TicketDetailScreen = ({ route, navigation }) => {
           />
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Progreso:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:progressValue')}:</Text>
           <Text style={style.value}>{progresoTareaDescripcion}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Inicio:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:start')}:</Text>
           <Text style={style.value}>{fechaInicioTarea}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>Completado:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:completed')}:</Text>
           <Text style={style.value}>{fechaFinTarea}</Text>
         </View>
       </View>
@@ -230,7 +231,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
     <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
       <View style={style.ordersContainer}>
         <View style={style.sectionContent}>
-          <Text style={style.sectionTitle}>ORDENES</Text>
+          <Text style={style.sectionTitle}>{i18n.t('workOrder:orders')}</Text>
           <Ionicons
             name="list"
             size={24}
@@ -267,7 +268,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
             );
           })
         ) : (
-          <Text style={style.noDataText}>No hay unidades que listar</Text>
+          <Text style={style.noDataText}>{i18n.t('workOrder:noDataText')}</Text>
         )}
       </View>
     </View>

@@ -21,21 +21,21 @@ const resources = {
   en: {
     common: enCommon,
     auth: enAuth,
-    vehicles: enVehicles,
+    workOrder: enVehicles,
     ticket: enTicket,
   },
 
   es: {
     common: esCommon,
     auth: esAuth,
-    vehicles: esVehicles,
+    workOrder: esVehicles,
     ticket: esTicket,
   },
 
   'es-LA': {
     common: esLACommon,
     auth: esLAAuth,
-    vehicles: esLAVehicles,
+    workOrder: esLAVehicles,
     ticket: esLATicket,
   },
 };

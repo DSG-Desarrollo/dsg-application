@@ -3,7 +3,7 @@ import { View, TouchableOpacity } from "react-native";
 import { Card, Title, Paragraph, Badge } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
-import ticketListStyles from "../../styles/TicketListStyles";
+import ticketListStyles from "@styles/TicketListStyles";
 
 const TicketList = (props) => {
   const {

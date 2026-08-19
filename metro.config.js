@@ -12,6 +12,7 @@ const aliases = {
   '@services': path.resolve(__dirname, 'src/services'),
   '@screens': path.resolve(__dirname, 'src/screens'),
   '@styles': path.resolve(__dirname, 'src/styles'),
+  '@themes': path.resolve(__dirname, 'src/themes'),
   '@utils': path.resolve(__dirname, 'src/utils'),
   '@hooks': path.resolve(__dirname, 'src/hooks'),
   '@context': path.resolve(__dirname, 'src/context'),
