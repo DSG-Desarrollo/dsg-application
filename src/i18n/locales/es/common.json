@@ -4,5 +4,6 @@
     "networkState": "Accesible a internet:",
     "networkType": "Tipo:",
     "noInternetConnection": "Sin conexión a Internet",
-    "networkError": "Error al obtener el estado de la red."
+    "networkError": "Error al obtener el estado de la red.",
+    "connecting": "Conectando con el sistema..."
   }

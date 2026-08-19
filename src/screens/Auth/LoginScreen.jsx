@@ -183,7 +183,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
   
   //console.log(users.getUserById);
   return (
-    <LoadingOverlay visible={isSubmitting} fullscreen text="Conectando con el servidor...">
+    <LoadingOverlay visible={isSubmitting} fullscreen text={i18n.t('common:connecting')}>
       <Background>
         <Logo
           source={require('@assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}

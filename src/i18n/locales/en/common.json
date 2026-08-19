@@ -4,5 +4,6 @@
   "networkState": "Internet Access:",
   "networkType": "Type:",
   "noInternetConnection": "No Internet Connection",
-  "networkError": "Unable to retrieve network status."
+  "networkError": "Unable to retrieve network status.",
+  "connecting": "Connecting to the system..."
 }
