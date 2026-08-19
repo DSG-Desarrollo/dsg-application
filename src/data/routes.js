@@ -1,5 +1,9 @@
-import { Dashboard, ProfileScreen, TicketsScreen, TicketDetailScreen } from '../screens';
-import { faHome, faTicketAlt, faUserCircle, faCog } from '@fortawesome/free-solid-svg-icons';
+import { 
+  Dashboard, 
+  ProfileScreen, 
+  TicketsScreen 
+} from '@screens';
+import { faHome, faTicketAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 
 export const routes = {
   Dashboard: {

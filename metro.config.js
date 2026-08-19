@@ -10,10 +10,12 @@ const aliases = {
   '@i18n': path.resolve(__dirname, 'src/i18n'),
   '@helpers': path.resolve(__dirname, 'src/helpers'),
   '@services': path.resolve(__dirname, 'src/services'),
+  '@screens': path.resolve(__dirname, 'src/screens'),
   '@styles': path.resolve(__dirname, 'src/styles'),
   '@utils': path.resolve(__dirname, 'src/utils'),
   '@hooks': path.resolve(__dirname, 'src/hooks'),
   '@context': path.resolve(__dirname, 'src/context'),
+  '@routes': path.resolve(__dirname, 'src/data'),
 };
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

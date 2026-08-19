@@ -7,10 +7,12 @@
       "@i18n/*": ["src/i18n/*"],
       "@helpers/*": ["src/helpers/*"],
       "@services/*": ["src/services/*"],
+      "@screens/*": ["src/screens/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@context/*": ["src/context/*"]
+      "@context/*": ["src/context/*"],
+      "@routes/*": ["src/data/*"],
     }
   },
   "include": ["**/*.js", "**/*.jsx"],

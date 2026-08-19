@@ -2,7 +2,7 @@ import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import CustomDrawerContent from "./CustomDrawerContent";
-import { routes } from "../data/routes";
+import { routes } from "@routes/routes";
 
 const Drawer = createDrawerNavigator();
 
