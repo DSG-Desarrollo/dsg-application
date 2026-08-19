@@ -8,6 +8,9 @@ import TextInput from '@components/atoms/TextInput';
 import { emailValidator } from '@helpers/emailValidator';
 import i18n from '@i18n/i18n';
 
+// Icons
+import { MaterialCommunityIcons } from 'react-native-vector-icons';
+
 export default function ResetPasswordScreen({ navigation }) {
   const [email, setEmail] = useState({ value: '', error: '' });
 
@@ -45,7 +48,9 @@ export default function ResetPasswordScreen({ navigation }) {
       <Button
         mode="contained"
         onPress={sendResetPasswordEmail}
-        style={{ marginTop: 16 }}
+        icon={({ color, size }) => (
+          <MaterialCommunityIcons name="email-sync-outline" color={color} size={size} />
+        )}
       >
         {i18n.t('auth:sendResetInstructions')}
       </Button>
