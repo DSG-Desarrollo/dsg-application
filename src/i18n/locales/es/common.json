@@ -1,0 +1,8 @@
+{
+    "theme": "Tema oscuro",
+    "connected": "Conectado:",
+    "networkState": "Accesible a internet:",
+    "networkType": "Tipo:",
+    "noInternetConnection": "Sin conexión a Internet",
+    "networkError": "Error al obtener el estado de la red."
+  }

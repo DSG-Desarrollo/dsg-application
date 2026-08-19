@@ -1,0 +1,8 @@
+{
+  "theme": "Dark Theme",
+  "connected": "Connected:",
+  "networkState": "Internet Access:",
+  "networkType": "Type:",
+  "noInternetConnection": "No Internet Connection",
+  "networkError": "Unable to retrieve network status."
+}

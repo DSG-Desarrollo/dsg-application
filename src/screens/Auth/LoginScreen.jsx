@@ -190,9 +190,9 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           size={110}
           style={{ marginBottom: 16 }}
         />
-        <Header>{i18n.t('welcome')}</Header>
+        <Header>{i18n.t('auth:welcome')}</Header>
         <TextInput
-          label={i18n.t('username')}
+          label={i18n.t('auth:username')}
           returnKeyType="next"
           value={email.value}
           onChangeText={(text) => setUsuario({ value: text, error: '' })}
@@ -204,7 +204,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           keyboardType="email-address"
         />
         <PasswordInput
-          label={i18n.t('password')}
+          label={i18n.t('auth:password')}
           value={password.value}
           onChangeText={(text) => setPassword({ value: text, error: '' })}
           errorText={password.error}
@@ -213,10 +213,10 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           <TouchableOpacity
             onPress={() => navigation.navigate('ResetPasswordScreen')}
           >
-            <Text style={loginScreenStyles.forgot}>{i18n.t('forgotPassword')}</Text>
+            <Text style={loginScreenStyles.forgot}>{i18n.t('auth:forgotPassword')}</Text>
           </TouchableOpacity>
           <View style={loginScreenStyles.rememberContainer}>
-            <Text style={loginScreenStyles.rememberText}>{i18n.t('rememberSession')}</Text>
+            <Text style={loginScreenStyles.rememberText}>{i18n.t('auth:rememberSession')}</Text>
             <Switch
               value={rememberSession}
               onValueChange={onRememberMeChange}
@@ -234,7 +234,7 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
             <MaterialCommunityIcons name="account" color={color} size={size} />
           )}
         >
-          {i18n.t('login')}
+          {i18n.t('auth:login')}
         </Button>
       </Background>
     </LoadingOverlay>

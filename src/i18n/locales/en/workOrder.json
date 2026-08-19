@@ -1,0 +1,14 @@
+{
+  "vehicleType": "Vehicle Type",
+  "vehicleVH": "VH",
+  "vehicleFG": "FG",
+  "installationType": "Installation Type",
+  "installationT1": "T1",
+  "installationT2": "T2",
+  "powerOffType": "Power-Off Type",
+  "powerOffAR": "AR",
+  "powerOffSAR": "SAR",
+  "batteryType": "Battery Type",
+  "batteryBI": "BI",
+  "batterySBI": "SBI"
+}
