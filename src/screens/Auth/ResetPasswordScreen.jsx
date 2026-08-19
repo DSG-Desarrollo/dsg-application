@@ -6,6 +6,7 @@ import Header from '@components/atoms/Header';
 import TextInput from '@components/atoms/TextInput';
 import Button from '@components/atoms/Button';
 import { emailValidator } from '@helpers/emailValidator';
+import i18n from '@i18n/i18n';
 
 export default function ResetPasswordScreen({ navigation }) {
   const [email, setEmail] = useState({ value: '', error: '' });
@@ -23,13 +24,13 @@ export default function ResetPasswordScreen({ navigation }) {
     <Background>
       <BackButton goBack={navigation.goBack} />
       <Logo
-        source={require('../../assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}
+        source={require('@assets/images/ESCUDO_LOGO_DSG_2020_FONDO_BLANCO.png')}
         size={110}
         style={{ marginBottom: 16 }}
       />
-      <Header>Restore Password</Header>
+      <Header>{i18n.t('auth:resetPassword')}</Header>
       <TextInput
-        label="E-mail address"
+        label={i18n.t('auth:emailAddress')}
         returnKeyType="done"
         value={email.value}
         onChangeText={(text) => setEmail({ value: text, error: '' })}
@@ -39,14 +40,14 @@ export default function ResetPasswordScreen({ navigation }) {
         autoCompleteType="email"
         textContentType="emailAddress"
         keyboardType="email-address"
-        description="You will receive email with password reset link."
+        description={i18n.t('auth:resetPasswordDescription')}
       />
       <Button
         mode="contained"
         onPress={sendResetPasswordEmail}
         style={{ marginTop: 16 }}
       >
-        Send Instructions
+        {i18n.t('auth:sendResetInstructions')}
       </Button>
     </Background>
   );
