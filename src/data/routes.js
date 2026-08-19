@@ -31,6 +31,6 @@ export const routes = {
     name: 'Perfil',
     requiredLevel: [2, 5],
     order: 3,
-    isActive: 0,
+    isActive: 1,
   },
 };

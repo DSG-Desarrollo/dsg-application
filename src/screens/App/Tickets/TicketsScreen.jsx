@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator, Text } from "react-native";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -8,7 +7,6 @@ import {
   faCheckCircle,
   faPlayCircle,
   faCalendarCheck,
-  faHourglassHalf,
 } from "@fortawesome/free-solid-svg-icons";
 import TicketsTab from "./TicketsTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";

@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
-import TicketList from "../../../components/organisms/TicketList";
-import CustomAlert from "../../../components/atoms/CustomAlert";
-import CustomScrollView from "../../../components/atoms/CustomScrollView";
-import useNetworkState from "../../../hooks/useNetworkState";
-import useFetchTickets from "../../../hooks/tickets/useFetchTickets";
-import useSaveToSQLite from "../../../hooks/tickets/useSaveToSQLite";
+import TicketList from "@components/organisms/TicketList";
+import CustomAlert from "@components/atoms/CustomAlert";
+import CustomScrollView from "@components/atoms/CustomScrollView";
+import useNetworkState from "@hooks/useNetworkState";
+import useFetchTickets from "@hooks/tickets/useFetchTickets";
+import useSaveToSQLite from "@hooks/tickets/useSaveToSQLite";
 import { useFocusEffect } from '@react-navigation/native';
+import i18n from '@i18n/i18n';
 
 const TicketsTab = ({ filters, checkNetwork }) => {
   useFocusEffect(
@@ -100,7 +101,7 @@ const TicketsTab = ({ filters, checkNetwork }) => {
             ))}
           </View>
         ) : (
-          <Text>No hay tickets para mostrar</Text>
+          <Text>{i18n.t('ticket:noTickets')}</Text>
         )}
       </View>
     </CustomScrollView>
