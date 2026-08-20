@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,8 +16,10 @@ import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import Card from '@components/molecules/Card';
 
 // Styles
-import { spacing } from '@themes';
+import { spacing, palette } from '@themes';
 import { common as commonStyles } from './styles';
+
+const { white } = palette;
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
@@ -90,13 +92,44 @@ const TabWorkOrderSupplies = ({ route }) => {
     { text: "Editar", icon: faEdit, onPress: handleEdit },
   ];
 
+  const handleStep = (id, delta) => {
+    setProductQuantities((prev) => {
+      const current = parseInt(prev[id] || "0", 10);
+      const next = Math.max(0, current + delta);
+      return { ...prev, [id]: next === 0 ? "" : String(next) };
+    });
+  };
+
+  const filledCount = Object.values(productQuantities).filter(
+    (v) => v && parseInt(v, 10) > 0
+  ).length;
+
   return (
     <View style={commonStyles.container}>
-    <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
-      {/*<View style={styles.headerContainer}>
-        <Text style={styles.header}>Materiales usados</Text>
-      </View>*/}
-      
+      <View style={styles.progressHeader}>
+        <View style={styles.progressLabelRow}>
+          <Text style={styles.progressLabel}>Materiales</Text>
+          <Text style={styles.progressCount}>
+            {filledCount} de {sortedProductsData.length} con cantidad
+          </Text>
+        </View>
+        <View style={styles.progressTrack}>
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${
+                  sortedProductsData.length
+                    ? (filledCount / sortedProductsData.length) * 100
+                    : 0
+                }%`,
+              },
+            ]}
+          />
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         {sortedProductsData.map((product) => (
           <Card key={product.id} style={{ marginBottom: spacing.md }}>
             <View style={styles.productInfo}>
@@ -112,7 +145,8 @@ const TabWorkOrderSupplies = ({ route }) => {
             />
           </Card>
         ))}
-      
+      </ScrollView>
+
       <View style={styles.buttonsContainer}>
         <ActionButtons
           buttons={buttons}
@@ -121,16 +155,32 @@ const TabWorkOrderSupplies = ({ route }) => {
           buttonTextStyle={styles.customButtonText}
         />
       </View>
-    </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
+  progressHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
+  progressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  progressLabel: { fontSize: 14, fontWeight: '500', color: '#333' },
+  progressCount: { fontSize: 13, color: '#888' },
+  progressTrack: {
+    height: 4,
+    backgroundColor: '#eee',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: { height: '100%', backgroundColor: '#BA7517', borderRadius: 4 },
 
   headerContainer: {
     marginBottom: 20,
@@ -211,6 +261,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ff0000',
   },
+  saveContainer: {
+    padding: 16,
+    backgroundColor: white,
+  }
 });
 
 export default TabWorkOrderSupplies;

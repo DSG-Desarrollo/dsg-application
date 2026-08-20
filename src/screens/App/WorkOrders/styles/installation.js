@@ -2,6 +2,7 @@ import { StyleSheet } from "react-native";
 import { spacing, palette } from '@themes';
 
 const { blue, red, white } = palette;
+const { md } = spacing;
 
 export const installation = StyleSheet.create({
   container: {
@@ -13,6 +14,11 @@ export const installation = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 20,
     paddingVertical: 30,
+  },
+
+  footer: {
+    padding: md,
+    borderTopWidth: 1,
   },
 
   radioGroup: {
