@@ -7,8 +7,10 @@ const config = getDefaultConfig(__dirname);
 const aliases = {
   '@assets': path.resolve(__dirname, 'src/assets'),
   '@components': path.resolve(__dirname, 'src/components'),
+  '@core': path.resolve(__dirname, 'src/core'),
   '@i18n': path.resolve(__dirname, 'src/i18n'),
   '@helpers': path.resolve(__dirname, 'src/helpers'),
+  '@navigation': path.resolve(__dirname, 'src/navigation'),
   '@services': path.resolve(__dirname, 'src/services'),
   '@screens': path.resolve(__dirname, 'src/screens'),
   '@styles': path.resolve(__dirname, 'src/styles'),

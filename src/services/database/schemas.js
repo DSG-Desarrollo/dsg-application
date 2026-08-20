@@ -1,66 +1,13 @@
+import { 
+    employees,
+    positions,
+    users 
+} from './sql/tables';
+
 const schemas = {
-    user: {
-        tableName: 'user',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            user_id: 'INTEGER',
-            employee_id: 'INTEGER',
-            user_type_id: 'INTEGER',
-            username: 'TEXT',
-            password: 'TEXT',
-            user_status: 'TEXT',
-            observation: 'TEXT',
-            photo_name: 'TEXT',
-            user_registration: 'TEXT'
-        }
-    },
-
-    employee: {
-        tableName: 'employee',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            employee_id: 'INTEGER',
-            user_id: 'INTEGER',
-            id_municipio: 'INTEGER',
-            nombre_empleado: 'TEXT',
-            apellido_empleado: 'TEXT',
-            dui_empleado: 'TEXT',
-            nit_empleado: 'TEXT',
-            tipo_afp: 'TEXT',
-            isss_empleado: 'TEXT',
-            nup_empleado: 'TEXT',
-            direccion_empleado: 'TEXT',
-            sexo_empleado: 'TEXT',
-            estado_civil_empleado: 'TEXT',
-            nacionalidad_empleado: 'TEXT',
-            fecha_nacimiento: 'TEXT',
-            correo_empleado: 'TEXT',
-            telefono_empleado: 'TEXT',
-            celular_empleado: 'TEXT',
-            numero_cuenta_empleado: 'TEXT',
-            estado_empleado: 'TEXT',
-            registro_empleado: 'TEXT'
-        }
-    },
-
-    position: {
-        tableName: 'position',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            position_id: 'INTEGER',
-            employee_id: 'INTEGER',
-            id_tipo_empleado: 'INTEGER',
-            id_cargo: 'INTEGER',
-            id_departamento_empresa: 'INTEGER',
-            id_forma_pago: 'INTEGER',
-            fecha_inicio_puesto_empleado: 'TEXT',
-            fecha_fin_puesto_empleado: 'TEXT',
-            salario_ordinario: 'TEXT',
-            tipo_contrato: 'TEXT',
-            estado_puesto_empleado: 'TEXT',
-            registro_puesto_empleado: 'TEXT'
-        }
-    },
+    user: users,
+    employee: employees,
+    position: positions,
 
     customer_service: {
         tableName: 'customer_service',

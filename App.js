@@ -7,14 +7,14 @@ import {
 } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { theme } from './src/core/theme';
-import { LoginScreen, ResetPasswordScreen } from './src/screens/Auth';
-import DrawerNavigation from './src/navigation/DrawerNavigator';
-import TicketDetailScreen from './src/screens/App/Tickets/TicketDetailScreen';
-import TabNavigatorWorkOrder from './src/navigation/TabNavigatorWorkOrder';
-import { DatabaseProvider } from './src/context/DatabaseContext';
-import NetworkInfo from './src/utils/NetworkInfo';
-import { getRememberSessionState } from './src/utils/storageUtils';
+import { theme } from '@core/theme';
+import { LoginScreen, ResetPasswordScreen } from '@screens/Auth';
+import DrawerNavigation from '@navigation/DrawerNavigator';
+import TicketDetailScreen from '@screens/App/Tickets/TicketDetailScreen';
+import TabNavigatorWorkOrder from '@navigation/TabNavigatorWorkOrder';
+import { DatabaseProvider } from '@context/DatabaseContext';
+import NetworkInfo from '@utils/NetworkInfo';
+import { getRememberSessionState } from '@utils/storageUtils';
 
 const Stack = createStackNavigator();
 

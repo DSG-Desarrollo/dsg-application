@@ -4,8 +4,10 @@
     "paths": {
       "@assets/*": ["src/assets/*"],
       "@components/*": ["src/components/*"],
+      "@core/*": ["src/core/*"],
       "@i18n/*": ["src/i18n/*"],
       "@helpers/*": ["src/helpers/*"],
+      "@navigation/*": ["src/navigation/*"],
       "@services/*": ["src/services/*"],
       "@screens/*": ["src/screens/*"],
       "@styles/*": ["src/styles/*"],
