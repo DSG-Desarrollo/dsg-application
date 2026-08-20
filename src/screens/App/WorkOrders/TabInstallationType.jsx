@@ -7,6 +7,8 @@ import FormValidation from '@components/molecules/FormValidation';
 import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '@components/molecules/Card';
+import { spacing } from '@themes';
+import { installation as styles } from './styles';
 
 const TabInstallationType = ({ route }) => {
   const [userData, setUserData] = useState(null);
@@ -109,6 +111,7 @@ const TabInstallationType = ({ route }) => {
             <View style={styles.container}>
               <Card
                 title={i18n.t('workOrder:vehicleType')}
+                style={{ marginBottom: spacing.md }}
               >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('vehicle', 'VH', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -138,6 +141,7 @@ const TabInstallationType = ({ route }) => {
 
               <Card
                 title={i18n.t('workOrder:installationType')}
+                style={{ marginBottom: spacing.md }}
               >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('installationType', 'T1', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -167,6 +171,7 @@ const TabInstallationType = ({ route }) => {
 
               <Card
                 title={i18n.t('workOrder:powerOffType')}
+                style={{ marginBottom: spacing.md }}
               >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('powerOffType', 'AR', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -196,6 +201,7 @@ const TabInstallationType = ({ route }) => {
 
               <Card
                 title={i18n.t('workOrder:batteryType')}
+                style={{ marginBottom: spacing.md }}
               >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('batteryType', 'BI', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -233,65 +239,5 @@ const TabInstallationType = ({ route }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-  },
-
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-
-  radioGroup: {
-    flexDirection: 'row',
-    alignItems: 'center', // Alinear verticalmente los elementos en el grupo
-  },
-  radioGroupHorizontal: {
-    flexDirection: 'row', // Cambiar la dirección del diseño a horizontal
-    alignItems: 'center', // Alinear los elementos verticalmente en el centro
-    justifyContent: 'space-between', // Espacio uniforme entre los elementos
-    marginTop: 10, // Espacio superior opcional
-  },
-  radioContainer: {
-    flexDirection: 'row', // Alinear los radios y el texto horizontalmente
-    alignItems: 'center', // Alinear los elementos verticalmente en el centro
-  },
-  radioLabel: {
-    fontSize: 16,
-    marginLeft: 8, // Espacio entre el radio button y el texto
-  },
-  saveButton: {
-    backgroundColor: '#007bff',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 15,
-  },
-  saveButtonText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  errorContainer: {
-    marginTop: 5,
-    backgroundColor: '#F8D7DA',
-    padding: 5,
-    borderRadius: 5,
-  },
-  errorMessage: {
-    color: '#C0392B',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-});
 
 export default TabInstallationType;

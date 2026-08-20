@@ -5,16 +5,14 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
-  ToastAndroid,
-  ActivityIndicator,
-  Alert,
+  ToastAndroid
 } from "react-native";
-import { faSave, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import ActionButtons from "../../../components/atoms/ActionButtons";
-import useFetchProducts from "../../../hooks/useFetchProducts";
-import ApiService from "../../../services/api/ApiService";
+import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
+import ActionButtons from "@components/atoms/ActionButtons";
+import useFetchProducts from "@hooks/useFetchProducts";
+import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
+import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
@@ -89,9 +87,9 @@ const TabWorkOrderSupplies = ({ route }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.headerContainer}>
+      {/*<View style={styles.headerContainer}>
         <Text style={styles.header}>Materiales usados</Text>
-      </View>
+      </View>*/}
       <View style={styles.productsContainer}>
         {sortedProductsData.map((product) => (
           <View key={product.id} style={styles.productContainer}>
