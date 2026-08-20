@@ -102,7 +102,7 @@ const TabInstallationType = ({ route }) => {
           {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
             <View>
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('vehicleType')}</Text>
+                <Text style={styles.cardTitle}>{i18n.t('workOrder:vehicleType')}</Text>
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('vehicle', 'VH', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -110,7 +110,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.vehicle === 'VH' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('vehicle', 'VH', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('vehicleVH')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:vehicleVH')}</Text>
                   </Pressable>
 
                   <Pressable onPress={() => handleOptionChange('vehicle', 'FG', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -119,7 +119,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.vehicle === 'FG' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('vehicle', 'FG', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('vehicleFG')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:vehicleFG')}</Text>
                   </Pressable>
                 </View>
                 {touched.vehicle && errors.vehicle && (
@@ -130,7 +130,7 @@ const TabInstallationType = ({ route }) => {
               </View>
 
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('installationType')}</Text>
+                <Text style={styles.cardTitle}>{i18n.t('workOrder:installationType')}</Text>
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('installationType', 'T1', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -138,7 +138,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.installationType === 'T1' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('installationType', 'T1', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('installationT1')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:installationT1')}</Text>
                   </Pressable>
 
                   <Pressable onPress={() => handleOptionChange('installationType', 'T2', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -147,7 +147,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.installationType === 'T2' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('installationType', 'T2', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('installationT2')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:installationT2')}</Text>
                   </Pressable>
                 </View>
                 {touched.installationType && errors.installationType && (
@@ -158,7 +158,7 @@ const TabInstallationType = ({ route }) => {
               </View>
 
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('powerOffType')}</Text>
+                <Text style={styles.cardTitle}>{i18n.t('workOrder:powerOffType')}</Text>
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('powerOffType', 'AR', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -166,7 +166,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.powerOffType === 'AR' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('powerOffType', 'AR', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('powerOffAR')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:powerOffAR')}</Text>
                   </Pressable>
 
                   <Pressable onPress={() => handleOptionChange('powerOffType', 'SAR', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -175,7 +175,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.powerOffType === 'SAR' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('powerOffType', 'SAR', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('powerOffSAR')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:powerOffSAR')}</Text>
                   </Pressable>
                 </View>
                 {touched.powerOffType && errors.powerOffType && (
@@ -186,7 +186,7 @@ const TabInstallationType = ({ route }) => {
               </View>
 
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('batteryType')}</Text>
+                <Text style={styles.cardTitle}>{i18n.t('workOrder:batteryType')}</Text>
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('batteryType', 'BI', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -194,7 +194,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.batteryType === 'BI' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('batteryType', 'BI', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('batteryBI')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:batteryBI')}</Text>
                   </Pressable>
 
                   <Pressable onPress={() => handleOptionChange('batteryType', 'SBI', handleChange, handleBlur)} style={styles.radioContainer}>
@@ -203,7 +203,7 @@ const TabInstallationType = ({ route }) => {
                       status={selectedOption.batteryType === 'SBI' ? 'checked' : 'unchecked'}
                       onPress={() => handleOptionChange('batteryType', 'SBI', handleChange, handleBlur)}
                     />
-                    <Text style={styles.radioLabel}>{i18n.t('batterySBI')}</Text>
+                    <Text style={styles.radioLabel}>{i18n.t('workOrder:batterySBI')}</Text>
                   </Pressable>
                 </View>
                 {touched.batteryType && errors.batteryType && (
