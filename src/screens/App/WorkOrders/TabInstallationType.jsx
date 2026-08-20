@@ -6,6 +6,7 @@ import TicketService from '@services/api/tickets/TicketService';
 import FormValidation from '@components/molecules/FormValidation';
 import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Card from '@components/molecules/Card';
 
 const TabInstallationType = ({ route }) => {
   const [userData, setUserData] = useState(null);
@@ -25,6 +26,7 @@ const TabInstallationType = ({ route }) => {
 
     fetchUserData();
   }, []);
+
   const {
     tareaId,
     clienteId,
@@ -32,19 +34,23 @@ const TabInstallationType = ({ route }) => {
     id_servicio_cliente,
     id_unidad,
   } = route.params;
+
   const validationInput = [
     { key: "vehicle", type: "string", message: "El tipo de vehículo es requerido" },
     { key: "installationType", type: "string", message: "El tipo de instalación es requerido" },
     { key: "powerOffType", type: "string", message: "El tipo de apagado es requerido" },
     { key: "batteryType", type: "string", message: "El tipo de batería es requerido" }
   ];
+
   const startingInitials = {
     vehicle: '',
     installationType: '',
     powerOffType: '',
     batteryType: '',
   };
+
   const ticketService = new TicketService();
+
   const [selectedOption, setSelectedOption] = useState({
     id_tarea: tareaId,
     id_orden_trabajo: id_orden_trabajo,
@@ -100,9 +106,10 @@ const TabInstallationType = ({ route }) => {
           onSubmit={handleSave}
         >
           {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
-            <View>
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('workOrder:vehicleType')}</Text>
+            <View style={styles.container}>
+              <Card
+                title={i18n.t('workOrder:vehicleType')}
+              >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('vehicle', 'VH', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -127,10 +134,11 @@ const TabInstallationType = ({ route }) => {
                     <Text style={styles.errorMessage}>{errors.vehicle}</Text>
                   </View>
                 )}
-              </View>
+              </Card>
 
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('workOrder:installationType')}</Text>
+              <Card
+                title={i18n.t('workOrder:installationType')}
+              >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('installationType', 'T1', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -155,10 +163,11 @@ const TabInstallationType = ({ route }) => {
                     <Text style={styles.errorMessage}>{errors.installationType}</Text>
                   </View>
                 )}
-              </View>
+              </Card>
 
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('workOrder:powerOffType')}</Text>
+              <Card
+                title={i18n.t('workOrder:powerOffType')}
+              >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('powerOffType', 'AR', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -183,10 +192,11 @@ const TabInstallationType = ({ route }) => {
                     <Text style={styles.errorMessage}>{errors.powerOffType}</Text>
                   </View>
                 )}
-              </View>
+              </Card>
 
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>{i18n.t('workOrder:batteryType')}</Text>
+              <Card
+                title={i18n.t('workOrder:batteryType')}
+              >
                 <View style={styles.radioGroupHorizontal}>
                   <Pressable onPress={() => handleOptionChange('batteryType', 'BI', handleChange, handleBlur)} style={styles.radioContainer}>
                     <RadioButton
@@ -211,7 +221,7 @@ const TabInstallationType = ({ route }) => {
                     <Text style={styles.errorMessage}>{errors.batteryType}</Text>
                   </View>
                 )}
-              </View>
+              </Card>
 
               <Pressable style={styles.saveButton} onPress={handleSubmit}>
                 <Text style={styles.saveButtonText}>Guardar</Text>
@@ -234,18 +244,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 30,
   },
-  card: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    elevation: 3,
-    marginBottom: 20,
-    padding: 20,
-  },
+
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
+
   radioGroup: {
     flexDirection: 'row',
     alignItems: 'center', // Alinear verticalmente los elementos en el grupo
