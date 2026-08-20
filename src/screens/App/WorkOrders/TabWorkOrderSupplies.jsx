@@ -5,7 +5,8 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
-  ToastAndroid
+  ToastAndroid,
+  TouchableOpacity,
 } from "react-native";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
 import ActionButtons from "@components/atoms/ActionButtons";
@@ -13,7 +14,6 @@ import useFetchProducts from "@hooks/useFetchProducts";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
-import Card from '@components/molecules/Card';
 
 // Styles
 import { spacing, palette } from '@themes';
@@ -130,21 +130,59 @@ const TabWorkOrderSupplies = ({ route }) => {
       </View>
 
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
-        {sortedProductsData.map((product) => (
-          <Card key={product.id} style={{ marginBottom: spacing.md }}>
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>{product.productName}</Text>
-              <Text style={styles.productUnit}>{product.unitOfMeasure}</Text>
+        {sortedProductsData.map((product, index) => {
+          const qty = parseInt(productQuantities[product.id] || "0", 10);
+
+          return (
+            <View
+              key={product.id}
+              style={[
+                styles.row,
+                index === sortedProductsData.length - 1 && styles.rowLast,
+              ]}
+            >
+              <View style={styles.rowInfo}>
+                <View
+                  style={[
+                    styles.statusDot,
+                    qty > 0 && styles.statusDotFilled,
+                  ]}
+                />
+                <View style={{ flexShrink: 1 }}>
+                  <Text style={styles.productName} numberOfLines={0}>
+                    {product.productName}
+                  </Text>
+                  <Text style={styles.productUnit}>
+                    {product.unitOfMeasure}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.stepper}>
+                <TouchableOpacity
+                  style={styles.stepperBtn}
+                  onPress={() => handleStep(product.id, -1)}
+                >
+                  <Text style={styles.stepperBtnText}>−</Text>
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.stepperInput}
+                  keyboardType="numeric"
+                  value={productQuantities[product.id] || "0"}
+                  onChangeText={(value) =>
+                    handleQuantityChange(product.id, value)
+                  }
+                />
+                <TouchableOpacity
+                  style={styles.stepperBtn}
+                  onPress={() => handleStep(product.id, 1)}
+                >
+                  <Text style={styles.stepperBtnText}>+</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <TextInput
-              style={styles.input}
-              placeholder="Cantidad usada"
-              keyboardType="numeric"
-              value={productQuantities[product.id] || ""}
-              onChangeText={(value) => handleQuantityChange(product.id, value)}
-            />
-          </Card>
-        ))}
+          );
+        })}
       </ScrollView>
 
       <View style={styles.buttonsContainer}>
@@ -214,15 +252,55 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
-  productName: {
-    fontSize: 18,
-    fontWeight: '500',
+
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    gap: 12,
+  },
+  rowLast: { borderBottomWidth: 0 },
+  rowInfo: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#ccc',
+  },
+  statusDotFilled: { backgroundColor: '#639922' },
+  productName: { fontSize: 14, fontWeight: '500', color: '#333' },
+  productUnit: { fontSize: 12, color: '#999' },
+
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  stepperBtn: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  stepperBtnText: { fontSize: 16, color: '#555' },
+  stepperInput: {
+    width: 30,
+    height: 38,
+    textAlign: 'center',
+    fontSize: 14,
     color: '#333',
+    padding: 0,
   },
-  productUnit: {
-    fontSize: 16,
-    color: '#888',
-  },
+
   input: {
     width: 80,
     height: 40,
