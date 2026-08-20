@@ -1,3 +1,4 @@
+export { default as authors } from './authors';
 export { default as customers_services } from './customers_services';
 export { default as employees } from './employees';
 export { default as priorities } from './priorities';

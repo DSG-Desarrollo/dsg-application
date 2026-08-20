@@ -1,4 +1,5 @@
 import { 
+    authors,
     customers_services,
     employees,
     priorities,
@@ -7,26 +8,12 @@ import {
 } from './sql/tables';
 
 const schemas = {
-    user: users,
-    employee: employees,
-    position: positions,
+    author: authors,
     customer_service: customers_services,
+    employee: employees,
     priority: priorities,
-
-    author: {
-        tableName: 'author',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            id_usuario: 'INTEGER',
-            id_tipo_usuario: 'INTEGER',
-            usuario: 'TEXT',
-            clave: 'TEXT',
-            estado_usuario: 'TEXT',
-            observacion: 'TEXT',
-            foto_nombre: 'TEXT',
-            registro_usuario: 'TEXT'
-        }
-    },
+    position: positions,
+    user: users,
 
     service: {
         tableName: 'service',
