@@ -4,7 +4,12 @@ import {
     employees,
     priorities,
     positions,
-    users 
+    services,
+    tasks,
+    types_tasks,
+    units,
+    users,
+    work_orders,
 } from './sql/tables';
 
 const schemas = {
@@ -13,184 +18,12 @@ const schemas = {
     employee: employees,
     priority: priorities,
     position: positions,
+    service: services,
     user: users,
-
-    service: {
-        tableName: 'service',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            id_servicio: 'INTEGER',
-            id_empresa: 'INTEGER',
-            codigo_servicio: 'TEXT',
-            servicio: 'TEXT',
-            estado_servicio: 'TEXT'
-        }
-    },
-
-    types_tasks: {
-        tableName: 'types_tasks',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            id_tipo_tarea: 'INTEGER',
-            id_autorizacion_predeterminada: 'INTEGER NULL',
-            id_servicio: 'INTEGER',
-            codigo_tipo_tarea: 'TEXT',
-            tipo_tarea: 'TEXT',
-            unidad_actual: 'TEXT NULL',
-            unidad_cambio: 'TEXT NULL',
-            importar_articulo_actual_de: 'TEXT NULL',
-            importar_articulo_cambio_de: 'TEXT NULL',
-            requiereOrden: 'TEXT',
-            requiereUbicacion: 'TEXT',
-            requiereTipoInstalacion: 'TEXT',
-            requiereMateriales: 'TEXT',
-            requiereFirma: 'TEXT',
-            color_tipo_tarea: 'TEXT',
-            equipo: 'TEXT',
-            detalle_cambio: 'TEXT',
-            estado_tipo_tarea: 'TEXT',
-            limite_solicitud: 'INTEGER',
-            limite_asignacion: 'INTEGER',
-        },
-        FOREIGN_KEYS: {
-            service_id: {
-                tableName: 'service',
-                foreignKey: 'id_servicio',
-            },
-            default_authorization_id: {
-                tableName: 'authorization',
-                foreignKey: 'id_autorizacion_predeterminada',
-            }
-        }
-    },
-
-    task: {
-        tableName: 'task',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            id_tarea: 'INTEGER',
-            id_cliente: 'INTEGER NULL',
-            id_tipo_tarea: 'INTEGER',
-            id_servicio_cliente: 'INTEGER',
-            id_prioridad_tarea: 'INTEGER',
-            id_usuario: 'INTEGER',
-            id_autorizacion_tarea: 'INTEGER',
-            id_usuario_revision: 'INTEGER',
-            id_municipio: 'INTEGER',
-            codigo_tarea: 'TEXT NULL',
-            puesto_trabajo: 'INTEGER NULL',
-            descripcion_tarea: 'TEXT NULL',
-            comentario_tarea: 'TEXT NULL',
-            direccion_tarea: 'TEXT NULL',
-            progreso_tarea: 'TEXT NULL',
-            orden_requerida: 'INTEGER NULL',
-            orden_completada: 'INTEGER NULL',
-            correo_solicitud: 'INTEGER NULL',
-            correo_inicio: 'INTEGER NULL',
-            correo_completo: 'INTEGER NULL',
-            fecha_inicio_tarea: 'TEXT NULL',
-            fecha_fin_tarea: 'TEXT NULL',
-            fecha_programacion: 'TEXT NULL',
-            solicitud_programacion: 'TEXT NULL',
-            comentario_programacion: 'TEXT NULL',
-            comentario_cliente: 'TEXT NULL',
-            id_autorizacion_programacion: 'INTEGER NULL',
-            fecha_revision: 'TEXT NULL',
-            comentario_rechazo: 'TEXT NULL',
-            numero_solicitud: 'INTEGER NULL',
-            estado_tarea: 'TEXT NULL',
-            version: 'INTEGER NULL',
-            registro_fecha: 'TEXT NULL',
-            id_cuenta: 'INTEGER NULL',
-            progreso_tarea_descripcion: 'TEXT NULL',
-        },
-        FOREIGN_KEYS: {
-            customer_service_id: {
-                tableName: 'customer_service',
-                foreignKey: 'id_servicio_cliente',
-            },
-            priority_id: {
-                tableName: 'priority',
-                foreignKey: 'id_prioridad_tarea',
-            },
-            user_id: {
-                tableName: 'user',
-                foreignKey: 'id_usuario',
-            },
-            authorization_id: {
-                tableName: 'authorization',
-                foreignKey: 'id_autorizacion_tarea',
-            },
-            review_user_id: {
-                tableName: 'user',
-                foreignKey: 'id_usuario_revision',
-            },
-            municipality_id: {
-                tableName: 'municipality',
-                foreignKey: 'id_municipio',
-            },
-        }
-    },
-
-    units: {
-        tableName: 'units',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            id_tarea: 'INTEGER',
-            id_orden_trabajo: 'INTEGER',
-            id_unidad: 'INTEGER',
-            id_servicio_cliente: 'INTEGER',
-            unidad: 'TEXT',
-            unidad_marca: 'TEXT',
-            unidad_modelo: 'TEXT',
-            unidad_color: 'TEXT'
-        },
-        FOREIGN_KEYS: {
-            task_id: {
-                tableName: 'task',
-                foreignKey: 'id_tarea',
-            },
-            work_order_id: {
-                tableName: 'work_orders',
-                foreignKey: 'id_orden_trabajo',
-            },
-            customer_service_id: {
-                tableName: 'customer_service',
-                foreignKey: 'id_servicio_cliente',
-            },
-        }
-    },
-
-    work_orders: {
-        tableName: 'work_orders',
-        columns: {
-            id: 'INTEGER PRIMARY KEY',
-            id_orden_trabajo: 'INTEGER',
-            id_tarea: 'INTEGER',
-            id_municipio: 'INTEGER',
-            numero_orden: 'INTEGER',
-            actual: 'TEXT',
-            cambio: 'TEXT',
-            instalacion: 'TEXT',
-            direccion_orden_trabajo: 'TEXT',
-            progreso_orden_trabajo: 'TEXT',
-            inicio_orden_trabajo: 'TEXT',
-            fin_orden_trabajo: 'TEXT',
-            estado_orden_trabajo: 'TEXT',
-            estado_orden_trabajo: 'TEXT',
-            version: 'INTEGER NULL'
-        },
-        FOREIGN_KEYS: {
-            task_id: {
-                tableName: 'task',
-                foreignKey: 'id_tarea',
-            },
-            municipality_id: {
-                tableName: 'municipality',
-                foreignKey: 'id_municipio',
-            },
-        }
-    }
+    task: tasks,
+    types_tasks: types_tasks,
+    units: units,
+    work_orders: work_orders
 };
 
 export default schemas;
