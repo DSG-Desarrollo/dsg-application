@@ -14,7 +14,7 @@ import {
 
 const schemas = {
     author: authors,
-    customer_service: customers_services,
+    customers_services: customers_services,
     employee: employees,
     priority: priorities,
     position: positions,

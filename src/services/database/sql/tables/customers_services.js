@@ -1,5 +1,5 @@
 const CUSTOMERS_SERVICES = {
-    tableName: 'customer_service',
+    tableName: 'customers_services',
     columns: {
         id: 'INTEGER PRIMARY KEY',
         id_servicio_cliente: 'INTEGER',

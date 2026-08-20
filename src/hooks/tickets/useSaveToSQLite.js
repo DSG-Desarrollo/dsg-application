@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useDatabase } from '../../context/DatabaseContext';
+import { useDatabase } from '@context/DatabaseContext';
 
 const useSaveToSQLite = (data) => {
   const [isSaved, setIsSaved] = useState(false);
@@ -45,8 +45,8 @@ const useSaveToSQLite = (data) => {
           primaryData[key] = value;
         } else if (typeof value === 'object' && value !== null) {
           switch (key) {
-            case 'customer_service':
-              await upsertDataIntoTable('customer_service', value, 'id_servicio_cliente');
+            case 'customers_services':
+              await upsertDataIntoTable('customers_services', value, 'id_servicio_cliente');
               break;
             case 'priority':
               await upsertDataIntoTable('priority', value, 'id_prioridad_tarea');
@@ -132,9 +132,9 @@ const useSaveToSQLite = (data) => {
         task.orden_requerida,
         task.orden_completada,
 
-        customer_service.id_cliente,
-        customer_service.id_servicio_cliente,
-        customer_service.descripcion_servicio_cliente,
+        customers_services.id_cliente,
+        customers_services.id_servicio_cliente,
+        customers_services.descripcion_servicio_cliente,
 
         types_tasks.tipo_tarea,
         types_tasks.color_tipo_tarea,
@@ -142,7 +142,7 @@ const useSaveToSQLite = (data) => {
         service.servicio,
         priority.prioridad_tarea
       FROM task
-      JOIN customer_service ON task.id_servicio_cliente = customer_service.id_servicio_cliente
+      JOIN customers_services ON task.id_servicio_cliente = customers_services.id_servicio_cliente
       JOIN types_tasks ON task.id_tipo_tarea = types_tasks.id_tipo_tarea
       JOIN service on types_tasks.id_servicio = service.id_servicio
       JOIN priority ON task.id_prioridad_tarea = priority.id_prioridad_tarea
@@ -163,7 +163,7 @@ const useSaveToSQLite = (data) => {
 
   const fetchInsertedTasks = async () => {
     try {
-      const query = "SELECT * FROM customer_service WHERE id_servicio_cliente = 56";
+      const query = "SELECT * FROM customers_services WHERE id_servicio_cliente = 56";
       const result = await getAllAsyncSql(query);
       
       console.log(result);

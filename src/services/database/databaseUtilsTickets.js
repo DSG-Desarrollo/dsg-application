@@ -20,7 +20,7 @@ const databaseUtilsTickets = () => {
     const formatTicketDataToSql = async (ticketData) => {
         const ticketColumns = Object.keys(ticketData).filter(key => {
             // Filtrar las claves que no son objetos
-            return typeof ticketData[key] !== 'object' && key !== 'customer_service' && key !== 'priority' && key !== 'author';
+            return typeof ticketData[key] !== 'object' && key !== 'customers_services' && key !== 'priority' && key !== 'author';
         });
 
         const ticketValues = ticketColumns.map(key => {
@@ -38,8 +38,8 @@ const databaseUtilsTickets = () => {
     }
 
     const insertRelatedData = async (ticketData) => {
-        // Insertar en la tabla customer_service
-        const customerServiceData = ticketData.customer_service;
+        // Insertar en la tabla customers_services
+        const customerServiceData = ticketData.customers_services;
 
         const customerServiceColumns = Object.keys(customerServiceData);
   
@@ -58,13 +58,13 @@ const databaseUtilsTickets = () => {
         console.log('Columnas procesadas: ', customerServiceColumns);
         console.log('Values procesadas: ', customerServiceValues);
 
-        //const customerServiceSql = `INSERT INTO customer_service (${customerServiceColumns.join(', ')}) VALUES (${customerServiceValues.join(', ')});`;
+        //const customerServiceSql = `INSERT INTO customers_services (${customerServiceColumns.join(', ')}) VALUES (${customerServiceValues.join(', ')});`;
         /*console.log(customerServiceSql);    
         await databaseContext.executeSql(customerServiceSql);
         console.log("no se que pasa!!! POR DIOS");
 
        
-        const selectTask = 'select * from customer_service';
+        const selectTask = 'select * from customers_services';
         const resultTask = await databaseContext.executeSql(selectTask);
         console.log(resultTask);
 
