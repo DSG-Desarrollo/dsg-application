@@ -1,5 +1,5 @@
 // LocalDatabaseService.js
-import { useDatabase } from '../../context/DatabaseContext';
+import { useDatabase } from '@context/DatabaseContext';
 
 const LocalDatabaseService = () => {
   const { databaseContext, getAllAsyncSql, getFirstAsyncSql, isDatabaseInitialized, executeSql } = useDatabase();

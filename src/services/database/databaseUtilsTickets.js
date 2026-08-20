@@ -1,5 +1,5 @@
 // databaseUtilsTickets.js
-import { useDatabase } from "../../context/DatabaseContext";
+import { useDatabase } from "@context/DatabaseContext";
 
 const databaseUtilsTickets = () => {
     const { executeSql } = useDatabase();

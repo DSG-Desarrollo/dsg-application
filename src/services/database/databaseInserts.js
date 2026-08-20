@@ -1,4 +1,4 @@
-import { useDatabase } from "../../context/DatabaseContext";
+import { useDatabase } from "@context/DatabaseContext";
 
 const insertApiData = async (data) => {
     const { executeSql } = useDatabase();

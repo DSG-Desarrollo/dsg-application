@@ -190,6 +190,7 @@ const schemas = {
             comentario_rechazo: 'TEXT NULL',
             numero_solicitud: 'INTEGER NULL',
             estado_tarea: 'TEXT NULL',
+            version: 'INTEGER NULL',
             registro_fecha: 'TEXT NULL',
             id_cuenta: 'INTEGER NULL',
             progreso_tarea_descripcion: 'TEXT NULL',
@@ -267,7 +268,8 @@ const schemas = {
             inicio_orden_trabajo: 'TEXT',
             fin_orden_trabajo: 'TEXT',
             estado_orden_trabajo: 'TEXT',
-            estado_orden_trabajo: 'TEXT'
+            estado_orden_trabajo: 'TEXT',
+            version: 'INTEGER NULL'
         },
         FOREIGN_KEYS: {
             task_id: {
