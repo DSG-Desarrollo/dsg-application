@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ScrollView, Text, ToastAndroid, TextInput, TouchableOpacity, Pressable } from 'react-native';
+import { View, ScrollView, Text, ToastAndroid, Pressable } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import i18n from '@i18n/i18n';
 import TicketService from '@services/api/tickets/TicketService';
@@ -8,7 +8,7 @@ import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '@components/molecules/Card';
 import { spacing } from '@themes';
-import { installation as styles } from './styles';
+import { installation as styles, common as commonStyles } from './styles';
 
 const TabInstallationType = ({ route }) => {
   const [userData, setUserData] = useState(null);
@@ -100,8 +100,8 @@ const TabInstallationType = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+    <View style={commonStyles.container}>
+      <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         <FormValidation
           initialValues={startingInitials}
           validationInput={validationInput}

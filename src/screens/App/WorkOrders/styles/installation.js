@@ -3,7 +3,7 @@ import { spacing, palette } from '@themes';
 
 const { blue, red, white } = palette;
 
-export default installation = StyleSheet.create({
+export const installation = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: white,

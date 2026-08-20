@@ -13,6 +13,11 @@ import useFetchProducts from "@hooks/useFetchProducts";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import Card from '@components/molecules/Card';
+
+// Styles
+import { spacing } from '@themes';
+import { common as commonStyles } from './styles';
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
@@ -86,13 +91,14 @@ const TabWorkOrderSupplies = ({ route }) => {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={commonStyles.container}>
+    <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
       {/*<View style={styles.headerContainer}>
         <Text style={styles.header}>Materiales usados</Text>
       </View>*/}
-      <View style={styles.productsContainer}>
+      
         {sortedProductsData.map((product) => (
-          <View key={product.id} style={styles.productContainer}>
+          <Card key={product.id} style={{ marginBottom: spacing.md }}>
             <View style={styles.productInfo}>
               <Text style={styles.productName}>{product.productName}</Text>
               <Text style={styles.productUnit}>{product.unitOfMeasure}</Text>
@@ -104,9 +110,9 @@ const TabWorkOrderSupplies = ({ route }) => {
               value={productQuantities[product.id] || ""}
               onChangeText={(value) => handleQuantityChange(product.id, value)}
             />
-          </View>
+          </Card>
         ))}
-      </View>
+      
       <View style={styles.buttonsContainer}>
         <ActionButtons
           buttons={buttons}
@@ -116,15 +122,16 @@ const TabWorkOrderSupplies = ({ route }) => {
         />
       </View>
     </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 16,
+    flex: 1,
     backgroundColor: '#f5f5f5',
   },
+
   headerContainer: {
     marginBottom: 20,
   },
@@ -134,9 +141,13 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
+
   productsContainer: {
-    marginBottom: 20,
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
   },
+
   productContainer: {
     flexDirection: 'row',
     alignItems: 'center',
