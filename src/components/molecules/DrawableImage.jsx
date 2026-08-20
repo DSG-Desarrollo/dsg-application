@@ -17,12 +17,12 @@ import {
   Canvas,
   Path,
   Skia,
-  useTouchHandler,
   useCanvasRef,
   Image as SkiaImage,
   useImage,
   ImageFormat,
 } from "@shopify/react-native-skia";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -118,39 +118,50 @@ const DrawableImage = forwardRef(
       hasDrawn,
     }));
 
-    const touchHandler = useTouchHandler({
-      onStart: onDrawingStart,
-      onActive: onDrawingActive,
-    });
+    const touchHandler = Gesture.Pan()
+      .onStart((event) => {
+        onDrawingStart({
+          x: event.x,
+          y: event.y,
+        });
+      })
+      .onUpdate((event) => {
+        onDrawingActive({
+          x: event.x,
+          y: event.y,
+        });
+      });
 
     return (
       <View style={[styles.container, containerStyle]}>
         <View style={styles.canvasContainer}>
-          <Canvas
-            ref={canvasRef}
-            style={[styles.canvas]}
-            onTouch={touchHandler}
-          >
-            {image && (
-              <SkiaImage
-                image={image}
-                x={0}
-                y={0}
-                width={imageWidth}
-                height={imageHeight}
-                fit="contain"
-              />
-            )}
-            {paths.map((path, index) => (
-              <Path
-                key={index}
-                path={path}
-                color={strokeColor}
-                style="stroke"
-                strokeWidth={strokeWidth}
-              />
-            ))}
-          </Canvas>
+          <GestureDetector gesture={touchHandler}>
+            <Canvas
+              ref={canvasRef}
+              style={[styles.canvas]}
+              onTouch={touchHandler}
+            >
+              {image && (
+                <SkiaImage
+                  image={image}
+                  x={0}
+                  y={0}
+                  width={imageWidth}
+                  height={imageHeight}
+                  fit="contain"
+                />
+              )}
+              {paths.map((path, index) => (
+                <Path
+                  key={index}
+                  path={path}
+                  color={strokeColor}
+                  style="stroke"
+                  strokeWidth={strokeWidth}
+                />
+              ))}
+            </Canvas>
+          </GestureDetector>
         </View>
         <View style={styles.sideButtonsContainer}>
           <TouchableOpacity
