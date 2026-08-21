@@ -9,6 +9,42 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '@components/molecules/Card';
 import { spacing } from '@themes';
 import { installation as styles, common as commonStyles } from './styles';
+import SegmentedToggle from "@components/atoms/SegmentedToggle";
+
+const FIELD_GROUPS = [
+  {
+    key: "vehicle",
+    titleKey: "workOrder:vehicleType",
+    options: [
+      { value: "VH", labelKey: "workOrder:vehicleVH" },
+      { value: "FG", labelKey: "workOrder:vehicleFG" },
+    ],
+  },
+  {
+    key: "installationType",
+    titleKey: "workOrder:installationType",
+    options: [
+      { value: "T1", labelKey: "workOrder:installationT1" },
+      { value: "T2", labelKey: "workOrder:installationT2" },
+    ],
+  },
+  {
+    key: "powerOffType",
+    titleKey: "workOrder:powerOffType",
+    options: [
+      { value: "AR", labelKey: "workOrder:powerOffAR" },
+      { value: "SAR", labelKey: "workOrder:powerOffSAR" },
+    ],
+  },
+  {
+    key: "batteryType",
+    titleKey: "workOrder:batteryType",
+    options: [
+      { value: "BI", labelKey: "workOrder:batteryBI" },
+      { value: "SBI", labelKey: "workOrder:batterySBI" },
+    ],
+  },
+];
 
 const TabInstallationType = ({ route }) => {
   const [userData, setUserData] = useState(null);
@@ -109,125 +145,25 @@ const TabInstallationType = ({ route }) => {
         >
           {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
             <View style={styles.container}>
-              <Card
-                title={i18n.t('workOrder:vehicleType')}
-                style={{ marginBottom: spacing.md }}
-              >
-                <View style={styles.radioGroupHorizontal}>
-                  <Pressable onPress={() => handleOptionChange('vehicle', 'VH', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="VH"
-                      status={selectedOption.vehicle === 'VH' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('vehicle', 'VH', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:vehicleVH')}</Text>
-                  </Pressable>
-
-                  <Pressable onPress={() => handleOptionChange('vehicle', 'FG', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="FG"
-                      status={selectedOption.vehicle === 'FG' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('vehicle', 'FG', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:vehicleFG')}</Text>
-                  </Pressable>
-                </View>
-                {touched.vehicle && errors.vehicle && (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorMessage}>{errors.vehicle}</Text>
-                  </View>
-                )}
-              </Card>
-
-              <Card
-                title={i18n.t('workOrder:installationType')}
-                style={{ marginBottom: spacing.md }}
-              >
-                <View style={styles.radioGroupHorizontal}>
-                  <Pressable onPress={() => handleOptionChange('installationType', 'T1', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="T1"
-                      status={selectedOption.installationType === 'T1' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('installationType', 'T1', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:installationT1')}</Text>
-                  </Pressable>
-
-                  <Pressable onPress={() => handleOptionChange('installationType', 'T2', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="T2"
-                      status={selectedOption.installationType === 'T2' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('installationType', 'T2', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:installationT2')}</Text>
-                  </Pressable>
-                </View>
-                {touched.installationType && errors.installationType && (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorMessage}>{errors.installationType}</Text>
-                  </View>
-                )}
-              </Card>
-
-              <Card
-                title={i18n.t('workOrder:powerOffType')}
-                style={{ marginBottom: spacing.md }}
-              >
-                <View style={styles.radioGroupHorizontal}>
-                  <Pressable onPress={() => handleOptionChange('powerOffType', 'AR', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="AR"
-                      status={selectedOption.powerOffType === 'AR' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('powerOffType', 'AR', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:powerOffAR')}</Text>
-                  </Pressable>
-
-                  <Pressable onPress={() => handleOptionChange('powerOffType', 'SAR', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="SAR"
-                      status={selectedOption.powerOffType === 'SAR' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('powerOffType', 'SAR', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:powerOffSAR')}</Text>
-                  </Pressable>
-                </View>
-                {touched.powerOffType && errors.powerOffType && (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorMessage}>{errors.powerOffType}</Text>
-                  </View>
-                )}
-              </Card>
-
-              <Card
-                title={i18n.t('workOrder:batteryType')}
-                style={{ marginBottom: spacing.md }}
-              >
-                <View style={styles.radioGroupHorizontal}>
-                  <Pressable onPress={() => handleOptionChange('batteryType', 'BI', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="BI"
-                      status={selectedOption.batteryType === 'BI' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('batteryType', 'BI', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:batteryBI')}</Text>
-                  </Pressable>
-
-                  <Pressable onPress={() => handleOptionChange('batteryType', 'SBI', handleChange, handleBlur)} style={styles.radioContainer}>
-                    <RadioButton
-                      value="SBI"
-                      status={selectedOption.batteryType === 'SBI' ? 'checked' : 'unchecked'}
-                      onPress={() => handleOptionChange('batteryType', 'SBI', handleChange, handleBlur)}
-                    />
-                    <Text style={styles.radioLabel}>{i18n.t('workOrder:batterySBI')}</Text>
-                  </Pressable>
-                </View>
-                {touched.batteryType && errors.batteryType && (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorMessage}>{errors.batteryType}</Text>
-                  </View>
-                )}
-              </Card>
+              {FIELD_GROUPS.map((group) => (
+                <Card
+                  key={group.key}
+                  title={i18n.t(group.titleKey)}
+                  style={{ marginBottom: spacing.md }}
+                >
+                  <SegmentedToggle
+                    options={group.options.map((opt) => ({
+                      value: opt.value,
+                      label: i18n.t(opt.labelKey),
+                    }))}
+                    value={selectedOption[group.key]}
+                    onChange={(value) =>
+                      handleOptionChange(group.key, value, handleChange, handleBlur)
+                    }
+                    error={touched[group.key] && errors[group.key] ? errors[group.key] : null}
+                  />
+                </Card>
+              ))}
 
               <Pressable style={styles.saveButton} onPress={handleSubmit}>
                 <Text style={styles.saveButtonText}>Guardar</Text>

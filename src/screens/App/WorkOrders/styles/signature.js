@@ -59,7 +59,6 @@ export const signature = StyleSheet.create({
     justifyContent: "space-around",
   },
   customButton: {
-    backgroundColor: "#ff6347",
     borderRadius: 10,
     padding: 10,
     marginHorizontal: 5,

@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 // Styles
 import { palette } from '@themes';
 
-const { white } = palette;
+const { white, green } = palette;
 
 export const supplies = StyleSheet.create({
   progressHeader: {
@@ -26,7 +26,7 @@ export const supplies = StyleSheet.create({
     borderRadius: 4,
     overflow: 'hidden',
   },
-  progressFill: { height: '100%', backgroundColor: '#BA7517', borderRadius: 4 },
+  progressFill: { height: '100%', backgroundColor: green[500], borderRadius: 4 },
 
   headerContainer: {
     marginBottom: 20,
