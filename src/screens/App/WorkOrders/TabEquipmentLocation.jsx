@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, ToastAndroid } from "react-native";
 import SelectManager from "@components/atoms/SelectManager";
 import DrawableImage from "@components/molecules/DrawableImage";
-import styles from "@styles/TabEquipmentLocationStyles";
+import {location as styles} from "./styles";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";

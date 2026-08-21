@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export const location = StyleSheet.create({
     container: {
       flex: 1,
       padding: 10, // Añadido padding general para separar el contenido de los bordes de la pantalla
@@ -52,6 +52,4 @@ const styles = StyleSheet.create({
       color: '#007bff',
       fontSize: 16,
     },
-  });
-
-export default styles;
+});
