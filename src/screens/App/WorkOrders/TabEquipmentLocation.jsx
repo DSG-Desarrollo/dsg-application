@@ -99,6 +99,7 @@ const TabEquipmentLocation = ({ route }) => {
         // Endpoint al que se enviarán los datos
         const endpoint = "api/img-location-installation-ot";
         const response = await apiService.sendFormData(formData, endpoint);
+        console.log('Respuesta de la API:', response);
 
         await FormCompletionTracker.markFormAsCompleted(
           "form_equipment_location",
