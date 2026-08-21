@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import i18n from '@i18n/i18n';
-import {unitDetail as styles} from './styles';
+import { unitDetail as styles } from './styles';
 
 const TabWorkOrderDetails = ({ route }) => {
   // Obtener los parámetros desde route.params
@@ -34,19 +34,19 @@ const TabWorkOrderDetails = ({ route }) => {
         <Text style={styles.sectionHeader}>{i18n.t('workOrder:headerGeneral')}</Text>
         <View style={styles.card}>
           <View style={styles.row}>
-            <Text style={styles.label}>Cliente:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:client')}:</Text>
             <Text style={styles.text}>{empresa}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Servicio:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:service')}:</Text>
             <Text style={styles.text}>{servicio}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Trabajo:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:work')}:</Text>
             <Text style={styles.text}>{trabajo}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Requerido:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:required')}:</Text>
             <Text style={styles.text}>{requeridos}</Text>
           </View>
         </View>
@@ -54,14 +54,14 @@ const TabWorkOrderDetails = ({ route }) => {
 
       {/* Sección PROGRAMACIÓN */}
       <View style={styles.section}>
-        <Text style={styles.sectionHeader}>{i18n.t('workOrder:headerProgram')}</Text>
+        <Text style={styles.sectionHeader}>{i18n.t('workOrder:headerProgram')}:</Text>
         <View style={styles.card}>
           <View style={styles.row}>
-            <Text style={styles.label}>Fecha:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:date')}:</Text>
             <Text style={styles.text}>{fechaCreacion}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Dirección:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:address')}:</Text>
             <Text style={styles.text}>{direccionTarea}</Text>
           </View>
         </View>
@@ -72,15 +72,15 @@ const TabWorkOrderDetails = ({ route }) => {
         <Text style={styles.sectionHeader}>{i18n.t('workOrder:headerProcess')}</Text>
         <View style={styles.card}>
           <View style={styles.row}>
-            <Text style={styles.label}>Progreso:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:progressValue')}:</Text>
             <Text style={styles.text}>{progresoTareaDescripcion}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Inicio:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:start')}:</Text>
             <Text style={styles.text}>{fechaInicioTarea}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Completado:</Text>
+            <Text style={styles.label}>{i18n.t('workOrder:completed')}:</Text>
             <Text style={styles.text}>{fechaFinTarea}</Text>
           </View>
         </View>

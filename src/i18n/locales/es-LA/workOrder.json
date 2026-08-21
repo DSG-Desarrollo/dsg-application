@@ -15,8 +15,9 @@
   "general": "GENERAL",
   "client": "Cliente",
   "work": "Trabajo",
+  "service": "Servicio",
   "services": "Servicios",
-  "required": "Requeridos",
+  "required": "Requerido",
   "status": "Completado",
 
   "scheduling": "PROGRAMACIÓN",
