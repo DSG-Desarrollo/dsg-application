@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   ScrollView,
   ToastAndroid,
   TouchableOpacity,
@@ -16,10 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 
 // Styles
-import { spacing, palette } from '@themes';
 import { common as commonStyles, supplies as styles } from './styles';
-
-const { white } = palette;
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
