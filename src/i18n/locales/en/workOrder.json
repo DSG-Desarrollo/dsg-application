@@ -15,6 +15,7 @@
   "general": "GENERAL",
   "client": "Client",
   "work": "Work",
+  "service": "Service",
   "services": "Services",
   "required": "Required",
   "status": "Status",
@@ -29,5 +30,26 @@
   "completed": "Completed:",
 
   "noDataText": "No units to display",
-  "orders": "ORDERS"
+  "orders": "ORDERS",
+
+  "headerGeneral": "GENERAL",
+  "headerProgram": "SCHEDULING",
+  "headerProcess": "PROCESS",
+  "headerDetails": "DETAILS",
+  "headerClient": "CLIENT",
+  "headerServices": "SERVICES",
+  "headerUnits": "UNITS",
+  "headerOrders": "ORDERS",
+
+  "unit": "Unit",
+  "unitName": "Name",
+  "unitQuantity": "Quantity",
+  "unitUnit": "Unit",
+
+  "order": "Order",
+  "orderId": "ID",
+  "orderDate": "Date",
+  "orderAddress": "Address",
+  "orderProgress": "Progress",
+  "orderStart": "Start"
 }
