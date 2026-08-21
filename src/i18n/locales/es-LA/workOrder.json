@@ -51,5 +51,7 @@
   "orderDate": "Fecha",
   "orderAddress": "Dirección",
   "orderProgress": "Progreso",
-  "orderStart": "Inicio"
+  "orderStart": "Inicio",
+
+  "materials": "Materiales"
 }

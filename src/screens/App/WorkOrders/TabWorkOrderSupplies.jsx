@@ -13,6 +13,7 @@ import useFetchProducts from "@hooks/useFetchProducts";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import i18n from '@i18n/i18n';
 
 // Styles
 import { common as commonStyles, supplies as styles } from './styles';
@@ -104,7 +105,7 @@ const TabWorkOrderSupplies = ({ route }) => {
     <View style={commonStyles.container}>
       <View style={styles.progressHeader}>
         <View style={styles.progressLabelRow}>
-          <Text style={styles.progressLabel}>Materiales</Text>
+          <Text style={styles.progressLabel}>{i18n.t('workOrder:materials')}</Text>
           <Text style={styles.progressCount}>
             {filledCount} de {sortedProductsData.length} con cantidad
           </Text>
