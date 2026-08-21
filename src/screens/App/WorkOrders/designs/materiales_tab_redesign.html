@@ -1,0 +1,99 @@
+<div style="background: var(--surface-1); border-radius: 12px; padding: 12px; max-width: 380px; margin: 0 auto;">
+  <h2 class="sr-only">Propuesta de rediseño de la pestaña Materiales: lista compacta con progreso y stepper de cantidad</h2>
+
+  <div style="background: var(--surface-2); border-radius: 12px; overflow: hidden; border: 0.5px solid var(--border);">
+
+    <div style="padding: 12px 16px; border-bottom: 0.5px solid var(--border);">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+        <span style="font-size: 14px; font-weight: 500; color: var(--text-primary);">Materiales</span>
+        <span style="font-size: 13px; color: var(--text-secondary);" id="progress-label">3 de 12 con cantidad</span>
+      </div>
+      <div style="height: 4px; background: var(--surface-1); border-radius: 4px; overflow: hidden;">
+        <div id="progress-fill" style="height: 100%; width: 25%; background: #BA7517; border-radius: 4px;"></div>
+      </div>
+    </div>
+
+    <div id="rows-container"></div>
+
+    <div style="padding: 12px 16px;">
+      <button id="save-btn" style="width: 100%; height: 40px; background: #BA7517; border: none; color: #FAEEDA; font-size: 14px; font-weight: 500; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <i class="ti ti-device-floppy" style="font-size: 16px;" aria-hidden="true"></i>
+        Guardar materiales
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const products = [
+  { name: "Base de Relay", unit: "Unidad", qty: 0 },
+  { name: "Boton de Panico Alambrico", unit: "Unidad", qty: 2 },
+  { name: "Boton de Panico Inalambrico", unit: "Unidad", qty: 0 },
+  { name: "Boton de Panico Inalambrico", unit: "Unidad", qty: 1 },
+  { name: "Cable Coaxial", unit: "Metro", qty: 0 },
+  { name: "Cable UTP", unit: "Metro", qty: 15 },
+];
+
+const container = document.getElementById('rows-container');
+
+function updateProgress() {
+  const filled = products.filter(p => p.qty > 0).length;
+  document.getElementById('progress-label').textContent = filled + ' de ' + products.length + ' con cantidad';
+  document.getElementById('progress-fill').style.width = Math.round((filled / products.length) * 100) + '%';
+}
+
+function renderRows() {
+  container.innerHTML = '';
+  products.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; gap: 12px;' + (i < products.length - 1 ? ' border-bottom: 0.5px solid var(--border);' : '');
+
+    const info = document.createElement('div');
+    info.style.cssText = 'flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;';
+
+    const dot = document.createElement('span');
+    dot.style.cssText = 'width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: ' + (p.qty > 0 ? '#639922' : 'var(--border-strong)') + ';';
+
+    const text = document.createElement('div');
+    text.style.cssText = 'min-width: 0;';
+    text.innerHTML = '<div style="font-size: 14px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + p.name + '</div><div style="font-size: 12px; color: var(--text-muted);">' + p.unit + '</div>';
+
+    info.appendChild(dot);
+    info.appendChild(text);
+
+    const stepper = document.createElement('div');
+    stepper.style.cssText = 'display: flex; align-items: center; flex-shrink: 0; border: 0.5px solid var(--border-strong); border-radius: var(--radius); overflow: hidden;';
+
+    const minus = document.createElement('button');
+    minus.textContent = '-';
+    minus.setAttribute('aria-label', 'Restar cantidad de ' + p.name);
+    minus.style.cssText = 'width: 28px; height: 28px; border: none; background: var(--surface-1); color: var(--text-secondary); font-size: 16px; display: flex; align-items: center; justify-content: center;';
+    minus.onclick = () => { if (p.qty > 0) { p.qty--; renderRows(); updateProgress(); } };
+
+    const val = document.createElement('span');
+    val.textContent = p.qty;
+    val.style.cssText = 'width: 28px; text-align: center; font-size: 14px; color: var(--text-primary);';
+
+    const plus = document.createElement('button');
+    plus.textContent = '+';
+    plus.setAttribute('aria-label', 'Sumar cantidad de ' + p.name);
+    plus.style.cssText = 'width: 28px; height: 28px; border: none; background: var(--surface-1); color: var(--text-secondary); font-size: 16px; display: flex; align-items: center; justify-content: center;';
+    plus.onclick = () => { p.qty++; renderRows(); updateProgress(); };
+
+    stepper.appendChild(minus);
+    stepper.appendChild(val);
+    stepper.appendChild(plus);
+
+    row.appendChild(info);
+    row.appendChild(stepper);
+    container.appendChild(row);
+  });
+}
+
+renderRows();
+updateProgress();
+
+document.getElementById('save-btn').onclick = () => {
+  if (window.sendPrompt) sendPrompt('Me gusta el stepper, ayúdame a implementarlo en TabWorkOrderSupplies.js');
+};
+</script>

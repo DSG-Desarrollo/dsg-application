@@ -1,0 +1,79 @@
+<div style="background: var(--surface-1); border-radius: 12px; padding: 12px; max-width: 380px; margin: 0 auto;">
+  <h2 class="sr-only">Propuesta de rediseño de la pestaña Ubicación de equipo: selector de chips con miniatura, lienzo con estado vacío y de imagen no disponible, acciones de borrar y guardar</h2>
+
+  <div style="background: var(--surface-2); border-radius: 12px; overflow: hidden; border: 0.5px solid var(--border); padding: 16px;">
+
+    <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Tipo de equipo</div>
+
+    <div id="chip-row" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px;"></div>
+
+    <div id="canvas-card" style="border-radius: 10px; border: 1px dashed var(--border-strong); background: var(--surface-1); min-height: 220px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; padding: 20px; text-align: center;">
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-top: 16px;">
+      <button id="clear-btn" style="flex: 1; height: 40px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text-secondary); font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <i class="ti ti-eraser" aria-hidden="true"></i> Borrar marcas
+      </button>
+      <button id="save-btn" style="flex: 1; height: 40px; border-radius: var(--radius); border: none; background: #BA7517; color: #FAEEDA; font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <i class="ti ti-device-floppy" aria-hidden="true"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const options = [
+  { label: "Vehículo liviano", hasImage: true, icon: "ti-car" },
+  { label: "Motocicleta", hasImage: true, icon: "ti-motorbike" },
+  { label: "Planta eléctrica", hasImage: false, icon: "ti-bolt" },
+  { label: "Retro escavador", hasImage: false, icon: "ti-tractor" },
+  { label: "Bocad", hasImage: false, icon: "ti-truck" },
+  { label: "Volqueta", hasImage: true, icon: "ti-truck-delivery" },
+  { label: "Cabezal", hasImage: true, icon: "ti-truck" },
+  { label: "Grua", hasImage: true, icon: "ti-crane" },
+];
+
+let selected = null;
+const chipRow = document.getElementById('chip-row');
+const canvasCard = document.getElementById('canvas-card');
+
+function renderChips() {
+  chipRow.innerHTML = '';
+  options.forEach((opt) => {
+    const chip = document.createElement('button');
+    const isSelected = selected === opt.label;
+    chip.style.cssText = 'flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 68px; padding: 8px 4px; border-radius: 10px; border: 1.5px solid ' + (isSelected ? '#BA7517' : 'var(--border)') + '; background: ' + (isSelected ? '#FCEFDC' : 'var(--surface-2)') + ';';
+    const iconWrap = document.createElement('div');
+    iconWrap.style.cssText = 'width: 32px; height: 32px; border-radius: 8px; background: ' + (isSelected ? '#BA7517' : 'var(--surface-1)') + '; display: flex; align-items: center; justify-content: center;';
+    iconWrap.innerHTML = '<i class="ti ' + opt.icon + '" style="font-size: 17px; color: ' + (isSelected ? '#FAEEDA' : 'var(--text-secondary)') + ';" aria-hidden="true"></i>';
+    const label = document.createElement('span');
+    label.textContent = opt.label;
+    label.style.cssText = 'font-size: 10px; text-align: center; line-height: 1.2; color: ' + (isSelected ? '#412402' : 'var(--text-secondary)') + '; font-weight: ' + (isSelected ? '600' : '400') + ';';
+    chip.appendChild(iconWrap);
+    chip.appendChild(label);
+    chip.onclick = () => { selected = opt.label; renderChips(); renderCanvas(); };
+    chipRow.appendChild(chip);
+  });
+}
+
+function renderCanvas() {
+  if (!selected) {
+    canvasCard.innerHTML = '<i class="ti ti-hand-click" style="font-size: 28px; color: var(--text-muted);" aria-hidden="true"></i><div style="font-size: 13px; color: var(--text-muted); max-width: 220px;">Selecciona un tipo de equipo arriba para comenzar a marcar la ubicación</div>';
+    return;
+  }
+  const opt = options.find(o => o.label === selected);
+  if (!opt.hasImage) {
+    canvasCard.innerHTML = '<i class="ti ti-photo-off" style="font-size: 28px; color: var(--text-muted);" aria-hidden="true"></i><div style="font-size: 13px; color: var(--text-secondary); max-width: 240px;">No hay imagen de referencia para <strong>' + selected + '</strong>. Puedes continuar y guardar el registro sin marcar.</div>';
+    return;
+  }
+  canvasCard.innerHTML = '<div style="width: 100%; height: 220px; border-radius: 8px; background: linear-gradient(135deg, var(--border) 25%, transparent 25%) -8px 0/16px 16px, linear-gradient(225deg, var(--border) 25%, transparent 25%) -8px 0/16px 16px, linear-gradient(315deg, var(--border) 25%, transparent 25%) 0 0/16px 16px, linear-gradient(45deg, var(--border) 25%, var(--surface-1) 25%) 0 0/16px 16px; display: flex; align-items: center; justify-content: center;"><span style="background: var(--surface-2); padding: 4px 10px; border-radius: 6px; font-size: 11px; color: var(--text-muted);">Imagen de ' + selected + ' · toca para marcar</span></div>';
+}
+
+renderChips();
+renderCanvas();
+
+document.getElementById('clear-btn').onclick = () => {
+  if (window.sendPrompt) sendPrompt('Perfecto, ahora ayúdame también con la lógica de "Borrar marcas" en el canvas.');
+};
+document.getElementById('save-btn').onclick = () => {};
+</script>
