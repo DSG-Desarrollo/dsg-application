@@ -44,11 +44,14 @@ export const installation = StyleSheet.create({
   },
 
   saveButton: {
+    height: 44,
     backgroundColor: blue[100],
-    borderRadius: 10,
-    justifyContent: 'center',
+    borderRadius: 8,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 16,
   },
 
   saveButtonText: {

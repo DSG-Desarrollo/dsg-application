@@ -7,25 +7,28 @@ import {
   ScrollView,
   Platform,
   Text,
+  Pressable,
   Dimensions,
 } from "react-native";
-import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faSave, faEraser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import DrawableImage from "@components/molecules/DrawableImage";
-import ActionButtons from "@components/atoms/ActionButtons";
+import Card from "@components/molecules/Card";
 import ApiService from "@services/api/ApiService";
 import FormValidation from "@components/molecules/FormValidation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { signature as styles } from "./styles";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-
-// Define el tamaño del canvas (por ejemplo, 80% del tamaño de la pantalla)
-const canvasSize = screenWidth * 0.9;
+const { width: screenWidth } = Dimensions.get("window");
+const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen del Card
 
 const TabInstallationSignatureProof = ({ route }) => {
   const [userData, setUserData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { tareaId, id_orden_trabajo, clienteId } = route.params;
+  const [showDrawableImage, setShowDrawableImage] = useState(false);
+  const [clearPaths, setClearPaths] = useState(false);
+  const drawableImageRef = useRef(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -34,18 +37,16 @@ const TabInstallationSignatureProof = ({ route }) => {
         setUserData(jsonValue ? JSON.parse(jsonValue) : null);
       } catch (e) {
         console.error("Error reading userData from storage", e);
-      } finally {
-        setIsLoading(false);
       }
     };
-
     fetchUserData();
   }, []);
-  const { tareaId, id_orden_trabajo, clienteId } = route.params;
-  const [showDrawableImage, setShowDrawableImage] = useState(false);
-  const drawableImageRef = useRef(null);
 
-  const initialValues = { nombre_firma_cliente: "" }; // Valores iniciales
+  useEffect(() => {
+    setShowDrawableImage(true);
+  }, []);
+
+  const initialValues = { nombre_firma_cliente: "" };
   const validationInput = [
     {
       key: "nombre_firma_cliente",
@@ -54,6 +55,9 @@ const TabInstallationSignatureProof = ({ route }) => {
       message: "El nombre es obligatorio y debe tener al menos 3 caracteres",
     },
   ];
+
+  const handleClearSignature = () => setClearPaths(true);
+  const handlePathsCleared = () => setClearPaths(false);
 
   const handleSave = async (values) => {
     try {
@@ -67,8 +71,7 @@ const TabInstallationSignatureProof = ({ route }) => {
           image: base64Image,
         };
 
-        const endpoint = "api/client-signature";
-        const response = await apiService.sendFormData(formData, endpoint);
+        const response = await apiService.sendFormData(formData, "api/client-signature");
 
         if (response.status === 200 && response.statusText === "OK") {
           ToastAndroid.showWithGravity(
@@ -84,7 +87,6 @@ const TabInstallationSignatureProof = ({ route }) => {
             userData.employee.id_usuario_empleado
           );
         } else {
-          // Manejar posibles respuestas con errores
           ToastAndroid.showWithGravity(
             response.message || "Hubo un problema al actualizar el registro",
             ToastAndroid.LONG,
@@ -102,14 +104,6 @@ const TabInstallationSignatureProof = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    setShowDrawableImage(true);
-  }, []);
-
-  const handleEdit = () => {
-    console.log("Editar acción ejecutada");
-  };
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -121,15 +115,12 @@ const TabInstallationSignatureProof = ({ route }) => {
           validationInput={validationInput}
           onSubmit={handleSave}
         >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            touched,
-            errors,
-          }) => (
-            <View style={styles.formContainer}>
+          {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
+            <Card title="Firma de conformidad" style={styles.formCard}>
+              <Text style={styles.instructionText}>
+                Pide al cliente que firme dentro del recuadro
+              </Text>
+
               <View style={styles.imageContainer}>
                 {showDrawableImage && (
                   <DrawableImage
@@ -137,6 +128,8 @@ const TabInstallationSignatureProof = ({ route }) => {
                     blankCanvas={true}
                     strokeColor="black"
                     strokeWidth={4}
+                    clearPaths={clearPaths}
+                    onPathsCleared={handlePathsCleared}
                     containerStyle={[
                       styles.canvasContainer,
                       { width: canvasSize, height: canvasSize },
@@ -146,6 +139,14 @@ const TabInstallationSignatureProof = ({ route }) => {
                 )}
               </View>
 
+              <Pressable style={styles.clearButton} onPress={handleClearSignature}>
+                <FontAwesomeIcon icon={faEraser} size={14} color="#555" />
+                <Text style={styles.clearButtonText}>Borrar firma</Text>
+              </Pressable>
+
+              <View style={styles.divider} />
+
+              <Text style={styles.fieldLabel}>Nombre de quien firma</Text>
               <TextInput
                 style={[
                   styles.input,
@@ -157,31 +158,22 @@ const TabInstallationSignatureProof = ({ route }) => {
                 onChangeText={handleChange("nombre_firma_cliente")}
                 onBlur={handleBlur("nombre_firma_cliente")}
                 value={values.nombre_firma_cliente}
-                placeholder="Ingrese su nombre aquí"
-                placeholderTextColor="#888"
+                placeholder="Ej. Ana Martínez"
+                placeholderTextColor="#aaa"
                 underlineColorAndroid="transparent"
               />
 
               {touched.nombre_firma_cliente && errors.nombre_firma_cliente && (
                 <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>
-                    {errors.nombre_firma_cliente}
-                  </Text>
+                  <Text style={styles.errorText}>{errors.nombre_firma_cliente}</Text>
                 </View>
               )}
 
-              <View style={styles.buttonContainer}>
-                <ActionButtons
-                  buttons={[
-                    { text: "Guardar", icon: faSave, onPress: handleSubmit },
-                    { text: "Editar", icon: faEdit, onPress: handleEdit },
-                  ]}
-                  buttonContainerStyle={styles.customButtonContainer}
-                  buttonStyle={styles.customButton}
-                  buttonTextStyle={styles.customButtonText}
-                />
-              </View>
-            </View>
+              <Pressable style={styles.saveButton} onPress={handleSubmit}>
+                <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
+                <Text style={styles.saveButtonText}>Guardar</Text>
+              </Pressable>
+            </Card>
           )}
         </FormValidation>
       </ScrollView>

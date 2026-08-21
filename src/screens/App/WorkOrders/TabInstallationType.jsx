@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Text, ToastAndroid, Pressable } from 'react-native';
-import { RadioButton } from 'react-native-paper';
 import i18n from '@i18n/i18n';
 import TicketService from '@services/api/tickets/TicketService';
 import FormValidation from '@components/molecules/FormValidation';
@@ -10,6 +9,8 @@ import Card from '@components/molecules/Card';
 import { spacing } from '@themes';
 import { installation as styles, common as commonStyles } from './styles';
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 const FIELD_GROUPS = [
   {
@@ -166,6 +167,7 @@ const TabInstallationType = ({ route }) => {
               ))}
 
               <Pressable style={styles.saveButton} onPress={handleSubmit}>
+                <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
                 <Text style={styles.saveButtonText}>Guardar</Text>
               </Pressable>
             </View>
