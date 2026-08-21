@@ -1,25 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Pressable, Text, ToastAndroid, Dimensions } from "react-native";
-import SelectManager from "../../../components/atoms/SelectManager";
-import DrawableImage from "../../../components/molecules/DrawableImage";
-import styles from "../../../styles/TabEquipmentLocationStyles";
-import ApiService from "../../../services/api/ApiService";
+import { View, ToastAndroid } from "react-native";
+import SelectManager from "@components/atoms/SelectManager";
+import DrawableImage from "@components/molecules/DrawableImage";
+import styles from "@styles/TabEquipmentLocationStyles";
+import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import FormCompletionTracker from "../../../components/atoms/FormCompletionTracker";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
-import ActionButtons from "../../../components/atoms/ActionButtons";
+import ActionButtons from "@components/atoms/ActionButtons";
 
 const options = [
   {
     label: "Vehículo liviano",
     value: "Vehículo liviano",
-    image: require("../../../assets/images/vehiculo_liviano.jpg"),
+    image: require("@assets/images/vehiculo_liviano.jpg"),
   },
   {
     label: "Motocicleta",
     value: "Motocicleta",
-    image: require("../../../assets/images/Yamaha-YZF-600R-Thundercat-1996-.png"),
+    image: require("@assets/images/Yamaha-YZF-600R-Thundercat-1996-.png"),
   },
   { label: "Planta eléctrica", value: "Planta eléctrica" },
   { label: "Retro escavador", value: "Retro escavador" },
@@ -27,17 +26,17 @@ const options = [
   {
     label: "Volqueta",
     value: "Volqueta",
-    image: require("../../../assets/images/zil-mmz-585.png"),
+    image: require("@assets/images/zil-mmz-585.png"),
   },
   {
     label: "Cabezal",
     value: "Cabezal",
-    image: require("../../../assets/images/vehiculo_liviano.jpg"),
+    image: require("@assets/images/vehiculo_liviano.jpg"),
   },
   {
     label: "Grua",
     value: "Grua",
-    image: require("../../../assets/images/scania-vabis-l-36-super.png"),
+    image: require("@assets/images/scania-vabis-l-36-super.png"),
   },
 ];
 
