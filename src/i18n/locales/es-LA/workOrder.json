@@ -29,5 +29,26 @@
   "completed": "Completado:",
 
   "noDataText": "No hay unidades que listar",
-  "orders": "ORDENES"
+  "orders": "ORDENES",
+
+  "headerGeneral": "GENERAL",
+  "headerProgram": "PROGRAMACIÓN",
+  "headerProcess": "PROCESO",
+  "headerDetails": "DETALLES",
+  "headerClient": "CLIENTE",
+  "headerServices": "SERVICIOS",
+  "headerUnits": "UNIDADES",
+  "headerOrders": "ORDENES",
+
+  "unit": "Unidad",
+  "unitName": "Nombre",
+  "unitQuantity": "Cantidad",
+  "unitUnit": "Unidad",
+
+  "order": "Orden",
+  "orderId": "ID",
+  "orderDate": "Fecha",
+  "orderAddress": "Dirección",
+  "orderProgress": "Progreso",
+  "orderStart": "Inicio"
 }
