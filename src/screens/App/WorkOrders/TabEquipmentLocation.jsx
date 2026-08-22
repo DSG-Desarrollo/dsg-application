@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
 import ActionButtons from "@components/atoms/ActionButtons";
+import i18n from '@i18n/i18n';
 
 const options = [
   {
@@ -130,12 +131,12 @@ const TabEquipmentLocation = ({ route }) => {
 
   const buttons = [
     {
-      text: "Guardar",
+      text: i18n.t('ui:btnSave'),
       icon: faSave,
       onPress: handleSave,
     },
     {
-      text: "Editar",
+      text: i18n.t('ui:btnEdit'),
       icon: faEdit,
       onPress: handleEdit,
     },

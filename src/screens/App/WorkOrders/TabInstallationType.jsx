@@ -168,7 +168,7 @@ const TabInstallationType = ({ route }) => {
 
               <Pressable style={styles.saveButton} onPress={handleSubmit}>
                 <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
-                <Text style={styles.saveButtonText}>Guardar</Text>
+                <Text style={styles.saveButtonText}>{i18n.t('ui:btnSave')}</Text>
               </Pressable>
             </View>
           )}

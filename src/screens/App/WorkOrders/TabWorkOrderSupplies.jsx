@@ -85,8 +85,8 @@ const TabWorkOrderSupplies = ({ route }) => {
   const handleEdit = () => {};
 
   const buttons = [
-    { text: "Guardar", icon: faSave, onPress: handleSave },
-    { text: "Editar", icon: faEdit, onPress: handleEdit },
+    { text: i18n.t('ui:btnSave'), icon: faSave, onPress: handleSave },
+    { text: i18n.t('ui:btnEdit'), icon: faEdit, onPress: handleEdit },
   ];
 
   const handleStep = (id, delta) => {
@@ -187,7 +187,6 @@ const TabWorkOrderSupplies = ({ route }) => {
           buttons={buttons}
           buttonContainerStyle={styles.customButtonContainer}
           buttonStyle={styles.customButton}
-          buttonTextStyle={styles.customButtonText}
         />
       </View>
     </View>
