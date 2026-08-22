@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 // Styles
 import { palette } from '@themes';
 
-const { white, green } = palette;
+const { white, green, blue } = palette;
 
 export const supplies = StyleSheet.create({
   progressHeader: {
@@ -126,6 +126,18 @@ export const supplies = StyleSheet.create({
   customButtonContainer: {
     marginBottom: 10,
   },
+
+  customButton: {
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: blue[100],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 16,
+  },
+
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
