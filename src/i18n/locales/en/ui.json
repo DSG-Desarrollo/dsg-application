@@ -6,5 +6,10 @@
     "btnBack": "Back",
     "btnConfirm": "Confirm",
     "btnDelete": "Delete",
-    "btnAdd": "Add"
+    "btnAdd": "Add",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "tickets": "Tickets",
+    "ticketList": "Ticket List",
+    "closeSession": "Close Session"
 }

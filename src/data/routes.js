@@ -4,12 +4,13 @@ import {
   TicketsScreen 
 } from '@screens';
 import { faHome, faTicketAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import i18n from '@i18n/i18n';
 
 export const routes = {
   Dashboard: {
     screen: Dashboard,
     iconName: faHome,
-    title: 'Dashboard',
+    title: i18n.t('ui:dashboard'),
     name: 'Dashboard',
     requiredLevel: [1, 5],
     order: 1,
@@ -18,7 +19,7 @@ export const routes = {
   TicketsScreen: {
     screen: TicketsScreen,
     iconName: faTicketAlt,
-    title: 'Tickets',
+    title: i18n.t('ui:tickets'),
     name: 'Listado de Tickets',
     requiredLevel: [5, 7],
     order: 2,
@@ -27,7 +28,7 @@ export const routes = {
   ProfileScreen: {
     screen: ProfileScreen,
     iconName: faUserCircle,
-    title: 'Perfil',
+    title: i18n.t('ui:profile'),
     name: 'Perfil',
     requiredLevel: [2, 5],
     order: 3,
