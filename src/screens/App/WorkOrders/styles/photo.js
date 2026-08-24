@@ -9,24 +9,7 @@ export const photo = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
   },
-
-  saveButton: {
-    height: 44,
-    borderRadius: 8,
-    backgroundColor: bgButton,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    marginTop: 4,
-  },
-
-  saveButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-
+  
   sheetBackdrop: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.4)",

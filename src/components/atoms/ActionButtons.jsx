@@ -23,8 +23,8 @@ const ActionButtons = ({
         >
           <FontAwesomeIcon
             icon={button.icon}
-            size={iconSize}
-            color={iconColor}
+            size={button.iconSize || iconSize}
+            color={button.iconColor || iconColor}
           />
           <Text style={[styles.buttonText, buttonTextStyle, button.textStyle]}>
             {button.text}

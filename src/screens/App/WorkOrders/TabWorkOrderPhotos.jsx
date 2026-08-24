@@ -1,12 +1,12 @@
 // TabWorkOrderPhotos.js
 import React, { useState } from "react";
-import { View, Text, Modal, Pressable, ToastAndroid } from "react-native";
+import { View, Text, Modal, Pressable, ScrollView, ToastAndroid } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faSave, faTruckLoading, faClipboardCheck, faCamera, faImage } from "@fortawesome/free-solid-svg-icons";
 import * as ImagePicker from "expo-image-picker";
 import EvidenceSection from "@components/molecules/EvidenceSection";
 import CameraCaptureModal from "@components/molecules/CameraCaptureModal";
-import { photo as styles } from "./styles";
+import { photo as styles, common as commonStyles } from "./styles";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
 import { buttonStyles } from '@themes';
@@ -87,6 +87,7 @@ const TabWorkOrderPhotos = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
       <EvidenceSection
         title="Evidencia de recepción"
         icon={faTruckLoading}
@@ -106,6 +107,7 @@ const TabWorkOrderPhotos = ({ route }) => {
         onAddPress={() => handleAddPress("delivery")}
         onRemove={(index) => removePhoto("delivery", index)}
       />
+      </ScrollView>
 
       <Pressable style={primary} onPress={handleSave}>
         <FontAwesomeIcon icon={faSave} size={14} color={textPrimary} />

@@ -23,7 +23,7 @@ import { buttonStyles } from '@themes';
 
 import i18n from '@i18n/i18n';
 
-const { primary, primaryText } = buttonStyles;
+const { primary, primaryText, outline, outlineText } = buttonStyles;
 
 const { width: screenWidth } = Dimensions.get("window");
 const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen del Card
@@ -144,9 +144,9 @@ const TabInstallationSignatureProof = ({ route }) => {
                 )}
               </View>
 
-              <Pressable style={styles.clearButton} onPress={handleClearSignature}>
-                <FontAwesomeIcon icon={faEraser} size={14} color="#555" />
-                <Text style={styles.clearButtonText}>Borrar firma</Text>
+              <Pressable style={outline} onPress={handleClearSignature}>
+                <FontAwesomeIcon icon={faEraser} size={16} color="#555" />
+                <Text style={outlineText}>Borrar firma</Text>
               </Pressable>
 
               <View style={styles.divider} />
