@@ -158,7 +158,6 @@ const TabNavigatorWorkOrder = ({ route }) => {
     return <FontAwesomeIcon icon={iconName} color={iconColor} size={20} />;
   };
   
-
   const ticketCode = `${sharedParams.codigo} OT#${sharedParams.numero_orden} `;
 
   return (

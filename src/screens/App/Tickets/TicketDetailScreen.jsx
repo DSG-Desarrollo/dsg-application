@@ -40,7 +40,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
   const { unitsData, loading, error, refetch } =
     useFetchUnitWorkOrders(tareaId);
   const navigationRef = useRef();
-  const titleWithCode = `Detalle Ticket - ${codigo}`;
+  const titleWithCode = `${i18n.t('ticket:title')} - ${codigo}`;
   const handleBackPress = () => {
     navigation.goBack();
   };
