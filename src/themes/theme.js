@@ -22,8 +22,9 @@ const theme = {
     danger: '#CD060E',
     dangerDark: '#950408', // Versión oscura del danger
 
-    warning: '#B45309',
-    warningDark: '#92400E', // Versión oscura del warning
+    warning: '#D97706',
+    warningDark: '#B45309',
+    warningSurface: '#FEF3C7',
 
     info: '#087F8C',
     infoDark: '#05636E', // Versión oscura del info

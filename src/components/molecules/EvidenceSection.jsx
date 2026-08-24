@@ -5,6 +5,17 @@ import { faCameraRetro, faTimes } from "@fortawesome/free-solid-svg-icons";
 import theme from '@themes/theme';
 import i18n from '@i18n/i18n'
 
+const { 
+  danger, 
+  warningDark, 
+  surface, 
+  textSecondary, 
+  textMuted, 
+  border, 
+  textDark,
+  warningSurface
+ } = theme.colors;
+
 const EvidenceSection = ({
   title,
   icon,
@@ -91,11 +102,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: "500",
-    color: theme.colors.textDark,
+    color: textDark,
   },
 
   instructionBox: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: warningSurface,
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
@@ -103,13 +114,13 @@ const styles = StyleSheet.create({
 
   instructionText: {
     fontSize: 12,
-    color: theme.colors.warningDark,
+    color: warningDark,
     lineHeight: 17,
   },
 
   counter: {
     fontSize: 12,
-    color: theme.colors.textMuted,
+    color: textMuted,
     marginBottom: 8,
   },
 
@@ -125,8 +136,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
+    borderColor: border,
+    backgroundColor: surface,
   },
 
   thumbImage: {
@@ -141,7 +152,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: theme.colors.danger,
+    backgroundColor: danger,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -160,7 +171,7 @@ const styles = StyleSheet.create({
 
   addTileText: {
     fontSize: 10,
-    color: theme.colors.textSecondary,
+    color: textSecondary,
   },
 });
 
