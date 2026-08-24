@@ -1,0 +1,54 @@
+<div style="background: var(--surface-1); border-radius: 12px; padding: 12px; max-width: 380px; margin: 0 auto;">
+  <h2 class="sr-only">Propuesta de pantalla de evidencia fotográfica con secciones de recepción y entrega, grilla de fotos guardadas, casilla para agregar y hoja de acción para elegir cámara o galería</h2>
+
+  <div style="background: var(--surface-2); border-radius: 12px; border: 0.5px solid var(--border); overflow: hidden;">
+
+    <div style="padding: 14px 16px 6px; display: flex; align-items: center; gap: 8px;">
+      <i class="ti ti-truck-delivery" style="font-size: 16px; color: #BA7517;" aria-hidden="true"></i>
+      <span style="font-size: 15px; font-weight: 500; color: var(--text-primary);">Evidencia de recepción</span>
+    </div>
+    <div style="margin: 6px 16px 10px; padding: 10px 12px; background: #FAEEDA; border-radius: 8px; font-size: 12px; color: #633806; line-height: 1.4;">
+      Documenta golpes o daños visibles, el número de serie legible y los accesorios incluidos.
+    </div>
+    <div style="padding: 0 16px 4px; font-size: 12px; color: var(--text-muted);">2 de 4 fotos</div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px 16px 16px;">
+      <div style="position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 0.5px solid var(--border); background: var(--surface-1); display: flex; align-items: center; justify-content: center;">
+        <i class="ti ti-photo" style="font-size: 20px; color: var(--text-muted);" aria-hidden="true"></i>
+        <button style="position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; border: none; background: #E24B4A; color: #FCEBEB; display: flex; align-items: center; justify-content: center;" aria-label="Eliminar foto"><i class="ti ti-x" style="font-size: 11px;" aria-hidden="true"></i></button>
+      </div>
+      <div style="position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 0.5px solid var(--border); background: var(--surface-1); display: flex; align-items: center; justify-content: center;">
+        <i class="ti ti-photo" style="font-size: 20px; color: var(--text-muted);" aria-hidden="true"></i>
+        <button style="position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; border: none; background: #E24B4A; color: #FCEBEB; display: flex; align-items: center; justify-content: center;" aria-label="Eliminar foto"><i class="ti ti-x" style="font-size: 11px;" aria-hidden="true"></i></button>
+      </div>
+      <button style="aspect-ratio: 1; border-radius: 8px; border: 1.5px dashed var(--border-strong); background: var(--surface-1); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-secondary);">
+        <i class="ti ti-camera-plus" style="font-size: 20px;" aria-hidden="true"></i>
+        <span style="font-size: 10px;">Agregar</span>
+      </button>
+    </div>
+
+    <div style="height: 0.5px; background: var(--border);"></div>
+
+    <div style="padding: 16px 16px 6px; display: flex; align-items: center; gap: 8px;">
+      <i class="ti ti-clipboard-check" style="font-size: 16px; color: #BA7517;" aria-hidden="true"></i>
+      <span style="font-size: 15px; font-weight: 500; color: var(--text-primary);">Evidencia de entrega</span>
+    </div>
+    <div style="margin: 6px 16px 10px; padding: 10px 12px; background: #FAEEDA; border-radius: 8px; font-size: 12px; color: #633806; line-height: 1.4;">
+      Documenta la instalación terminada, las conexiones y la limpieza del área de trabajo.
+    </div>
+    <div style="padding: 0 16px 4px; font-size: 12px; color: var(--text-muted);">0 de 4 fotos</div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px 16px 16px;">
+      <button style="aspect-ratio: 1; border-radius: 8px; border: 1.5px dashed var(--border-strong); background: var(--surface-1); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-secondary);">
+        <i class="ti ti-camera-plus" style="font-size: 20px;" aria-hidden="true"></i>
+        <span style="font-size: 10px;">Agregar</span>
+      </button>
+    </div>
+
+    <div style="padding: 4px 16px 16px;">
+      <button style="width: 100%; height: 44px; border-radius: var(--radius); border: none; background: #BA7517; color: #FAEEDA; font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <i class="ti ti-device-floppy" aria-hidden="true"></i> Guardar evidencia
+      </button>
+    </div>
+  </div>
+</div>

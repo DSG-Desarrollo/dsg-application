@@ -1,0 +1,43 @@
+<div style="background: var(--surface-1); border-radius: 12px; padding: 12px; max-width: 380px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
+  <h2 class="sr-only">Hoja de acción para elegir entre tomar foto o elegir de galería, y pantalla de cámara con controles básicos: flash, cambio de cámara frontal/trasera y disparador</h2>
+
+  <div>
+    <div style="font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Al tocar "Agregar"</div>
+    <div style="background: var(--surface-2); border-radius: 12px; border: 0.5px solid var(--border); overflow: hidden;">
+      <button style="width: 100%; padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid var(--border); background: none; border-left: none; border-right: none; border-top: none;">
+        <i class="ti ti-camera" style="font-size: 18px; color: var(--text-secondary);" aria-hidden="true"></i>
+        <span style="font-size: 14px; color: var(--text-primary);">Tomar foto</span>
+      </button>
+      <button style="width: 100%; padding: 14px 16px; display: flex; align-items: center; gap: 12px; background: none; border: none;">
+        <i class="ti ti-photo" style="font-size: 18px; color: var(--text-secondary);" aria-hidden="true"></i>
+        <span style="font-size: 14px; color: var(--text-primary);">Elegir de galería</span>
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Pantalla de cámara (expo-camera)</div>
+    <div style="border-radius: 12px; overflow: hidden; background: #2C2C2A; aspect-ratio: 0.72; position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="display: flex; justify-content: space-between; padding: 12px;">
+        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+          <i class="ti ti-x" style="font-size: 16px; color: #F1EFE8;" aria-hidden="true"></i>
+        </div>
+        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+          <i class="ti ti-bolt-off" style="font-size: 16px; color: #F1EFE8;" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div style="text-align: center; padding-bottom: 6px;">
+        <span style="font-size: 11px; color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.3); padding: 3px 10px; border-radius: 20px;">Evidencia de recepción</span>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 28px;">
+        <div style="width: 36px;"></div>
+        <div style="width: 62px; height: 62px; border-radius: 50%; border: 3px solid #F1EFE8; display: flex; align-items: center; justify-content: center;">
+          <div style="width: 50px; height: 50px; border-radius: 50%; background: #F1EFE8;"></div>
+        </div>
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+          <i class="ti ti-camera-rotate" style="font-size: 18px; color: #F1EFE8;" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

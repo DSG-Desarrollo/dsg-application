@@ -6,8 +6,9 @@ import {
   faCircleInfo,
   faTools,
   faClipboardCheck,
-  faMapMarkerAlt,
   faWrench,
+  faSignature,
+  faPhotoFilm
 } from "@fortawesome/free-solid-svg-icons";
 import { Text, View } from "react-native";
 import {
@@ -16,10 +17,11 @@ import {
   TabWorkOrderSupplies,
   TabInstallationSignatureProof,
   TabEquipmentLocation,
-} from "../screens/App/WorkOrders/";
-import Toolbar from "../components/atoms/Toolbar";
+  TabWorkOrderPhotos,
+} from "@screens/App/WorkOrders/";
+import Toolbar from "@components/atoms/Toolbar";
 import { useNavigation } from "@react-navigation/native";
-import theme from "../themes/theme";
+import theme from "@themes/theme";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -117,6 +119,8 @@ const TabNavigatorWorkOrder = ({ route }) => {
     } else if (route.name === "TabEquipmentLocation") {
       labelName = "Ubicación";
       tabKey = "form_equipment_location";
+    } else if (route.name === "TabWorkOrderPhotos") {
+      labelName = "Fotos";
     }
 
     const isCompleted = completedForms.includes(tabKey);
@@ -142,8 +146,10 @@ const TabNavigatorWorkOrder = ({ route }) => {
       iconName = faWrench;
       tabKey = "form_equipment_location";
     } else if (route.name === "TabInstallationSignatureProof") {
-      iconName = faMapMarkerAlt;
+      iconName = faSignature;
       tabKey = "form_installation_signature_proof";
+    } else if (route.name === "TabWorkOrderPhotos") {
+      iconName = faPhotoFilm;
     }
   
     const isCompleted = completedForms.includes(tabKey);
@@ -218,13 +224,25 @@ const TabNavigatorWorkOrder = ({ route }) => {
           }}
           initialParams={sharedParams}
         />
+        <Tab.Screen 
+          name="TabWorkOrderPhotos" 
+          component={TabWorkOrderPhotos} 
+          options={{
+            title: "Fotos",
+            tabBarIcon: ({ color }) => (
+              <FontAwesomeIcon icon={faPhotoFilm} color={color} size={20} />
+            ),
+            swipeEnabled: false,
+          }}
+          initialParams={sharedParams}
+        />
         <Tab.Screen
           name="TabInstallationSignatureProof"
           component={TabInstallationSignatureProof}
           options={{
             title: "Firma",
             tabBarIcon: ({ color }) => (
-              <FontAwesomeIcon icon={faMapMarkerAlt} color={color} size={20} />
+              <FontAwesomeIcon icon={faSignature} color={color} size={20} />
             ),
             swipeEnabled: false,
           }}

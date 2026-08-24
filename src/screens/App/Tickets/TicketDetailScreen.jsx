@@ -1,19 +1,16 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import {
   TouchableOpacity,
-  StyleSheet,
   View,
   FlatList,
   Text,
   ActivityIndicator,
 } from "react-native";
-import Toolbar from "../../../components/atoms/Toolbar";
+import Toolbar from "@components/atoms/Toolbar";
 import { Ionicons } from "@expo/vector-icons";
-import style from "../../../styles/TicketDetailScreenStyles";
-import useFetchUnitWorkOrders from "../../../hooks/useFetchUnitWorkOrders";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import useMethodSaveToSQLite from "../../../hooks/useMethodSaveToSQLite";
-import theme from '../../../themes/theme';
+import style from "@styles/TicketDetailScreenStyles";
+import useFetchUnitWorkOrders from "@hooks/useFetchUnitWorkOrders";
+import theme from '@themes/theme';
 import { useIsFocused } from '@react-navigation/native';
 import i18n from '@i18n/i18n';
 

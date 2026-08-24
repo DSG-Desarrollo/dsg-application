@@ -4,3 +4,4 @@ export { default as TabWorkOrderSupplies } from './TabWorkOrderSupplies';
 export { default as TabInstallationSignatureProof } from './TabInstallationSignatureProof';
 export { default as TabEquipmentLocation } from './TabEquipmentLocation';
 export { default as TabTakePhoto } from './TabTakePhoto';
+export { default as TabWorkOrderPhotos } from './TabWorkOrderPhotos';

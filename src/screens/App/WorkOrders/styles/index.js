@@ -1,4 +1,5 @@
 export { common } from './common';
+export { photo } from './photo';
 export { installation } from './installation';
 export { location } from './location';
 export { signature } from './signature';
