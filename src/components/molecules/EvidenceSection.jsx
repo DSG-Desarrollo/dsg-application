@@ -6,6 +6,7 @@ import theme from '@themes/theme';
 import i18n from '@i18n/i18n'
 
 const { 
+  borderColor,
   danger, 
   warningDark, 
   surface, 
@@ -13,7 +14,7 @@ const {
   textMuted, 
   border, 
   textDark,
-  warningSurface
+  warningSurface,
  } = theme.colors;
 
 const EvidenceSection = ({
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1.5,
     borderStyle: "dashed",
-    borderColor: "#ccc",
+    borderColor: borderColor,
     alignItems: "center",
     justifyContent: "center",
     gap: 4,

@@ -43,10 +43,14 @@ const theme = {
     border: '#E5E7EB',
     borderStrong: '#D1D5DB',
     borderAlternative: '#EEE',
+    borderColor: '#ccc',
 
     hover: '#075EA8',
     hoverDark: '#064A85', // Versión oscura del hover
-    bgDropzone: '#f5f5f5'
+    bgDropzone: '#f5f5f5',
+
+    bgButton: '#2563EB',
+    bgButtonDark: '#1B3F5C',
   },
 };
 

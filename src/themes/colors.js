@@ -6,34 +6,50 @@ export const palette = {
     50: "#F9FAFB",
     100: "#F3F4F6",
     200: "#E5E7EB",
-    300: "#D1D5DB", // Nuevo: borders/divisores
+    300: "#D1D5DB",
     400: "#9CA3AF",
-    500: "#6B7280", // Nuevo: texto secundario
+    500: "#6B7280",
     600: "#4B5563",
     700: "#374151",
-    800: "#1F2937", // Nuevo: texto fuerte
+    800: "#1F2937",
     900: "#111827",
   },
 
   blue: {
-    50: "#EFF6FF",  // Nuevo: background azul suave
-    100: "#DBEAFE", // Cambiado: azul suave
-    500: "#2563EB", // Acción primaria
-    600: "#1D4ED8", // Pressed/active
-    700: "#1E40AF", // Nuevo: estado más fuerte
+    50: "#EFF6FF",
+    100: "#DBEAFE",
+    500: "#2563EB",
+    600: "#1D4ED8",
+    700: "#1E40AF",
   },
 
   red: {
-    50: "#FEF2F2",  // Nuevo
-    100: "#F8D7DA",
-    500: "#DC2626",
-    600: "#C0392B",
+    50: "#FEF2F2",
+    100: "#FEE2E2",
+
+    // Color corporativo
+    500: "#CD060E",
+    600: "#950408",
   },
 
   green: {
-    50: "#F0FDF4",  // Nuevo
-    100: "#E9F8F2",
-    500: "#22C55E",
-    600: "#16A34A",
+    50: "#F0FDF4",
+    100: "#DCFCE7",
+    500: "#2E7D32",
+    600: "#1B5E20",
+  },
+
+  yellow: {
+    50: "#FFFBEB",
+    100: "#FEF3C7",
+    500: "#D97706",
+    600: "#B45309",
+  },
+
+  teal: {
+    50: "#F0FDFA",
+    100: "#CCFBF1",
+    500: "#087F8C",
+    600: "#05636E",
   },
 };

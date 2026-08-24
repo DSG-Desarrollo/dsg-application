@@ -1,4 +1,7 @@
 import { StyleSheet } from "react-native";
+import theme from '@themes/theme';
+
+const { bgButton } = theme.colors;
 
 export const photo = StyleSheet.create({
   container: {
@@ -10,7 +13,7 @@ export const photo = StyleSheet.create({
   saveButton: {
     height: 44,
     borderRadius: 8,
-    backgroundColor: "#2563EB",
+    backgroundColor: bgButton,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

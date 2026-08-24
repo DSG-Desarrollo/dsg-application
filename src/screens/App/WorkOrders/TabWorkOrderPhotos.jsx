@@ -7,6 +7,10 @@ import * as ImagePicker from "expo-image-picker";
 import EvidenceSection from "@components/molecules/EvidenceSection";
 import CameraCaptureModal from "@components/molecules/CameraCaptureModal";
 import { photo as styles } from "./styles";
+import i18n from '@i18n/i18n';
+import theme from '@themes/theme';
+
+const { textPrimary } = theme.colors;
 
 const MAX_PHOTOS = 4;
 
@@ -102,8 +106,8 @@ const TabWorkOrderPhotos = ({ route }) => {
       />
 
       <Pressable style={styles.saveButton} onPress={handleSave}>
-        <FontAwesomeIcon icon={faSave} size={14} color="#FAEEDA" />
-        <Text style={styles.saveButtonText}>Guardar evidencia</Text>
+        <FontAwesomeIcon icon={faSave} size={14} color={textPrimary} />
+        <Text style={styles.saveButtonText}>{i18n.t('ui:btnSave')}</Text>
       </Pressable>
 
       {/* Hoja de acción: tomar foto / elegir de galería */}
