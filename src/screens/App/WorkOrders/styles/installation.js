@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { spacing, palette } from '@themes';
 
-const { blue, red, white } = palette;
+const { red, white } = palette;
 const { md } = spacing;
 
 export const installation = StyleSheet.create({
@@ -41,23 +41,6 @@ export const installation = StyleSheet.create({
   radioLabel: {
     fontSize: 16,
     marginLeft: 8, // Espacio entre el radio button y el texto
-  },
-
-  saveButton: {
-    height: 44,
-    backgroundColor: blue[100],
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginTop: 16,
-  },
-
-  saveButtonText: {
-    color: white,
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 
   errorContainer: {

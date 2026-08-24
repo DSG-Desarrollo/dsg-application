@@ -6,11 +6,13 @@ import FormValidation from '@components/molecules/FormValidation';
 import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '@components/molecules/Card';
-import { spacing } from '@themes';
+import { spacing, buttonStyles } from '@themes';
 import { installation as styles, common as commonStyles } from './styles';
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+
+const { primary, primaryText } = buttonStyles;
 
 const FIELD_GROUPS = [
   {
@@ -166,9 +168,9 @@ const TabInstallationType = ({ route }) => {
                 </Card>
               ))}
 
-              <Pressable style={styles.saveButton} onPress={handleSubmit}>
+              <Pressable style={primary} onPress={handleSubmit}>
                 <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
-                <Text style={styles.saveButtonText}>{i18n.t('ui:btnSave')}</Text>
+                <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
               </Pressable>
             </View>
           )}

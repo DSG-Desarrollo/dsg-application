@@ -17,6 +17,9 @@ import i18n from '@i18n/i18n';
 
 // Styles
 import { common as commonStyles, supplies as styles } from './styles';
+import { buttonStyles } from '@themes';
+
+const { primary } = buttonStyles;
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
@@ -186,7 +189,7 @@ const TabWorkOrderSupplies = ({ route }) => {
         <ActionButtons
           buttons={buttons}
           buttonContainerStyle={styles.customButtonContainer}
-          buttonStyle={styles.customButton}
+          buttonStyle={primary}
         />
       </View>
     </View>

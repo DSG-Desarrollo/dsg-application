@@ -19,7 +19,11 @@ import ApiService from "@services/api/ApiService";
 import FormValidation from "@components/molecules/FormValidation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { signature as styles } from "./styles";
+import { buttonStyles } from '@themes';
+
 import i18n from '@i18n/i18n';
+
+const { primary, primaryText } = buttonStyles;
 
 const { width: screenWidth } = Dimensions.get("window");
 const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen del Card
@@ -170,9 +174,9 @@ const TabInstallationSignatureProof = ({ route }) => {
                 </View>
               )}
 
-              <Pressable style={styles.saveButton} onPress={handleSubmit}>
+              <Pressable style={primary} onPress={handleSubmit}>
                 <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
-                <Text style={styles.saveButtonText}>{i18n.t('ui:btnSave')}</Text>
+                <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
               </Pressable>
             </Card>
           )}

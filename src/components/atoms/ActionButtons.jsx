@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#007bff", // Color de fondo moderno
     borderRadius: 10, // Bordes más redondeados
     paddingVertical: 12,
     paddingHorizontal: 20,

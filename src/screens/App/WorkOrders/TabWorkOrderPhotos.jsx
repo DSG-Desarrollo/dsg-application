@@ -9,8 +9,10 @@ import CameraCaptureModal from "@components/molecules/CameraCaptureModal";
 import { photo as styles } from "./styles";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
+import { buttonStyles } from '@themes';
 
 const { textPrimary } = theme.colors;
+const { primary, primaryText } = buttonStyles;
 
 const MAX_PHOTOS = 4;
 
@@ -105,9 +107,9 @@ const TabWorkOrderPhotos = ({ route }) => {
         onRemove={(index) => removePhoto("delivery", index)}
       />
 
-      <Pressable style={styles.saveButton} onPress={handleSave}>
+      <Pressable style={primary} onPress={handleSave}>
         <FontAwesomeIcon icon={faSave} size={14} color={textPrimary} />
-        <Text style={styles.saveButtonText}>{i18n.t('ui:btnSave')}</Text>
+        <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
       </Pressable>
 
       {/* Hoja de acción: tomar foto / elegir de galería */}
