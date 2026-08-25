@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
-import { spacing, palette } from '@themes';
+import { palette } from '@themes';
 
-const { blue, red, white } = palette;
+const { blue, white } = palette;
 
 export const signature = StyleSheet.create({
   container: { flex: 1 },
@@ -33,20 +33,6 @@ export const signature = StyleSheet.create({
     resizeMode: "contain",
   },
 
-  clearButton: {
-    height: 36,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginBottom: 14,
-  },
-  clearButtonText: { fontSize: 13, color: '#555', fontWeight: '500' },
-
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: '#E5E7EB',
@@ -72,16 +58,4 @@ export const signature = StyleSheet.create({
   },
   errorContainer: { marginTop: 6 },
   errorText: { fontSize: 12, color: '#C0392B' },
-
-  saveButton: {
-    height: 44,
-    borderRadius: 8,
-    backgroundColor: blue[100],
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginTop: 16,
-  },
-  saveButtonText: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
 });

@@ -1,0 +1,52 @@
+<div style="background: var(--surface-1); border-radius: 12px; padding: 12px; max-width: 380px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px;">
+  <h2 class="sr-only">Propuesta de pantalla de firma con toggle segmentado entre dibujar firma y escribir firma, más un texto informativo sobre el propósito de la firma para la orden de trabajo</h2>
+
+  <div>
+    <div style="font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Modo: dibujar firma</div>
+    <div style="background: var(--surface-2); border-radius: 12px; border: 0.5px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.06); overflow: hidden;">
+      <div style="padding: 14px 16px 8px; font-size: 15px; font-weight: 600; color: var(--text-primary);">Firma de conformidad</div>
+
+      <div style="margin: 0 16px 12px; padding: 10px 12px; background: rgba(8,127,140,0.08); border-radius: 8px; display: flex; gap: 8px;">
+        <i class="ti ti-info-circle" style="font-size: 15px; color: #087F8C; margin-top: 1px;" aria-hidden="true"></i>
+        <span style="font-size: 12px; color: #05636E; line-height: 1.4;">Esta firma certifica que el cliente recibió el trabajo conforme a lo indicado en la orden de trabajo (OT).</span>
+      </div>
+
+      <div style="margin: 0 16px 14px; display: flex; border-radius: 8px; overflow: hidden; border: 1px solid #D1D5DB;">
+        <div style="flex: 1; padding: 9px; text-align: center; background: #003F75; color: #fff; font-size: 13px; font-weight: 600;">Dibujar firma</div>
+        <div style="flex: 1; padding: 9px; text-align: center; background: #fff; color: #4B5563; font-size: 13px; border-left: 1px solid #D1D5DB;">Escribir firma</div>
+      </div>
+
+      <div style="margin: 0 16px 10px; border-radius: 10px; border: 1px dashed #D1D5DB; background: #fff; aspect-ratio: 1.4; display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 12px; color: #9CA3AF;">Área de firma (DrawableImage)</span>
+      </div>
+      <div style="margin: 0 16px 14px;">
+        <div style="height: 36px; border-radius: 8px; border: 1px solid #D1D5DB; display: flex; align-items: center; justify-content: center; gap: 6px; color: #4B5563; font-size: 13px;">
+          <i class="ti ti-eraser" aria-hidden="true"></i> Borrar firma
+        </div>
+      </div>
+
+      <div style="margin: 0 16px 4px; font-size: 12px; color: #6B7280;">Nombre de quien firma</div>
+      <div style="margin: 0 16px 16px; border-bottom: 1.5px solid #D1D5DB; padding-bottom: 8px; font-size: 14px; color: #111827;">Ana Martínez</div>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Modo: escribir firma</div>
+    <div style="background: var(--surface-2); border-radius: 12px; border: 0.5px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.06); overflow: hidden;">
+      <div style="padding: 14px 16px 8px; font-size: 15px; font-weight: 600; color: var(--text-primary);">Firma de conformidad</div>
+
+      <div style="margin: 0 16px 12px; padding: 10px 12px; background: rgba(8,127,140,0.08); border-radius: 8px; display: flex; gap: 8px;">
+        <i class="ti ti-info-circle" style="font-size: 15px; color: #087F8C; margin-top: 1px;" aria-hidden="true"></i>
+        <span style="font-size: 12px; color: #05636E; line-height: 1.4;">Esta firma certifica que el cliente recibió el trabajo conforme a lo indicado en la orden de trabajo (OT).</span>
+      </div>
+
+      <div style="margin: 0 16px 14px; display: flex; border-radius: 8px; overflow: hidden; border: 1px solid #D1D5DB;">
+        <div style="flex: 1; padding: 9px; text-align: center; background: #fff; color: #4B5563; font-size: 13px;">Dibujar firma</div>
+        <div style="flex: 1; padding: 9px; text-align: center; background: #003F75; color: #fff; font-size: 13px; font-weight: 600; border-left: 1px solid #D1D5DB;">Escribir firma</div>
+      </div>
+
+      <div style="margin: 0 16px 4px; font-size: 12px; color: #6B7280;">Firma escrita (nombre completo)</div>
+      <div style="margin: 0 16px 16px; border-bottom: 1.5px solid #D1D5DB; padding-bottom: 10px; font-size: 20px; font-style: italic; color: #111827;">Ana Martínez</div>
+    </div>
+  </div>
+</div>
