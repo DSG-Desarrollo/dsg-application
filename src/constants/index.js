@@ -1,1 +1,1 @@
-export { HTTP_CODES } from './httpCode';
+export { HTTP_CODES } from './httpCodes';
