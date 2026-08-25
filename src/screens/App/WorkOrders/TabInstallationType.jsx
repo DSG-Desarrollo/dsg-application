@@ -11,7 +11,9 @@ import { installation as styles, common as commonStyles } from './styles';
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { HTTP_CODES } from "@constants";
 
+const { OK, CREATED } = HTTP_CODES;
 const { primary, primaryText } = buttonStyles;
 
 const FIELD_GROUPS = [
@@ -121,7 +123,7 @@ const TabInstallationType = ({ route }) => {
         console.log('Respuesta del servidor:', response);
 
         // Verificar si la respuesta indica que la solicitud fue exitosa (código de estado HTTP 201)
-        if (response.status === 201 || response.status === 200) {
+        if (response.status === CREATED || response.status === OK) {
           // La solicitud fue exitosa
           console.log('Datos del registro insertado:', response.data);
           console.log('Último ID insertado:', response.last_insert_id);
