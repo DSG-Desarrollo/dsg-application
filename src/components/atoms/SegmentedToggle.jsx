@@ -1,6 +1,17 @@
 // SegmentedToggle.js
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import theme from '@themes/theme';
+
+const {
+  border,
+  surface,
+  danger,
+  primary,
+  textSecondary,
+  textInverse,
+  uiBackground
+} = theme.colors;
 
 const SegmentedToggle = ({ options, value, onChange, error }) => (
   <View>
@@ -38,39 +49,48 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: border,
+    backgroundColor: surface,
   },
+
   rowError: {
-    borderColor: "#C0392B",
+    borderColor: danger,
   },
+
   segment: {
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: uiBackground,
   },
+
   segmentDivider: {
     borderLeftWidth: 1,
-    borderLeftColor: "#ddd",
+    borderLeftColor: border,
   },
+
   segmentSelected: {
-    backgroundColor: "#003F75",
+    backgroundColor: primary,
   },
+
   segmentText: {
     fontSize: 13,
-    color: "#555",
+    color: textSecondary,
   },
+
   segmentTextSelected: {
-    color: "#FAEEDA",
+    color: textInverse,
     fontWeight: "600",
   },
+
   errorContainer: {
     marginTop: 6,
   },
+
   errorMessage: {
     fontSize: 12,
-    color: "#C0392B",
+    color: danger,
   },
 });
 

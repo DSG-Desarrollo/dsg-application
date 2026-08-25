@@ -38,6 +38,7 @@ const theme = {
     textInverse: '#FFFFFF',
 
     // UI
+    uiBackground: '#FFFFFF',
     background: '#121212',
 
     border: '#E5E7EB',
