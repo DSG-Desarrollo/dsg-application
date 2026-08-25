@@ -1,5 +1,15 @@
-import AxiosManager from '../../../utils/AxiosManager';
+import AxiosManager from '@utils/AxiosManager';
 import Constants from 'expo-constants';
+import { HTTP_CODES } from '@constants';
+
+const { 
+    OK, 
+    BAD_REQUEST, 
+    UNAUTHORIZED,
+    FORBIDDEN,
+    NOT_FOUND,
+    INTERNAL_SERVER_ERROR,
+ } = HTTP_CODES;
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 
@@ -12,6 +22,9 @@ class TicketService {
      */
     constructor() {
         this.api = new AxiosManager(BASE_URL);
+        this.TIMEOUT = 10000;
+        this.RETRIES = 3;
+        this.EXPONENTIAL_BACKOFF_BASE_DELAY = 1000;
     }
 
     /**
@@ -20,7 +33,7 @@ class TicketService {
      * @param {number} baseDelay - Tiempo base de retraso en milisegundos.
      * @returns {Promise} - Una promesa que se resuelve después de un retraso calculado.
      */
-    async exponentialBackoff(attempt, baseDelay = 1000) {
+    async exponentialBackoff(attempt, baseDelay = this.EXPONENTIAL_BACKOFF_BASE_DELAY) {
         const delay = baseDelay * Math.pow(2, attempt); // Retraso exponencial
         await new Promise(resolve => setTimeout(resolve, delay));
     }
@@ -32,7 +45,7 @@ class TicketService {
      * @param {number} retries - Número máximo de reintentos en caso de fallo.
      * @returns {Object} - Un objeto que contiene los datos de los tickets o el mensaje de error.
      */
-    async getTickets(filters, timeout = 10000, retries = 3) {
+    async getTickets(filters, timeout = this.TIMEOUT, retries = this.RETRIES) {
         console.log("http:", filters);
         
         let attempt = 0;
@@ -75,7 +88,7 @@ class TicketService {
             const response = await this.api.request(endpoint, 'POST', formData);
             console.log("API: ", response);
 
-            if (response.data.status >= 200 && response.data.status < 300) {
+            if (response.data.status >= OK && response.data.status < 300) {
                 return response.data;
             } else {
                 throw new Error(`Error ${response.data.status}: ${response.data.statusText}`);
@@ -108,15 +121,15 @@ class TicketService {
         const { status, data } = error.response;
 
         switch (status) {
-            case 400:
+            case BAD_REQUEST:
                 throw new Error(`Error de solicitud: ${data.message || 'Datos de solicitud inválidos.'}`);
-            case 401:
+            case UNAUTHORIZED:
                 throw new Error(`Error de autorización: ${data.message || 'No autorizado.'}`);
-            case 403:
+            case FORBIDDEN:
                 throw new Error(`Acceso prohibido: ${data.message || 'No tienes permiso para acceder a este recurso.'}`);
-            case 404:
+            case NOT_FOUND:
                 throw new Error(`Recurso no encontrado: ${data.message || 'El recurso solicitado no existe.'}`);
-            case 500:
+            case INTERNAL_SERVER_ERROR:
                 throw new Error(`Error interno del servidor: ${data.message || 'Error en el servidor.'}`);
             default:
                 throw new Error('Error desconocido. Por favor, inténtalo de nuevo más tarde.');

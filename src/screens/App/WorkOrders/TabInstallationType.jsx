@@ -79,10 +79,10 @@ const TabInstallationType = ({ route }) => {
   } = route.params;
 
   const validationInput = [
-    { key: "vehicle", type: "string", message: "El tipo de vehículo es requerido" },
-    { key: "installationType", type: "string", message: "El tipo de instalación es requerido" },
-    { key: "powerOffType", type: "string", message: "El tipo de apagado es requerido" },
-    { key: "batteryType", type: "string", message: "El tipo de batería es requerido" }
+    { key: "vehicle", type: "string", message: i18n.t("workOrder:vehicleMessageValidation") },
+    { key: "installationType", type: "string", message: i18n.t("workOrder:installationMessageValidation") },
+    { key: "powerOffType", type: "string", message: i18n.t("workOrder:powerOffMessageValidation") },
+    { key: "batteryType", type: "string", message: i18n.t("workOrder:batteryMessageValidation") }
   ];
 
   const startingInitials = {
