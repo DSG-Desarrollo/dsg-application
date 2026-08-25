@@ -169,7 +169,7 @@ const TabInstallationSignatureProof = ({ route }) => {
                   </View>
                 </>
               ) : (
-                <>
+                <View style={styles.signatureContainer}>
                   <Text style={styles.fieldLabel}>Firma escrita (nombre completo)</Text>
                   <TextInput
                     style={[
@@ -186,7 +186,7 @@ const TabInstallationSignatureProof = ({ route }) => {
                     placeholderTextColor="#aaa"
                     underlineColorAndroid="transparent"
                   />
-                </>
+                </View>
               )}
 
               {touched.nombre_firma_cliente && errors.nombre_firma_cliente && (

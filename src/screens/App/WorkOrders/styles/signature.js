@@ -18,7 +18,13 @@ export const signature = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     marginBottom: 10,
+    marginTop: 16,
   },
+
+  signatureContainer: {
+    marginTop: 16,
+  },
+
   canvasContainer: {
     borderRadius: 10,
     borderWidth: 1,
