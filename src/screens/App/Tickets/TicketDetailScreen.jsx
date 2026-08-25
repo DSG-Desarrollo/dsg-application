@@ -273,9 +273,9 @@ const TicketDetailScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     if (isFocused) {
-      handleRefresh();
+      refetch();
     }
-  }, [isFocused]);
+  }, [isFocused, refetch]);
 
   // Manejar la acción de actualización
   const handleRefresh = () => {
