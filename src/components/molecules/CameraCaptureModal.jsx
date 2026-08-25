@@ -3,7 +3,7 @@ import React, { useRef, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faTimes, faBolt, faBoltSlash, faCameraRotate } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faBolt, faCameraRotate, faBan } from "@fortawesome/free-solid-svg-icons";
 import theme from '@themes/theme';
 
 const CameraCaptureModal = ({ label, onCapture, onClose }) => {
@@ -53,7 +53,7 @@ const CameraCaptureModal = ({ label, onCapture, onClose }) => {
           style={styles.iconButton}
           onPress={() => setFlash((f) => (f === "off" ? "on" : "off"))}
         >
-          <FontAwesomeIcon icon={flash === "off" ? faBoltSlash : faBolt} size={16} color="#fff" />
+          <FontAwesomeIcon icon={flash === "off" ? faBan : faBolt} size={16} color="#fff" />
         </Pressable>
       </View>
 

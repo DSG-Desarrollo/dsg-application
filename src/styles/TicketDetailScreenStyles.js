@@ -1,7 +1,7 @@
 // TicketDetailScreenStyles.js
 import { StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import theme from '../themes/theme';
+import theme from '@themes/theme';
 
 const style = StyleSheet.create({
     section: {
