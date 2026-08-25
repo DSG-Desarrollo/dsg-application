@@ -1,9 +1,11 @@
 // src/api/ApiService.js
-import AxiosManager from '../../utils/AxiosManager';
-import { handleHttpError } from '../../utils/httpErrorHandler';
+import AxiosManager from '@utils/AxiosManager';
+import { handleHttpError } from '@utils/httpErrorHandler';
 import Constants from 'expo-constants';
+import { HTTP_CODES } from '@constants';
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
+const { OK } = HTTP_CODES;
 
 /**
  * Clase para manejar las llamadas a la API.
@@ -27,7 +29,7 @@ class ApiService {
             const response = await this.api.request(endpoint, 'POST', formData);
 
             // Verifica si la respuesta indica un estado de éxito (código 2xx)
-            if (response.status >= 200 && response.status < 300) {
+            if (response.status >= OK && response.status < 300) {
                 return response; // Devuelve los datos de la respuesta
             } else {
                 // Si la respuesta indica un estado de error, lanza un error apropiado

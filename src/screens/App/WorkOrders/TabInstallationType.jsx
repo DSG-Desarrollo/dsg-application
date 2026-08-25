@@ -78,6 +78,10 @@ const TabInstallationType = ({ route }) => {
     id_unidad,
   } = route.params;
 
+  console.log("tarea_id", tareaId);
+  console.log("id_orden_trabajo", id_orden_trabajo);
+
+
   const validationInput = [
     { key: "vehicle", type: "string", message: i18n.t("workOrder:vehicleMessageValidation") },
     { key: "installationType", type: "string", message: i18n.t("workOrder:installationMessageValidation") },

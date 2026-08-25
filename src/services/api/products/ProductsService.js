@@ -1,5 +1,5 @@
 import axios from 'axios'; // Importa axios aquí
-import AxiosManager from '../../../utils/AxiosManager';
+import AxiosManager from '@utils/AxiosManager';
 import Constants from 'expo-constants';
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
@@ -29,7 +29,7 @@ class ProductsService {
                     query,
                     variables
                 };
-                console.log(queryWithVariables);
+                console.log("folder api::",queryWithVariables);
 
                 const resultData = await Promise.race([
                     this.api.request('graphql', 'POST', queryWithVariables),

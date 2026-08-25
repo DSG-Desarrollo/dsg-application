@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import ProductsService from '../services/api/products/ProductsService';
+import ProductsService from '@services/api/products/ProductsService';
 import useNetworkState from './useNetworkState';
 
 const useFetchProducts = () => {
+    console.log("useFetchProducts");
     const productsService = new ProductsService();
     const [productsData, setProductsData] = useState([]);
     const [loading, setLoading] = useState(true);

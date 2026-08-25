@@ -1,4 +1,4 @@
-import AxiosManager from '../../../utils/AxiosManager';
+import AxiosManager from '@utils/AxiosManager';
 import Constants from 'expo-constants';
 
 // Obtener la URL base de la configuración de Expo

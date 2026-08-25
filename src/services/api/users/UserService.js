@@ -1,6 +1,6 @@
-import AxiosManager from '../../../utils/AxiosManager';
+import AxiosManager from '@utils/AxiosManager';
 import Constants from 'expo-constants';
-import ToastManager from '../../../utils/ToastManager';
+import ToastManager from '@utils/ToastManager';
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 const MAX_RETRIES = 3;
