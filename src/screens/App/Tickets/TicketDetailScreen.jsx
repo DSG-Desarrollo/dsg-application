@@ -77,75 +77,8 @@ const TicketDetailScreen = ({ route, navigation }) => {
     });
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={style.orderItem}
-      onPress={() =>
-        handleItemClick(
-          item.id_orden_trabajo,
-          item.id_servicio_cliente,
-          item.id_unidad,
-          item.numero_orden,
-          item.progreso_orden_trabajo
-        )
-      }
-    >
-      <View style={style.itemRow}>
-        <Ionicons
-          name={getIconForProgress(item.progreso_orden_trabajo)}
-          size={24}
-          color="#FFFFFF"
-          style={style.icon}
-        />
-        <View style={style.textContainer}>
-          <View style={style.textLine}>
-            <Text
-              style={[style.labelList, style.dynamicFontSize, style.textWhite]}
-            >
-              Matrícula:
-            </Text>
-            <Text
-              style={[style.info, style.dynamicFontSize, style.textWhite]}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {item.unidad}
-            </Text>
-          </View>
-          <View style={style.textLine}>
-            <Text
-              style={[style.labelList, style.dynamicFontSize, style.textWhite]}
-            >
-              Marca:
-            </Text>
-            <Text
-              style={[style.info, style.dynamicFontSize, style.textWhite]}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {item.unidad_marca}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const getIconForProgress = (progreso) => {
-    switch (progreso) {
-      case "O":
-        return "alert-circle-sharp";
-      case "I":
-        return "warning";
-      case "C":
-        return "shield-checkmark-sharp";
-      default:
-        return "ios-help-circle";
-    }
-  };
-
   const renderHeader = () => (
-    <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+    <View style={{ paddingHorizontal: 16, paddingTop: 0 }}>
       <View style={style.section}>
         <View style={style.sectionContent}>
           <Text style={style.sectionTitle}>{i18n.t('workOrder:general')}</Text>
@@ -270,6 +203,73 @@ const TicketDetailScreen = ({ route, navigation }) => {
       </View>
     </View>
   );
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={style.orderItem}
+      onPress={() =>
+        handleItemClick(
+          item.id_orden_trabajo,
+          item.id_servicio_cliente,
+          item.id_unidad,
+          item.numero_orden,
+          item.progreso_orden_trabajo
+        )
+      }
+    >
+      <View style={style.itemRow}>
+        <Ionicons
+          name={getIconForProgress(item.progreso_orden_trabajo)}
+          size={24}
+          color="#FFFFFF"
+          style={style.icon}
+        />
+        <View style={style.textContainer}>
+          <View style={style.textLine}>
+            <Text
+              style={[style.labelList, style.dynamicFontSize, style.textWhite]}
+            >
+              Matrícula:
+            </Text>
+            <Text
+              style={[style.info, style.dynamicFontSize, style.textWhite]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {item.unidad}
+            </Text>
+          </View>
+          <View style={style.textLine}>
+            <Text
+              style={[style.labelList, style.dynamicFontSize, style.textWhite]}
+            >
+              Marca:
+            </Text>
+            <Text
+              style={[style.info, style.dynamicFontSize, style.textWhite]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {item.unidad_marca}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const getIconForProgress = (progreso) => {
+    switch (progreso) {
+      case "O":
+        return "alert-circle-sharp";
+      case "I":
+        return "warning";
+      case "C":
+        return "shield-checkmark-sharp";
+      default:
+        return "ios-help-circle";
+    }
+  };
 
   useEffect(() => {
     if (isFocused) {
