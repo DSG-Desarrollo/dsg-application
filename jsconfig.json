@@ -3,7 +3,7 @@
     "paths": {
       "@assets/*": ["./src/assets/*"],
       "@components/*": ["./src/components/*"],
-      "@constants/*": ["src/constants/*s/*"],
+      "@constants/*": ["./src/constants/*"],
       "@core/*": ["./src/core/*"],
       "@i18n/*": ["./src/i18n/*"],
       "@helpers/*": ["./src/helpers/*"],
