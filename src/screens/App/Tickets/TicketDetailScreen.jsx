@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   TouchableOpacity,
   View,
@@ -152,16 +152,16 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <Ionicons
             name="person"
             size={24}
-            color={theme.colors.danger}
+            color={theme.colors.brantSecondary}
             style={style.icon}
           />
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:client')} </Text>
+          <Text style={style.label}>{i18n.t('workOrder:client')}: </Text>
           <Text style={style.value}>{empresa}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:work')}</Text>
+          <Text style={style.label}>{i18n.t('workOrder:work')}: </Text>
           <Text style={style.value}>{trabajo}</Text>
         </View>
         <View style={style.field}>
@@ -169,11 +169,11 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <Text style={style.value}>{servicio}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:required')}</Text>
+          <Text style={style.label}>{i18n.t('workOrder:required')}: </Text>
           <Text style={style.value}>{requeridos}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:status')}</Text>
+          <Text style={style.label}>{i18n.t('workOrder:status')}: </Text>
           <Text style={style.value}>{estado}</Text>
         </View>
       </View>
@@ -184,16 +184,16 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <Ionicons
             name="calendar"
             size={24}
-            color={theme.colors.danger}
+            color={theme.colors.brantSecondary}
             style={style.icon}
           />
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:date')}:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:date')}: </Text>
           <Text style={style.value}>{fechaCreacion}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:address')}:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:address')}: </Text>
           <Text style={style.value}>{direccionTarea}</Text>
         </View>
       </View>
@@ -204,7 +204,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <Ionicons
             name="stats-chart"
             size={24}
-            color={theme.colors.danger}
+            color={theme.colors.brantSecondary}
             style={style.icon}
           />
         </View>
@@ -213,11 +213,11 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <Text style={style.value}>{progresoTareaDescripcion}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:start')}:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:start')}: </Text>
           <Text style={style.value}>{fechaInicioTarea}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:completed')}:</Text>
+          <Text style={style.label}>{i18n.t('workOrder:completed')}: </Text>
           <Text style={style.value}>{fechaFinTarea}</Text>
         </View>
       </View>
@@ -232,7 +232,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <Ionicons
             name="list"
             size={24}
-            color={theme.colors.danger}
+            color={theme.colors.brantSecondary}
             style={style.icon}
           />
         </View>
