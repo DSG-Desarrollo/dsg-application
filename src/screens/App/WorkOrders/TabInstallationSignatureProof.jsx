@@ -138,7 +138,7 @@ const TabInstallationSignatureProof = ({ route }) => {
               <View style={localStyles.infoBanner}>
                 <FontAwesomeIcon icon={faInfoCircle} size={15} color={info} style={localStyles.infoIcon} />
                 <Text style={localStyles.infoText}>
-                  Esta firma certifica que el cliente recibió el trabajo conforme a lo indicado en la orden de trabajo (OT).
+                  Esta firma certifica que el cliente recibió el trabajo.
                 </Text>
               </View>
 
@@ -175,7 +175,6 @@ const TabInstallationSignatureProof = ({ route }) => {
                     style={[
                       styles.input,
                       styles.underline,
-                      localStyles.writtenSignatureInput,
                       touched.nombre_firma_cliente && errors.nombre_firma_cliente
                         ? styles.inputError
                         : null,
@@ -183,7 +182,7 @@ const TabInstallationSignatureProof = ({ route }) => {
                     onChangeText={handleChange("nombre_firma_cliente")}
                     onBlur={handleBlur("nombre_firma_cliente")}
                     value={values.nombre_firma_cliente}
-                    placeholder="Ej. Ana Martínez"
+                    placeholder="Ej. Jane Doe"
                     placeholderTextColor="#aaa"
                     underlineColorAndroid="transparent"
                   />
@@ -196,7 +195,7 @@ const TabInstallationSignatureProof = ({ route }) => {
                 </View>
               )}
 
-              <Pressable style={primary} onPress={handleSubmit}>
+              <Pressable style={localStyles.button} onPress={handleSubmit}>
                 <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
                 <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
               </Pressable>
@@ -209,6 +208,10 @@ const TabInstallationSignatureProof = ({ route }) => {
 };
 
 const localStyles = StyleSheet.create({
+  button: {
+    ...primary,
+    marginTop: 16,
+  },
   infoBanner: {
     flexDirection: "row",
     gap: 8,

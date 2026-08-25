@@ -11,12 +11,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 
 const Toolbar = ({ title, onBackPress }) => {
   return (
-    <SafeAreaView
-      style={[
-        toolbarStyles.safeArea,
-        Platform.OS === "ios" && toolbarStyles.safeAreaIOS,
-      ]}
-    >
+
       <View
         style={[
           toolbarStyles.container,
@@ -35,7 +30,7 @@ const Toolbar = ({ title, onBackPress }) => {
         )}
         <Text style={toolbarStyles.title}>{title}</Text>
       </View>
-    </SafeAreaView>
+
   );
 };
 

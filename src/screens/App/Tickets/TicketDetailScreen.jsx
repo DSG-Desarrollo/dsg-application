@@ -78,7 +78,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
   };
 
   const renderHeader = () => (
-    <View style={{ paddingHorizontal: 16, paddingTop: 0 }}>
+    <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
       <View style={style.section}>
         <View style={style.sectionContent}>
           <Text style={style.sectionTitle}>{i18n.t('workOrder:general')}</Text>
@@ -158,7 +158,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
   );
 
   const renderFooter = () => (
-    <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+    <View style={{ paddingHorizontal: 16 }}>
       <View style={style.ordersContainer}>
         <View style={style.sectionContent}>
           <Text style={style.sectionTitle}>{i18n.t('workOrder:orders')}</Text>
