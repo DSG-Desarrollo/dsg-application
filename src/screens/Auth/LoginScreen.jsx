@@ -70,15 +70,6 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     }
   }
 
-  async function fetchAllUsers() {
-    try {
-      const allUsers = await getAllAsyncSql(users.getUsersAll);
-      setUsuarios(allUsers);
-    } catch (error) {
-      console.error('Error al obtener usuarios:', error);
-    }
-  }
-
   // Cargar el estado de "Recordar sesión" al montar el componente
   useEffect(() => {
     const loadRememberSessionState = async () => {
