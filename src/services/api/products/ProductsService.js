@@ -3,7 +3,6 @@ import AxiosManager from '@utils/AxiosManager';
 import Constants from 'expo-constants';
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
-
 class ProductsService {
     /**
      * Crea una instancia del servicio de tickets.

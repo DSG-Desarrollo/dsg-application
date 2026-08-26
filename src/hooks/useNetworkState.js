@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import Constants from "expo-constants";
 import NetInfo, { useNetInfo } from '@react-native-community/netinfo';
 import i18n from '@i18n/i18n';
+import { HTTP_CODES } from '@constants/httpCodes';
 
-const {URL_INTERNET_CONNECTIVITY_TEST} = Constants.expoConfig.extra;
+const { NO_CONTENT } = HTTP_CODES;
+
+const { URL_INTERNET_CONNECTIVITY_TEST } = Constants.expoConfig.extra;
 
 NetInfo.configure({
     reachabilityUrl: URL_INTERNET_CONNECTIVITY_TEST,
     reachabilityMethod: 'HEAD',
-    reachabilityTest: async (response) => response.status === 204,
+    reachabilityTest: async (response) => response.status === NO_CONTENT,
     reachabilityShortTimeout: 5000,
     reachabilityLongTimeout: 60000,
     reachabilityRequestTimeout: 15000,

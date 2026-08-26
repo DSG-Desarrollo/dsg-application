@@ -30,6 +30,8 @@ class UnitWorkOrdersService {
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout)) // Control de tiempo de espera
                 ]);
 
+                console.log("resultData", resultData);
+
                 // Verificar si se recibieron datos válidos
                 if (resultData && resultData.data && resultData.data.units) {
                     return resultData.data.units; // Devolver los datos de las unidades

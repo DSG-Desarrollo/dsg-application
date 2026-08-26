@@ -1,4 +1,6 @@
 {
   "noTickets": "No hay tickets para mostrar",
-  "title": "Detalle ticket"
+  "title": "Detalle ticket",
+  "plate": "Matrícula",
+  "brand": "Marca"
 }

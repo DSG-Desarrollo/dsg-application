@@ -229,7 +229,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
             <Text
               style={[style.labelList, style.dynamicFontSize, style.textWhite]}
             >
-              Matrícula:
+              {i18n.t('ticket:plate')}:
             </Text>
             <Text
               style={[style.info, style.dynamicFontSize, style.textWhite]}
@@ -243,7 +243,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
             <Text
               style={[style.labelList, style.dynamicFontSize, style.textWhite]}
             >
-              Marca:
+              {i18n.t('ticket:brand')}:
             </Text>
             <Text
               style={[style.info, style.dynamicFontSize, style.textWhite]}
