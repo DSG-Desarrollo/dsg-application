@@ -1,14 +1,39 @@
 import React, { useRef, useEffect } from "react";
-import { Pressable, View, Text, Animated, StyleSheet } from "react-native";
+import {
+  Pressable,
+  View,
+  Text,
+  Animated,
+  StyleSheet,
+} from "react-native";
 import PropTypes from "prop-types";
+import theme from "@themes/theme";
+
+const {
+  primary,
+  border,
+  borderStrong,
+  textDark,
+  textMuted,
+  textInverse,
+} = theme.colors;
 
 const TRACK_WIDTH = 44;
 const TRACK_HEIGHT = 26;
 const THUMB_SIZE = 22;
 const THUMB_MARGIN = 2;
 
-const Switch = ({ value, onValueChange, label, disabled, size }) => {
-  const translateX = useRef(new Animated.Value(value ? 1 : 0)).current;
+const Switch = ({
+  value,
+  onValueChange,
+  label,
+  disabled,
+  size,
+}) => {
+  const translateX = useRef(
+    new Animated.Value(value ? 1 : 0)
+  ).current;
+
   const isSmall = size === "sm";
   const scale = isSmall ? 0.85 : 1;
 
@@ -18,10 +43,11 @@ const Switch = ({ value, onValueChange, label, disabled, size }) => {
       duration: 150,
       useNativeDriver: true,
     }).start();
-  }, [value]);
+  }, [value, translateX]);
 
   const handlePress = () => {
     if (disabled) return;
+
     onValueChange(!value);
   };
 
@@ -34,22 +60,35 @@ const Switch = ({ value, onValueChange, label, disabled, size }) => {
   });
 
   const trackColor = disabled
-    ? "#E5E7EB" // theme.colors.border
+    ? border
     : value
-    ? "#C9980A" // theme.colors.accent
-    : "#D1D5DB"; // theme.colors.borderStrong
+      ? primary
+      : borderStrong;
 
   return (
     <Pressable
       onPress={handlePress}
       disabled={disabled}
       accessibilityRole="switch"
-      accessibilityState={{ checked: value, disabled: !!disabled }}
+      accessibilityState={{
+        checked: value,
+        disabled: !!disabled,
+      }}
       accessibilityLabel={label}
-      style={[styles.row, disabled && styles.rowDisabled]}
+      style={[
+        styles.row,
+        disabled && styles.rowDisabled,
+      ]}
     >
       {label ? (
-        <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>
+        <Text
+          style={[
+            styles.label,
+            disabled && styles.labelDisabled,
+          ]}
+        >
+          {label}
+        </Text>
       ) : null}
 
       <View
@@ -70,8 +109,17 @@ const Switch = ({ value, onValueChange, label, disabled, size }) => {
               width: THUMB_SIZE * scale,
               height: THUMB_SIZE * scale,
               borderRadius: (THUMB_SIZE * scale) / 2,
-              backgroundColor: disabled ? "#F3F4F6" : "#FFFFFF", // palette.gray[100] / white
-              transform: [{ translateX: Animated.multiply(thumbTranslate, scale) }],
+              backgroundColor: disabled
+                ? theme.colors.gray100
+                : textInverse,
+              transform: [
+                {
+                  translateX: Animated.multiply(
+                    thumbTranslate,
+                    scale
+                  ),
+                },
+              ],
             },
           ]}
         />
@@ -101,21 +149,26 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
   },
+
   rowDisabled: {
     opacity: 0.7,
   },
+
   label: {
     fontSize: 14,
-    color: "#111827", // theme.colors.textDark
+    color: textDark,
     flex: 1,
     marginRight: 12,
   },
+
   labelDisabled: {
-    color: "#6B7280", // theme.colors.textMuted
+    color: textMuted,
   },
+
   track: {
     justifyContent: "center",
   },
+
   thumb: {
     position: "absolute",
   },

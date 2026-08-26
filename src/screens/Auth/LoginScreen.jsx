@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Switch, View, Alert } from 'react-native';
+import { TouchableOpacity, View, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import Background from '@components/atoms/Background';
 import Logo from '@components/atoms/Logo';
@@ -18,6 +18,7 @@ import { storeAuthenticationState, getRememberSessionState } from '@utils/storag
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { md5 } from '@utils/md5';
 import LoadingOverlay from '@components/atoms/LoadingOverlay';
+import Switch from '@components/atoms/Switch';
 
 const userService = new UserService();
 const { users, userInserts } = queries;
@@ -172,7 +173,6 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     }
   };
   
-  //console.log(users.getUserById);
   return (
     <LoadingOverlay visible={isSubmitting} fullscreen text={i18n.t('common:connecting')}>
       <Background>
@@ -211,9 +211,6 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
             <Switch
               value={rememberSession}
               onValueChange={onRememberMeChange}
-              trackColor={{ false: '#767577', true: '#81b0ff' }}
-              thumbColor={rememberSession ? '#003F75' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
             />
           </View>
         </View>
