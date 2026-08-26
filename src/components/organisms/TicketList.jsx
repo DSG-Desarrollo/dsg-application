@@ -30,6 +30,7 @@ const TicketList = (props) => {
   const navigation = useNavigation();
 
   const handleTicketPress = () => {
+    console.log("touch");
     navigation.navigate("TicketDetailScreen", {
       tareaId,
       codigo,
