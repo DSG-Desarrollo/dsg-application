@@ -11,6 +11,7 @@ const aliases = {
   '@core': path.resolve(__dirname, 'src/core'),
   '@i18n': path.resolve(__dirname, 'src/i18n'),
   '@helpers': path.resolve(__dirname, 'src/helpers'),
+  '@managers': path.resolve(__dirname, 'src/managers'),
   '@navigation': path.resolve(__dirname, 'src/navigation'),
   '@services': path.resolve(__dirname, 'src/services'),
   '@screens': path.resolve(__dirname, 'src/screens'),

@@ -7,6 +7,7 @@
       "@core/*": ["./src/core/*"],
       "@i18n/*": ["./src/i18n/*"],
       "@helpers/*": ["./src/helpers/*"],
+      "@managers/*": ["./src/managers/*"],
       "@navigation/*": ["./src/navigation/*"],
       "@services/*": ["./src/services/*"],
       "@screens/*": ["./src/screens/*"],

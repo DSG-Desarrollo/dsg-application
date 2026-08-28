@@ -1,8 +1,7 @@
 'use strict';
 
 /**
- * Clase que proporciona métodos para realizar peticiones asincrónicas utilizando la API Fetch nativa.
- * Permite realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) en una API RESTful.
+ * Clase que proporciona métodos para realizar peticiones asincrónicas utilizando la API Fetch.
  */
 class FetchManager {
     /**
@@ -32,11 +31,17 @@ class FetchManager {
      */
     async _parseResponse(response) {
         const contentType = response.headers.get('content-type') || '';
+
         if (contentType.includes('application/json')) {
             // Puede venir vacío (204, etc.)
             const text = await response.text();
             return text ? JSON.parse(text) : null;
         }
+
+        if (contentType.startsWith('image/') || contentType === 'application/octec-stream' || contentType === 'application/pdf') {
+            return response.blob();
+        }
+
         return response.text();
     }
 
@@ -143,8 +148,9 @@ class FetchManager {
     async request(endpoint, method, data, withCredentials) {
         const url = `${this.baseUrl}/${endpoint}`;
         const upperCaseMethod = method.toUpperCase();
+        const WHITELIST_METHODS = ['GET', 'POST', 'PUT', 'DELETE'];
 
-        if (upperCaseMethod !== 'POST' && upperCaseMethod !== 'PUT') {
+        if (!WHITELIST_METHODS.includes(upperCaseMethod)) {
             throw new Error('Método HTTP no válido. Solo se admiten POST y PUT.');
         }
 
