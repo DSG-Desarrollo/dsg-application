@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text, ToastAndroid, Pressable } from 'react-native';
+import { ActivityIndicator, View, ScrollView, Text, ToastAndroid, Pressable } from 'react-native';
 import i18n from '@i18n/i18n';
 import TicketService from '@services/api/tickets/TicketService';
 import FormValidation from '@components/molecules/FormValidation';
@@ -65,6 +65,7 @@ const TabInstallationType = ({ route }) => {
   const [isLoadingWorkOrder, setIsLoadingWorkOrder] = useState(true);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingSendData, setIsLoadingSendData] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -161,30 +162,41 @@ const TabInstallationType = ({ route }) => {
   };
 
   const handleSave = async () => {
-    try {
-      // Verificar si todos los campos obligatorios han sido seleccionados
-      if (!selectedOption.vehicle || !selectedOption.installationType || !selectedOption.powerOffType || !selectedOption.batteryType) {
-        return; // Evita que se envíen los datos al servidor si faltan campos obligatorios
-      } else {
-        // Enviar los datos utilizando el método sendFormData de TicketService
-        const response = await ticketService.sendFormData(selectedOption, 'api/work-orders');
-        console.log('Respuesta del servidor:', response);
+    // Verificar si todos los campos obligatorios han sido seleccionados
+    if (
+      !selectedOption.vehicle || 
+      !selectedOption.installationType || 
+      !selectedOption.powerOffType || 
+      !selectedOption.batteryType
+    ) {
+      return; // Evita que se envíen los datos al servidor si faltan campos obligatorios
+    }
 
-        // Verificar si la respuesta indica que la solicitud fue exitosa (código de estado HTTP 201)
-        if (response.status === CREATED || response.status === OK) {
-          // La solicitud fue exitosa
-          console.log('Datos del registro insertado:', response.data);
-          console.log('Último ID insertado:', response.last_insert_id);
-          ToastAndroid.show(response.message, ToastAndroid.LONG);
-          
-          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
-        } else {
-          // La solicitud no fue exitosa, manejar el caso de manera adecuada
-          console.error('La solicitud no fue exitosa:', response.statusText);
-        }
+    setIsLoadingSendData(true);
+
+    try {
+      // Enviar los datos utilizando el método sendFormData de TicketService
+      const response = await ticketService.sendFormData(selectedOption, 'api/work-orders');
+      console.log('Respuesta del servidor:', response);
+
+      // Verificar si la respuesta indica que la solicitud fue exitosa (código de estado HTTP 201)
+      console.log('response.status', response.status);
+      if (response.status === CREATED || response.status === OK) {
+        // La solicitud fue exitosa
+        console.log('Datos del registro insertado:', response.data);
+        console.log('Último ID insertado:', response.last_insert_id);
+        ToastAndroid.show(response.message, ToastAndroid.LONG);
+        
+        await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
+      } else {
+        // La solicitud no fue exitosa, manejar el caso de manera adecuada
+        console.error('La solicitud no fue exitosa:', response.statusText);
       }
+      
     } catch (error) {
       console.error('Error al enviar los datos_:', error.message);
+    } finally {
+      setIsLoadingSendData(false);
     }
   };
 
@@ -219,9 +231,17 @@ const TabInstallationType = ({ route }) => {
                 </Card>
               ))}
 
-              <Pressable style={primary} onPress={handleSubmit}>
-                <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
-                <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+              <Pressable style={primary} onPress={handleSubmit} disabled={isLoadingSendData}>
+                {isLoadingSendData ? 
+                  (
+                    <ActivityIndicator size="small" color="#ffffff" />
+                  ) : (
+                  <>
+                    <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
+                    <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+                  </>
+                )}
+
               </Pressable>
             </View>
           )}
