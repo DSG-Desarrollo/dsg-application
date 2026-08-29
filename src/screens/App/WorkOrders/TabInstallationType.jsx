@@ -12,6 +12,7 @@ import SegmentedToggle from "@components/atoms/SegmentedToggle";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { HTTP_CODES } from "@constants";
+import workOrderService from "@services/api/workorder.service";
 
 const { OK, CREATED } = HTTP_CODES;
 const { primary, primaryText } = buttonStyles;
@@ -81,6 +82,15 @@ const TabInstallationType = ({ route }) => {
   console.log("tarea_id", tareaId);
   console.log("id_orden_trabajo", id_orden_trabajo);
 
+  async function getWorkOrder() {
+      console.log("holaaa");
+      const one = await workOrderService.getWorkOrdersByTaskId(tareaId);
+      console.log("one", one);
+  }
+
+  useEffect(() => {
+      getWorkOrder();
+  }, []);
 
   const validationInput = [
     { key: "vehicle", type: "string", message: i18n.t("workOrder:vehicleMessageValidation") },
