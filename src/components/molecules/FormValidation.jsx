@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { Formik } from "formik";
 import * as yup from "yup";
 import PropTypes from "prop-types";
+import { ActivityIndicator } from "react-native";
 
 /**
  * Componente de validación de formularios utilizando Formik y Yup.
@@ -18,6 +19,8 @@ const FormValidation = ({
   validationInput,
   onSubmit,
   children,
+  isLoading = false,       // true mientras el padre resuelve el fetch (modo editar)
+  loadingComponent = null, // opcional: spinner custom por pantalla
 }) => {
   // Crear el esquema de validación basado en validationInput
   const validationSchema = useMemo(() => {
@@ -122,6 +125,10 @@ const FormValidation = ({
     (values) => onSubmit(values),
     [onSubmit]
   );
+
+  if (isLoading || !initialValues) {
+    return loadingComponent ?? <ActivityIndicator />;
+  }
 
   return (
     <Formik

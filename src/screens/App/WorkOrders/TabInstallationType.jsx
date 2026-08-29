@@ -13,6 +13,7 @@ import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { HTTP_CODES } from "@constants";
 import workOrderService from "@services/api/workorder.service";
+const { getWorkOrdersByTaskId } = workOrderService;
 
 const { OK, CREATED } = HTTP_CODES;
 const { primary, primaryText } = buttonStyles;
@@ -52,7 +53,16 @@ const FIELD_GROUPS = [
   },
 ];
 
+const startingInitials = {
+  vehicle: '',
+  installationType: '',
+  powerOffType: '',
+  batteryType: '',
+};
+
 const TabInstallationType = ({ route }) => {
+  const [formInitialValues, setFormInitialValues] = useState(null);
+  const [isLoadingWorkOrder, setIsLoadingWorkOrder] = useState(true);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -79,13 +89,47 @@ const TabInstallationType = ({ route }) => {
     id_unidad,
   } = route.params;
 
-  console.log("tarea_id", tareaId);
-  console.log("id_orden_trabajo", id_orden_trabajo);
-
   async function getWorkOrder() {
-      console.log("holaaa");
-      const one = await workOrderService.getWorkOrdersByTaskId(tareaId);
-      console.log("one", one);
+      try {
+        const workOrders = await getWorkOrdersByTaskId(tareaId);
+        console.log("workOrders", workOrders);
+        const currentWorkOrder = workOrders.data.find(
+            (workOrder) => String(workOrder.id_orden_trabajo) === String(id_orden_trabajo)
+        );
+
+        console.log("currentWorkOrder", currentWorkOrder);
+
+        if (currentWorkOrder?.instalacion) {
+          const [vehicle, installationType, powerOffType, batteryType] = currentWorkOrder.instalacion.split('|');
+
+          setSelectedOption((prev) => ({
+              ...prev,
+              id_tarea: tareaId,
+              id_orden_trabajo: id_orden_trabajo,
+              vehicle,
+              installationType,
+              powerOffType,
+              batteryType,
+          }));
+
+          setFormInitialValues({
+            vehicle,
+            installationType,
+            powerOffType,
+            batteryType,
+          });
+        } else {
+          setSelectedOption((prev) => ({...prev, ...startingInitials}));
+          setFormInitialValues(startingInitials);
+        }
+
+      setIsLoadingWorkOrder(false);
+      } catch (error) {
+        console.error("Error al obtener el work order", error);
+        setFormInitialValues(startingInitials);
+      } finally {
+          setIsLoadingWorkOrder(false);
+      }
   }
 
   useEffect(() => {
@@ -98,13 +142,6 @@ const TabInstallationType = ({ route }) => {
     { key: "powerOffType", type: "string", message: i18n.t("workOrder:powerOffMessageValidation") },
     { key: "batteryType", type: "string", message: i18n.t("workOrder:batteryMessageValidation") }
   ];
-
-  const startingInitials = {
-    vehicle: '',
-    installationType: '',
-    powerOffType: '',
-    batteryType: '',
-  };
 
   const ticketService = new TicketService();
 
@@ -158,7 +195,8 @@ const TabInstallationType = ({ route }) => {
     <View style={commonStyles.container}>
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         <FormValidation
-          initialValues={startingInitials}
+          initialValues={formInitialValues}
+          isLoading={isLoadingWorkOrder}
           validationInput={validationInput}
           onSubmit={handleSave}
         >
