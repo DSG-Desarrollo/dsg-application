@@ -92,12 +92,9 @@ const TabInstallationType = ({ route }) => {
   async function getWorkOrder() {
       try {
         const workOrders = await getWorkOrdersByTaskId(tareaId);
-        console.log("workOrders", workOrders);
         const currentWorkOrder = workOrders.data.find(
             (workOrder) => String(workOrder.id_orden_trabajo) === String(id_orden_trabajo)
         );
-
-        console.log("currentWorkOrder", currentWorkOrder);
 
         if (currentWorkOrder?.instalacion) {
           const [vehicle, installationType, powerOffType, batteryType] = currentWorkOrder.instalacion.split('|');
