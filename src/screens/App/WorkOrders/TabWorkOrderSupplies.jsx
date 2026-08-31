@@ -49,6 +49,7 @@ const TabWorkOrderSupplies = ({ route }) => {
 
   const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
+  console.log("productsData", productsData);
   const sortedProductsData = productsData.sort((a, b) =>
     a.productName.localeCompare(b.productName)
   );

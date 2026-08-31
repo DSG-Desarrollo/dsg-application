@@ -1,14 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import ProductsService from '@services/api/products/ProductsService';
 import useNetworkState from './useNetworkState';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const useFetchProducts = () => {
-    console.log("useFetchProducts");
-    const productsService = new ProductsService();
+    const [userData, setUserData] = useState(null);
     const [productsData, setProductsData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { networkState } = useNetworkState();
+
+    const productsService = new ProductsService();
+
+    const userId = userData?.employee?.id_empleado;
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const jsonValue = await AsyncStorage.getItem("userData");
+                setUserData(jsonValue ? JSON.parse(jsonValue) : null);
+            } catch (e) {
+                console.error("Error reading userData from storage", e);
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -34,25 +52,25 @@ const useFetchProducts = () => {
                 `;
 
                 const variables = {
-                    userId: 7
+                    userId: userData.employee.id_empleado
                 };
 
                 const responseWithFilter = await productsService.graphqlQuery(query, variables);
                 console.log("Resultado de la api", responseWithFilter);
                 setProductsData(responseWithFilter);
-                setLoading(false);
             } catch (error) {
                 console.log('Error al obtener los datos:', error);
                 setError('Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.!');
+                setLoading(false);
+            } finally {
                 setLoading(false);
             }
         }
 
         fetchProducts();
-    }, [networkState]);
+    }, [userId, networkState]);
 
     return { productsData, loading, error };
-
 }
 
 export default useFetchProducts;

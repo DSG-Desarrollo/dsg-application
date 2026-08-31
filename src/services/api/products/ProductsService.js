@@ -28,7 +28,6 @@ class ProductsService {
                     query,
                     variables
                 };
-                console.log("folder api::",queryWithVariables);
 
                 const resultData = await Promise.race([
                     this.api.request('graphql', 'POST', queryWithVariables),
