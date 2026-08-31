@@ -40,6 +40,7 @@ const useFetchProducts = () => {
                     query($userId: ID!) {
                         suppliesByUserId(userId: $userId) {
                             id
+                            productId,
                             employeeId
                             productName
                             quantity

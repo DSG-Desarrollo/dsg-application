@@ -27,7 +27,7 @@ const { primary } = buttonStyles;
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
-  console.log("OT", id_orden_trabajo);
+  const [materialsSummary, setMaterialsSummary] = useState([]);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingSendData, setIsLoadingSendData] = useState(false);
@@ -49,7 +49,6 @@ const TabWorkOrderSupplies = ({ route }) => {
 
   const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
-  console.log("productsData", productsData);
   const sortedProductsData = productsData.sort((a, b) =>
     a.productName.localeCompare(b.productName)
   );
@@ -65,7 +64,9 @@ const TabWorkOrderSupplies = ({ route }) => {
   async function getWorderOrderMaterialsSummary() {
     try {
       const response = await getWorkOrdersMaterialsSummary(id_orden_trabajo);
-      console.log('response', response);
+      if (response?.success && Array.isArray(response.data)) {
+        setMaterialsSummary(response.data);
+      }
     } catch (error) {
       console.error('Error al obtener los materiales:', error.message);
     } finally {
@@ -76,6 +77,26 @@ const TabWorkOrderSupplies = ({ route }) => {
   useEffect(() => {
     getWorderOrderMaterialsSummary();
   }, []);
+
+  useEffect(() => {
+    if (!materialsSummary.length || !sortedProductsData.length) return;
+
+    const summedByProductId = materialsSummary.reduce((acc, curr) => {
+      const key = String(curr.id);
+      acc[key] = (acc[key] || 0) + curr.cantidad;
+      return acc;
+    }, {});
+
+    const hydrated = {};
+    sortedProductsData.forEach((product) => {
+      const key = String(product.id);
+      if (summedByProductId[key] != null) {
+        hydrated[product.id] = String(summedByProductId[key]);
+      }
+    });
+
+    setProductQuantities((prev) => ({...hydrated, ...prev}));
+  }, [materialsSummary, sortedProductsData]);
 
   const handleSave = async () => {
     const apiService = new ApiService();

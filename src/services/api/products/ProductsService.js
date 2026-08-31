@@ -36,7 +36,6 @@ class ProductsService {
 
                 // Verificar si los datos recibidos tienen la estructura esperada
                 const dataKey = Object.keys(resultData.data)[0];
-                console.log(resultData);
                 if (resultData && resultData.data && Array.isArray(resultData.data[dataKey]) && resultData.data[dataKey].length > 0) {
                     return resultData.data[dataKey]; // Devolver los datos obtenidos
                 } else {
