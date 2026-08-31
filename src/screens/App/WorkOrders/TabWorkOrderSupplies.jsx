@@ -15,6 +15,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import i18n from '@i18n/i18n';
 
+// Services
+import workOrderService from "@services/api/workorder.service";
+const { getWorkOrdersMaterialsSummary } = workOrderService;
+
 // Styles
 import { common as commonStyles, supplies as styles } from './styles';
 import { buttonStyles } from '@themes';
@@ -23,8 +27,10 @@ const { primary } = buttonStyles;
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
+  console.log("OT", id_orden_trabajo);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingSendData, setIsLoadingSendData] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -40,6 +46,7 @@ const TabWorkOrderSupplies = ({ route }) => {
 
     fetchUserData();
   }, []);
+
   const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
   const sortedProductsData = productsData.sort((a, b) =>
@@ -53,6 +60,21 @@ const TabWorkOrderSupplies = ({ route }) => {
       [id]: value,
     }));
   };
+
+  async function getWorderOrderMaterialsSummary() {
+    try {
+      const response = await getWorkOrdersMaterialsSummary(id_orden_trabajo);
+      console.log('response', response);
+    } catch (error) {
+      console.error('Error al obtener los materiales:', error.message);
+    } finally {
+      setIsLoadingSendData(false);
+    }
+  }
+
+  useEffect(() => {
+    getWorderOrderMaterialsSummary();
+  }, []);
 
   const handleSave = async () => {
     const apiService = new ApiService();

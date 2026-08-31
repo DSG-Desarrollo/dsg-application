@@ -91,43 +91,43 @@ const TabInstallationType = ({ route }) => {
   } = route.params;
 
   async function getWorkOrder() {
-      try {
-        const workOrders = await getWorkOrdersByTaskId(tareaId);
-        const currentWorkOrder = workOrders.data.find(
-            (workOrder) => String(workOrder.id_orden_trabajo) === String(id_orden_trabajo)
-        );
+    try {
+      const workOrders = await getWorkOrdersByTaskId(tareaId);
+      const currentWorkOrder = workOrders.data.find(
+          (workOrder) => String(workOrder.id_orden_trabajo) === String(id_orden_trabajo)
+      );
 
-        if (currentWorkOrder?.instalacion) {
-          const [vehicle, installationType, powerOffType, batteryType] = currentWorkOrder.instalacion.split('|');
+      if (currentWorkOrder?.instalacion) {
+        const [vehicle, installationType, powerOffType, batteryType] = currentWorkOrder.instalacion.split('|');
 
-          setSelectedOption((prev) => ({
-              ...prev,
-              id_tarea: tareaId,
-              id_orden_trabajo: id_orden_trabajo,
-              vehicle,
-              installationType,
-              powerOffType,
-              batteryType,
-          }));
-
-          setFormInitialValues({
+        setSelectedOption((prev) => ({
+            ...prev,
+            id_tarea: tareaId,
+            id_orden_trabajo: id_orden_trabajo,
             vehicle,
             installationType,
             powerOffType,
             batteryType,
-          });
-        } else {
-          setSelectedOption((prev) => ({...prev, ...startingInitials}));
-          setFormInitialValues(startingInitials);
-        }
+        }));
 
-      setIsLoadingWorkOrder(false);
-      } catch (error) {
-        console.error("Error al obtener el work order", error);
+        setFormInitialValues({
+          vehicle,
+          installationType,
+          powerOffType,
+          batteryType,
+        });
+      } else {
+        setSelectedOption((prev) => ({...prev, ...startingInitials}));
         setFormInitialValues(startingInitials);
-      } finally {
-          setIsLoadingWorkOrder(false);
       }
+
+    setIsLoadingWorkOrder(false);
+    } catch (error) {
+      console.error("Error al obtener el work order", error);
+      setFormInitialValues(startingInitials);
+    } finally {
+        setIsLoadingWorkOrder(false);
+    }
   }
 
   useEffect(() => {

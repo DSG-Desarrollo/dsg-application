@@ -11,6 +11,12 @@ async function getWorkOrdersByTaskId(id) {
     return api.get(`work-orders/${id}`);
 }
 
+// Obtener el registro de los materiales usados en una órden de trabajo
+async function getWorkOrdersMaterialsSummary(id) {
+    return api.get(`materials-order/${id}`);
+}
+
 export default {
     getWorkOrdersByTaskId,
+    getWorkOrdersMaterialsSummary,
 };
