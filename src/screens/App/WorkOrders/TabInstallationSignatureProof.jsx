@@ -11,7 +11,7 @@ import {
   Dimensions,
   StyleSheet,
 } from "react-native";
-import { faSave, faEraser, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { faSave, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import DrawableImage from "@components/molecules/DrawableImage";
@@ -26,7 +26,7 @@ import theme from '@themes/theme';
 
 import i18n from '@i18n/i18n';
 
-const { primary, primaryText, outline, outlineText } = buttonStyles;
+const { primary, primaryText } = buttonStyles;
 const { info, infoText } = theme.colors;
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -134,11 +134,11 @@ const TabInstallationSignatureProof = ({ route }) => {
           onSubmit={handleSave}
         >
           {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
-            <Card title="Firma de conformidad" style={styles.formCard}>
+            <Card title={i18n.t('workOrder:titleSignature')} style={styles.formCard}>
               <View style={localStyles.infoBanner}>
                 <FontAwesomeIcon icon={faInfoCircle} size={15} color={info} style={localStyles.infoIcon} />
                 <Text style={localStyles.infoText}>
-                  Esta firma certifica que el cliente recibió el trabajo.
+                  {i18n.t('workOrder:informationSignature')}
                 </Text>
               </View>
 
@@ -182,7 +182,7 @@ const TabInstallationSignatureProof = ({ route }) => {
                     onChangeText={handleChange("nombre_firma_cliente")}
                     onBlur={handleBlur("nombre_firma_cliente")}
                     value={values.nombre_firma_cliente}
-                    placeholder="Ej. Jane Doe"
+                    placeholder={i18n.t('workOrder:placeholderSignature')}
                     placeholderTextColor="#aaa"
                     underlineColorAndroid="transparent"
                   />
@@ -215,7 +215,7 @@ const localStyles = StyleSheet.create({
   infoBanner: {
     flexDirection: "row",
     gap: 8,
-    backgroundColor: `${info}14`, // ~8% opacity, misma idea que rgba(8,127,140,0.08) del diseño
+    backgroundColor: `${info}14`,
     borderRadius: 8,
     padding: 10,
     marginBottom: 14,

@@ -53,5 +53,14 @@
   "orderProgress": "Progress",
   "orderStart": "Start",
 
-  "materials": "Materials"
+  "materials": "Materials",
+
+  "vehicleMessageValidation": "Vehicle type is required",
+  "installationMessageValidation": "Installation type is required",
+  "powerOffMessageValidation": "Power-off type is required",
+  "batteryMessageValidation": "Battery type is required",
+
+  "titleSignature": "Signature",
+  "informationSignature": "This signature certifies that the client received the work.",
+  "placeholderSignature": "For example, Jane Doe"
 }

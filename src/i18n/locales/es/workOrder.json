@@ -53,5 +53,14 @@
   "orderProgress": "Progreso",
   "orderStart": "Inicio",
 
-  "materials": "Materiales"
+  "materials": "Materiales", 
+
+  "vehicleMessageValidation": "El tipo de vehículo es requerido",
+  "installationMessageValidation": "El tipo de instalación es requerido",
+  "powerOffMessageValidation": "El tipo de apagado es requerido",
+  "batteryMessageValidation": "El tipo de batería es requerido",
+
+  "titleSignature": "Firma de conformidad",
+  "informationSignature": "Esta firma certifica que el cliente recibió el trabajo.",
+  "placeholderSignature": "Ej. Jane Doe"
 }
