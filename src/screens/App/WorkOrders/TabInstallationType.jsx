@@ -241,7 +241,6 @@ const TabInstallationType = ({ route }) => {
                     <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
                   </>
                 )}
-
               </Pressable>
             </View>
           )}

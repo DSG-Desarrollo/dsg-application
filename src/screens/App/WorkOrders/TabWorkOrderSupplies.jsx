@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
+  ActivityIndicator,
+  Pressable,
   View,
   Text,
   TextInput,
@@ -8,12 +10,15 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
-import ActionButtons from "@components/atoms/ActionButtons";
 import useFetchProducts from "@hooks/useFetchProducts";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import i18n from '@i18n/i18n';
+import { HTTP_CODES } from "@constants";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+
+const { OK, CREATED } = HTTP_CODES;
 
 // Services
 import workOrderService from "@services/api/workorder.service";
@@ -23,7 +28,7 @@ const { getWorkOrdersMaterialsSummary } = workOrderService;
 import { common as commonStyles, supplies as styles } from './styles';
 import { buttonStyles } from '@themes';
 
-const { primary } = buttonStyles;
+const { primary, primaryText } = buttonStyles;
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
@@ -112,6 +117,8 @@ const TabWorkOrderSupplies = ({ route }) => {
         cantidad: parseInt(productQuantities[product.id], 10),
       }));
 
+    console.log("Datos enviados", data);
+
     const endpoint = "api/materials-order";
     const response = await apiService.sendFormData(data, endpoint);
 
@@ -124,17 +131,10 @@ const TabWorkOrderSupplies = ({ route }) => {
     );
 
     console.log("Respuesta de la API:", response);
-    if (response.status === 201) {
+    if (response.status === CREATED) {
       ToastAndroid.show(response.message, ToastAndroid.LONG);
     }
   };
-
-  const handleEdit = () => {};
-
-  const buttons = [
-    { text: i18n.t('ui:btnSave'), icon: faSave, onPress: handleSave },
-    { text: i18n.t('ui:btnEdit'), icon: faEdit, onPress: handleEdit },
-  ];
 
   const handleStep = (id, delta) => {
     setProductQuantities((prev) => {
@@ -227,15 +227,22 @@ const TabWorkOrderSupplies = ({ route }) => {
             </View>
           );
         })}
+
+        
       </ScrollView>
 
-      <View style={styles.buttonsContainer}>
-        <ActionButtons
-          buttons={buttons}
-          buttonContainerStyle={styles.customButtonContainer}
-          buttonStyle={primary}
-        />
-      </View>
+      <Pressable style={primary} onPress={handleSave} disabled={isLoadingSendData}>
+        {isLoadingSendData ?
+          (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <>
+              <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
+              <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+            </>
+          )
+        }
+      </Pressable>
     </View>
   );
 };
