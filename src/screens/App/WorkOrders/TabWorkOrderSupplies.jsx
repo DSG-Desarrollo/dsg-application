@@ -9,7 +9,7 @@ import {
   ToastAndroid,
   TouchableOpacity,
 } from "react-native";
-import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
 import useFetchProducts from "@hooks/useFetchProducts";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,7 +17,9 @@ import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import i18n from '@i18n/i18n';
 import { HTTP_CODES } from "@constants";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { spacing, palette } from '@themes';
 
+const { white } = palette;
 const { OK, CREATED } = HTTP_CODES;
 
 // Services
@@ -225,22 +227,22 @@ const TabWorkOrderSupplies = ({ route }) => {
             </View>
           );
         })}
-
         
       </ScrollView>
-
-      <Pressable style={primary} onPress={handleSave} disabled={isLoadingSendData}>
-        {isLoadingSendData ?
-          (
-            <ActivityIndicator size="small" color="#ffffff" />
-          ) : (
-            <>
-              <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
-              <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
-            </>
-          )
-        }
-      </Pressable>
+      <View style={styles.saveContainer}>
+        <Pressable style={primary} onPress={handleSave} disabled={isLoadingSendData}>
+          {isLoadingSendData ?
+            (
+              <ActivityIndicator size="small" color={white} />
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faSave} size={16} color={white} />
+                <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+              </>
+            )
+          }
+        </Pressable>
+      </View>
     </View>
   );
 };
