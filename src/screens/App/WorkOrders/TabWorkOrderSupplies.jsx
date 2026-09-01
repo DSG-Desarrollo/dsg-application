@@ -104,18 +104,15 @@ const TabWorkOrderSupplies = ({ route }) => {
   }, [materialsSummary, sortedProductsData]);
 
   const handleSave = async () => {
+    setIsLoadingSendData(true);
     const apiService = new ApiService();
+
     const data = sortedProductsData
-      .filter(
-        (product) =>
-          productQuantities[product.id] &&
-          parseInt(productQuantities[product.id], 10) > 0
-      )
-      .map((product) => ({
-        id_orden_trabajo: id_orden_trabajo,
-        id_aprovisionamiento: product.id,
-        cantidad: parseInt(productQuantities[product.id], 10),
-      }));
+    .map((product) => ({
+      id_orden_trabajo: id_orden_trabajo,
+      id_aprovisionamiento: product.id,
+      cantidad: parseInt(productQuantities[product.id] || "0", 10),
+    }));
 
     console.log("Datos enviados", data);
 
@@ -130,10 +127,11 @@ const TabWorkOrderSupplies = ({ route }) => {
       userData.employee.id_usuario_empleado
     );
 
-    console.log("Respuesta de la API:", response);
-    if (response.status === CREATED) {
+    console.info("Respuesta de la API:", response);
+    if ([OK, CREATED].includes(response.status)) {
       ToastAndroid.show(response.message, ToastAndroid.LONG);
     }
+    setIsLoadingSendData(false);
   };
 
   const handleStep = (id, delta) => {
