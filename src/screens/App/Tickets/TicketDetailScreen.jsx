@@ -9,10 +9,16 @@ import {
 import Toolbar from "@components/atoms/Toolbar";
 import { Ionicons } from "@expo/vector-icons";
 import style from "@styles/TicketDetailScreenStyles";
+import { StyleSheet } from 'react-native';
 import useFetchUnitWorkOrders from "@hooks/useFetchUnitWorkOrders";
 import theme from '@themes/theme';
 import { useIsFocused } from '@react-navigation/native';
 import i18n from '@i18n/i18n';
+import { FAB } from 'react-native-paper';
+import { faPenNib, faFileSignature } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import FabButton from "@components/atoms/FabButton";
+const { successDark } = theme.colors;
 
 const TicketDetailScreen = ({ route, navigation }) => {
   const isFocused = useIsFocused();
@@ -286,6 +292,16 @@ const TicketDetailScreen = ({ route, navigation }) => {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
+  const MyComponent = () => (
+    <FAB
+      icon={() => (
+        <FontAwesomeIcon icon={faFileSignature} size={24} color="#FFFFFF" />
+      )}
+      style={styles.fab}
+      onPress={() => console.log('Pressed')}
+    />
+  );
+
   return (
     <View style={{ flex: 1 }}>
       <Toolbar title={titleWithCode} onBackPress={handleBackPress} />
@@ -298,8 +314,24 @@ const TicketDetailScreen = ({ route, navigation }) => {
         refreshing={loading}
         onRefresh={handleRefresh}
       />
+      <FabButton
+        icon={faFileSignature}
+        iconColor="#FFFFFF"
+        backgroundColor={successDark}
+        onPress={() => console.log('Pressed')}
+      />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: successDark,
+  },
+});
 
 export default TicketDetailScreen;
