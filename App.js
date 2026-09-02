@@ -58,7 +58,10 @@ const App = () => {
           <NetworkInfo>
             <NavigationContainer>
               <SafeAreaView style={{ flex: 1 }}>
-                <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
+                <Stack.Navigator
+                  initialRouteName={isAuthenticated ? 'DrawerNavigation' : 'LoginScreen'}
+                  screenOptions={{ headerShown: false }}
+                >
                   {isAuthenticated ? (
                     <Stack.Screen name="DrawerNavigation">
                       {(props) => <DrawerNavigation {...props} setIsAuthenticated={setIsAuthenticated} />}

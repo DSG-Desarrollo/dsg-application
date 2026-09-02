@@ -7,7 +7,6 @@ import {
   faTools,
   faClipboardCheck,
   faWrench,
-  faSignature,
   faPhotoFilm
 } from "@fortawesome/free-solid-svg-icons";
 import { Text, View } from "react-native";
@@ -15,7 +14,6 @@ import {
   TabUnitDetail,
   TabInstallationType,
   TabWorkOrderSupplies,
-  TabInstallationSignatureProof,
   TabEquipmentLocation,
   TabWorkOrderPhotos,
 } from "@screens/App/WorkOrders/";
@@ -113,9 +111,6 @@ const TabNavigatorWorkOrder = ({ route }) => {
     } else if (route.name === "TabWorkOrderSupplies") {
       labelName = "Materiales";
       tabKey = "form_work_order_supplies";
-    } else if (route.name === "TabInstallationSignatureProof") {
-      labelName = "Firma";
-      tabKey = "form_installation_signature_proof";
     } else if (route.name === "TabEquipmentLocation") {
       labelName = "Ubicación";
       tabKey = "form_equipment_location";
@@ -145,9 +140,6 @@ const TabNavigatorWorkOrder = ({ route }) => {
     } else if (route.name === "TabEquipmentLocation") {
       iconName = faWrench;
       tabKey = "form_equipment_location";
-    } else if (route.name === "TabInstallationSignatureProof") {
-      iconName = faSignature;
-      tabKey = "form_installation_signature_proof";
     } else if (route.name === "TabWorkOrderPhotos") {
       iconName = faPhotoFilm;
     }
@@ -230,18 +222,6 @@ const TabNavigatorWorkOrder = ({ route }) => {
             title: "Fotos",
             tabBarIcon: ({ color }) => (
               <FontAwesomeIcon icon={faPhotoFilm} color={color} size={20} />
-            ),
-            swipeEnabled: false,
-          }}
-          initialParams={sharedParams}
-        />
-        <Tab.Screen
-          name="TabInstallationSignatureProof"
-          component={TabInstallationSignatureProof}
-          options={{
-            title: "Firma",
-            tabBarIcon: ({ color }) => (
-              <FontAwesomeIcon icon={faSignature} color={color} size={20} />
             ),
             swipeEnabled: false,
           }}

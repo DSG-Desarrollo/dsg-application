@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   TouchableOpacity,
   View,
@@ -9,19 +9,19 @@ import {
 import Toolbar from "@components/atoms/Toolbar";
 import { Ionicons } from "@expo/vector-icons";
 import style from "@styles/TicketDetailScreenStyles";
-import { StyleSheet } from 'react-native';
 import useFetchUnitWorkOrders from "@hooks/useFetchUnitWorkOrders";
 import theme from '@themes/theme';
 import { useIsFocused } from '@react-navigation/native';
 import i18n from '@i18n/i18n';
-import { FAB } from 'react-native-paper';
-import { faPenNib, faFileSignature } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faFileSignature } from "@fortawesome/free-solid-svg-icons";
 import FabButton from "@components/atoms/FabButton";
+import FullScreenModal from "@components/atoms/FullScreenModal";
+import TabInstallationSignatureProof from "@screens/App/WorkOrders/TabInstallationSignatureProof";
 const { successDark } = theme.colors;
 
 const TicketDetailScreen = ({ route, navigation }) => {
   const isFocused = useIsFocused();
+  const [signatureModalVisible, setSignatureModalVisible] = useState(false);
   const {
     tareaId,
     codigo,
@@ -289,7 +289,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;4
+    return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
   return (
@@ -308,20 +308,17 @@ const TicketDetailScreen = ({ route, navigation }) => {
         icon={faFileSignature}
         iconColor="#FFFFFF"
         backgroundColor={successDark}
-        onPress={() => console.log('Pressed')}
+        onPress={() => setSignatureModalVisible(true)}
       />
+      <FullScreenModal
+        visible={signatureModalVisible}
+        onClose={() => setSignatureModalVisible(false)}
+        title={i18n.t('workOrder:titleSignature')}
+      >
+        <TabInstallationSignatureProof route={route} />
+      </FullScreenModal>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: successDark,
-  },
-});
 
 export default TicketDetailScreen;

@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { toolbarStyles } from "../../styles";
 import Icon from "react-native-vector-icons/Ionicons";
 
