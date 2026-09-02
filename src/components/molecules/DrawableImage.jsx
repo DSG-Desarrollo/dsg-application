@@ -22,7 +22,11 @@ import {
   useImage,
   ImageFormat,
 } from "@shopify/react-native-skia";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -61,9 +65,9 @@ const DrawableImage = forwardRef(
 
     const onDrawingStart = useCallback((touchInfo) => {
       const { x, y } = touchInfo;
-      const newPath = Skia.Path.Make();
-      newPath.moveTo(x, y);
-      setPaths((old) => [...old, newPath]);
+      const newPathBuilder = Skia.PathBuilder.Make();
+      newPathBuilder.moveTo(x, y);
+      setPaths((old) => [...old, newPathBuilder]);
       setHasDrawn(true); // Actualizar estado
     }, []);
 
@@ -71,8 +75,8 @@ const DrawableImage = forwardRef(
       const { x, y } = touchInfo;
       setPaths((currentPaths) => {
         const updatedPaths = [...currentPaths];
-        const currentPath = updatedPaths[updatedPaths.length - 1];
-        currentPath.lineTo(x, y);
+        const currentPathBuilder = updatedPaths[updatedPaths.length - 1];
+        currentPathBuilder.lineTo(x, y);
         return updatedPaths;
       });
     }, []);
@@ -119,6 +123,7 @@ const DrawableImage = forwardRef(
     }));
 
     const touchHandler = Gesture.Pan()
+      .runOnJS(true)
       .onStart((event) => {
         onDrawingStart({
           x: event.x,
@@ -133,13 +138,12 @@ const DrawableImage = forwardRef(
       });
 
     return (
-      <View style={[styles.container, containerStyle]}>
+      <GestureHandlerRootView style={[styles.container, containerStyle]}>
         <View style={styles.canvasContainer}>
           <GestureDetector gesture={touchHandler}>
             <Canvas
               ref={canvasRef}
               style={[styles.canvas]}
-              onTouch={touchHandler}
             >
               {image && (
                 <SkiaImage
@@ -151,10 +155,10 @@ const DrawableImage = forwardRef(
                   fit="contain"
                 />
               )}
-              {paths.map((path, index) => (
+              {paths.map((pathBuilder, index) => (
                 <Path
                   key={index}
-                  path={path}
+                  path={pathBuilder.build()}
                   color={strokeColor}
                   style="stroke"
                   strokeWidth={strokeWidth}
@@ -181,7 +185,7 @@ const DrawableImage = forwardRef(
             <FontAwesomeIcon icon={faRedo} size={30} color="#32CD32" />
           </TouchableOpacity>
         </View>
-      </View>
+      </GestureHandlerRootView>
     );
   }
 );
