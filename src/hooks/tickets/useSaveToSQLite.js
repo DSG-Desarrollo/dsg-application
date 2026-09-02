@@ -82,13 +82,13 @@ const useSaveToSQLite = (data) => {
     const placeholders = columns.map(() => '?').join(', ');
 
     try {
-      await runExclusive(async () => {
+      await runExclusive(async (db) => {
         const existingDataQuery = `SELECT * FROM ${tableName} WHERE ${secondaryIdField} = ? LIMIT 1`;
-        const existingData = await getAllAsyncSql(existingDataQuery, [data[secondaryIdField]]);
+        const existingData = await db.getAllRows(existingDataQuery, [data[secondaryIdField]]);
 
         if (existingData.length === 0) {
           const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
-          await executeSql(query, values);
+          await db.executeSql(query, values);
           //console.log(`Data inserted into ${tableName} - ${query}`);
         } else {
           const existingRecord = existingData[0];
@@ -102,7 +102,7 @@ const useSaveToSQLite = (data) => {
           if (needsUpdate) {
             const updateColumns = columns.map(column => `${column} = ?`).join(', ');
             const updateQuery = `UPDATE ${tableName} SET ${updateColumns} WHERE ${secondaryIdField} = ?`;
-            await executeSql(updateQuery, [...values, data[secondaryIdField]]);
+            await db.executeSql(updateQuery, [...values, data[secondaryIdField]]);
             //console.log(`Data updated in ${tableName} - ${updateQuery}`);
           } else {
             //console.log(`Data already up-to-date in ${tableName} for ${secondaryIdField}: ${data[secondaryIdField]}`);

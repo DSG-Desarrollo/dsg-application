@@ -16,30 +16,47 @@ class DatabaseService {
     }
 
     /**
-     * Ejecuta `callback` dentro de una transacción, encolada respecto a cualquier otra
-     * llamada a `runExclusive` sobre esta misma conexión. Varias pantallas (tabs) pueden
-     * estar montadas a la vez y disparar guardados en SQLite de forma concurrente; como la
-     * conexión es única, dos transacciones abiertas al mismo tiempo provocan errores como
-     * "cannot start a transaction within a transaction". Encolarlas aquí las serializa.
-     * @param {() => Promise<any>} callback
+     * Encola `task` respecto a cualquier otra llamada a `enqueue`/`runExclusive` sobre esta
+     * misma conexión. expo-sqlite despacha cada execAsync/runAsync/getAllAsync a un pool de
+     * hilos compartido (Dispatchers.IO en Android) y NO serializa el acceso a una misma
+     * conexión entre llamadas: dos llamadas concurrentes sobre el mismo `db` (por ejemplo un
+     * SELECT disparado desde una pantalla mientras otra pantalla hace un upsert) pueden
+     * ejecutarse en hilos distintos al mismo tiempo y producir errores nativos como
+     * "NativeDatabase.execAsync ... NullPointerException". Encolar aquí TODO acceso (lecturas
+     * y escrituras) evita esa carrera.
+     * @param {() => Promise<any>} task
+     */
+    enqueue(task) {
+        const previous = this.writeQueue.catch(() => {});
+        const run = previous.then(task);
+        this.writeQueue = run.catch(() => {});
+        return run;
+    }
+
+    /**
+     * Ejecuta `callback` dentro de una transacción, encolada junto con el resto de accesos
+     * a la base de datos (ver `enqueue`). El `callback` recibe un objeto con métodos
+     * "crudos" (`executeSql`/`getAllRows`/`getFirstRow`) que NO vuelven a encolarse — deben
+     * usarse en vez de los métodos públicos de esta clase para evitar un deadlock (encolar
+     * una tarea nueva desde dentro de la tarea que ya está corriendo nunca se resolvería).
+     * @param {(db: {executeSql: Function, getAllRows: Function, getFirstRow: Function}) => Promise<any>} callback
      */
     async runExclusive(callback) {
-        const previous = this.writeQueue.catch(() => {});
-        const run = async () => {
+        return this.enqueue(async () => {
             await this.db.execAsync('BEGIN TRANSACTION');
             try {
-                const result = await callback();
+                const result = await callback({
+                    executeSql: (sql, args = []) => this.db.runAsync(sql, ...args),
+                    getAllRows: (sql, args = []) => this.db.getAllAsync(sql, ...args),
+                    getFirstRow: (sql, args = []) => this.db.getFirstAsync(sql, ...args),
+                });
                 await this.db.execAsync('COMMIT');
                 return result;
             } catch (error) {
                 await this.db.execAsync('ROLLBACK');
                 throw error;
             }
-        };
-
-        const task = previous.then(run);
-        this.writeQueue = task.catch(() => {});
-        return task;
+        });
     }
 
     /**
@@ -167,7 +184,7 @@ class DatabaseService {
      */
     async executeSql(sqlStatement, args = []) {
         try {
-            const results = await this.db.runAsync(sqlStatement, ...args);
+            const results = await this.enqueue(() => this.db.runAsync(sqlStatement, ...args));
             //this.log('Resultado de la consulta:', results);
             return results;
         } catch (error) {
@@ -185,7 +202,7 @@ class DatabaseService {
      */
     async getFirstRow(sqlStatement, args = []) {
         try {
-            const firstRow = await this.db.getFirstAsync(sqlStatement, ...args);
+            const firstRow = await this.enqueue(() => this.db.getFirstAsync(sqlStatement, ...args));
             this.log('Primer resultado de la consulta:', firstRow);
             return firstRow;
         } catch (error) {
@@ -203,7 +220,7 @@ class DatabaseService {
      */
     async getAllRows(sqlStatement, args = []) {
         try {
-            const allRows = await this.db.getAllAsync(sqlStatement, ...args);
+            const allRows = await this.enqueue(() => this.db.getAllAsync(sqlStatement, ...args));
             //this.log('Todos los resultados de la consulta (getAllRows):', allRows);
             return allRows;
         } catch (error) {
