@@ -14,26 +14,42 @@ import TicketDetailScreen from '@screens/App/Tickets/TicketDetailScreen';
 import TabNavigatorWorkOrder from '@navigation/TabNavigatorWorkOrder';
 import { DatabaseProvider } from '@context/DatabaseContext';
 import NetworkInfo from '@utils/NetworkInfo';
-import { getRememberSessionState } from '@utils/storageUtils';
+import { getSessionActive } from '@utils/storageUtils';
+import { View, ActivityIndicator } from 'react-native';
 
 const Stack = createStackNavigator();
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Bloquea el render del Navigator (que por defecto monta LoginScreen)
+  // hasta saber si ya hay una sesión persistida. Sin esto, LoginScreen se
+  // ve un instante aunque el usuario tenga "recordar sesión" activo.
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        const isAuthenticatedValue = await getRememberSessionState();
-        setIsAuthenticated(isAuthenticatedValue);
+        const sessionActive = await getSessionActive();
+        setIsAuthenticated(sessionActive);
       } catch (error) {
-        console.error('Error al verificar la autenticación:', error);
-        // Podrías mostrar un mensaje al usuario sobre el error de autenticación
+        console.error('Error al verificar la sesión:', error);
+      } finally {
+        setIsCheckingSession(false);
       }
     };
 
     checkAuthentication();
   }, []);
+
+  if (isCheckingSession) {
+    return (
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" />
+        </View>
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>

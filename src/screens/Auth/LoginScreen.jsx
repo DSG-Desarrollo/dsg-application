@@ -14,7 +14,7 @@ import { useDatabase } from '@context/DatabaseContext';
 import UserService from '@services/api/users/UserService';
 import { queries } from '@services/database/queries';
 import useNetworkState from '@hooks/useNetworkState';
-import { storeAuthenticationState, getRememberSessionState } from '@utils/storageUtils';
+import { storeAuthenticationState, getRememberSessionState, storeSessionActive } from '@utils/storageUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { md5 } from '@utils/md5';
 import LoadingOverlay from '@components/atoms/LoadingOverlay';
@@ -60,14 +60,21 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
     try {
       const existingUsers = await getAllAsyncSql(users.checkUserExistence, checkArgs);
       if (existingUsers.length > 0) {
-        console.log('El usuario ya existe, no se insertará.');
+        // El usuario ya existe en SQLite local: lo actualizamos con los
+        // datos frescos del backend (clave, estado, etc.), en vez de dejar
+        // la copia local congelada en el primer login de este dispositivo.
+        // Si no hiciéramos esto, un cambio de contraseña o una baja de
+        // usuario en el servidor nunca se reflejaría en el login offline.
+        const updateArgs = [...args.slice(1), args[0]];
+        await executeSql(userInserts.updateUser, updateArgs);
+        console.log('Actualización de usuario local exitosa');
         return;
       }
 
       await executeSql(userInserts.insertUser, args);
       console.log('Inserción de usuario exitosa');
     } catch (error) {
-      console.error('Error al insertar usuario:', error);
+      console.error('Error al insertar/actualizar usuario:', error);
     }
   }
 
@@ -120,6 +127,14 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           localUser.clave === md5(password.value);
 
         if (credentialsMatch) {
+          // Igual que en el login online: solo persistimos la sesión como
+          // "recordada" si el switch está activo. userData ya está en
+          // AsyncStorage de un login online previo (es la copia que
+          // getUserByUsername valida contra SQLite), así que aquí solo
+          // falta marcar la sesión como activa.
+          if (rememberSession) {
+            await storeSessionActive(true);
+          }
           setIsAuthenticated(true);
           Alert.alert('Éxito', 'Inicio de sesión exitoso sin conexión.');
         } else {
@@ -144,6 +159,12 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           await AsyncStorage.setItem('userData', JSON.stringify(response.user));
           //const usersHttpDB = await getFirstAsyncSql(users.getUserById, [response.user.id_usuario]);
           await insertUserToDatabase(response.user);
+          // Solo persistimos la sesión como "recordada" si el switch está
+          // activo; si no, isAuthenticated queda solo en memoria (estado de
+          // React) y no sobrevive un reinicio de la app.
+          if (rememberSession) {
+            await storeSessionActive(true);
+          }
           // No usar navigation.replace aquí: App.js ya cambia de stack a
           // DrawerNavigation en cuanto isAuthenticated es true. Llamar a
           // replace además de eso produce "RESET action not handled".

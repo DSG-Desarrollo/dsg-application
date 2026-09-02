@@ -29,6 +29,7 @@ const userQueries = {
 
 const userInsertQueries = {
     insertUser: `INSERT INTO user (employee_id, user_type_id, username, password, user_status, observation, photo_name, user_registration) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    updateUser: `UPDATE user SET user_type_id = ?, username = ?, password = ?, user_status = ?, observation = ?, photo_name = ?, user_registration = ? WHERE employee_id = ?`,
 };
 
 const queries = {
