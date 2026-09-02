@@ -289,18 +289,8 @@ const TicketDetailScreen = ({ route, navigation }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return <ActivityIndicator size="large" color="#0000ff" />;4
   }
-
-  const MyComponent = () => (
-    <FAB
-      icon={() => (
-        <FontAwesomeIcon icon={faFileSignature} size={24} color="#FFFFFF" />
-      )}
-      style={styles.fab}
-      onPress={() => console.log('Pressed')}
-    />
-  );
 
   return (
     <View style={{ flex: 1 }}>
