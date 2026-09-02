@@ -62,5 +62,9 @@
 
   "titleSignature": "Firma de conformidad",
   "informationSignature": "Esta firma certifica que el cliente recibió el trabajo.",
-  "placeholderSignature": "Ej. Jane Doe"
+  "placeholderSignature": "Ej. Jane Doe",
+
+  "equipmentLocationTypeLabel": "Tipo de unidad",
+  "equipmentLocationSelectPrompt": "Selecciona el tipo de unidad para marcar dónde se instaló el equipo.",
+  "equipmentLocationNoImage": "No hay imagen de referencia disponible para este tipo de unidad."
 }

@@ -9,7 +9,6 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Dimensions,
 } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
@@ -28,12 +27,6 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-
-// Calcular los valores porcentuales (por ejemplo, 50% del tamaño del contenedor)
-const imageWidth = screenWidth * 0.65;
-const imageHeight = screenHeight * 0.65;
-
 const DrawableImage = forwardRef(
   (
     {
@@ -51,8 +44,14 @@ const DrawableImage = forwardRef(
     const [paths, setPaths] = useState([]);
     const [undonePaths, setUndonePaths] = useState([]);
     const [hasDrawn, setHasDrawn] = useState(false);
+    const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
     const image = useImage(fixedImageSource); // Cargar la imagen
+
+    const handleCanvasLayout = useCallback((event) => {
+      const { width, height } = event.nativeEvent.layout;
+      setCanvasSize({ width, height });
+    }, []);
 
     useEffect(() => {
       if (clearPaths) {
@@ -139,19 +138,19 @@ const DrawableImage = forwardRef(
 
     return (
       <GestureHandlerRootView style={[styles.container, containerStyle]}>
-        <View style={styles.canvasContainer}>
+        <View style={styles.canvasContainer} onLayout={handleCanvasLayout}>
           <GestureDetector gesture={touchHandler}>
             <Canvas
               ref={canvasRef}
               style={[styles.canvas]}
             >
-              {image && (
+              {image && canvasSize.width > 0 && (
                 <SkiaImage
                   image={image}
                   x={0}
                   y={0}
-                  width={imageWidth}
-                  height={imageHeight}
+                  width={canvasSize.width}
+                  height={canvasSize.height}
                   fit="contain"
                 />
               )}

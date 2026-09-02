@@ -62,5 +62,9 @@
 
   "titleSignature": "Signature",
   "informationSignature": "This signature certifies that the client received the work.",
-  "placeholderSignature": "For example, Jane Doe"
+  "placeholderSignature": "For example, Jane Doe",
+
+  "equipmentLocationTypeLabel": "Unit type",
+  "equipmentLocationSelectPrompt": "Select the unit type to mark where the equipment was installed.",
+  "equipmentLocationNoImage": "No reference image available for this unit type."
 }

@@ -1,22 +1,27 @@
 // TabEquipmentLocationStyles.js
 import { StyleSheet } from 'react-native';
+import theme from '@themes/theme';
+import { palette } from '@themes';
+
+const { colors } = theme;
 
 export const location = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#F6F7FB',
+    backgroundColor: palette.gray[50],
   },
   sectionLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#999',
+    color: colors.textMuted,
     textTransform: 'uppercase',
     marginBottom: 8,
   },
 
   chipRow: {
     flexGrow: 0,
+    alignItems: 'flex-start',
     marginBottom: 16,
   },
   chip: {
@@ -26,25 +31,25 @@ export const location = StyleSheet.create({
     padding: 6,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#eee',
-    backgroundColor: '#fff',
+    borderColor: colors.borderAlternative,
+    backgroundColor: colors.uiBackground,
   },
   chipSelected: {
-    borderColor: '#BA7517',
-    backgroundColor: '#FCEFDC',
+    borderColor: colors.accent,
+    backgroundColor: colors.warningSurface,
   },
   chipThumb: {
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: palette.gray[100],
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     marginBottom: 4,
   },
   chipThumbSelected: {
-    backgroundColor: '#BA7517',
+    backgroundColor: colors.accent,
   },
   chipThumbImage: {
     width: '100%',
@@ -54,11 +59,11 @@ export const location = StyleSheet.create({
   chipLabel: {
     fontSize: 10,
     textAlign: 'center',
-    color: '#555',
+    color: colors.textSecondary,
     lineHeight: 12,
   },
   chipLabelSelected: {
-    color: '#412402',
+    color: colors.warningDark,
     fontWeight: '600',
   },
 
@@ -67,8 +72,8 @@ export const location = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
+    borderColor: colors.borderColor,
+    backgroundColor: colors.uiBackground,
     overflow: 'hidden',
   },
   emptyState: {
@@ -80,39 +85,14 @@ export const location = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 13,
-    color: '#999',
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: 8,
     maxWidth: 240,
   },
 
-  actionsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 16,
+  saveContainer: {
+    paddingTop: 16,
+    backgroundColor: colors.uiBackground,
   },
-  secondaryButton: {
-    flex: 1,
-    height: 44,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  secondaryButtonText: { fontSize: 14, fontWeight: '500', color: '#555' },
-  primaryButton: {
-    flex: 1,
-    height: 44,
-    borderRadius: 8,
-    backgroundColor: '#BA7517',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  primaryButtonText: { fontSize: 14, fontWeight: '500', color: '#FAEEDA' },
 });

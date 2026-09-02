@@ -1,14 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, ToastAndroid } from "react-native";
-import SelectManager from "@components/atoms/SelectManager";
+import { View, Text, Image, ScrollView, TouchableOpacity, Pressable, ToastAndroid } from "react-native";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import DrawableImage from "@components/molecules/DrawableImage";
 import { location as styles } from "./styles";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
-import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
-import ActionButtons from "@components/atoms/ActionButtons";
+import { faSave, faImage } from "@fortawesome/free-solid-svg-icons";
 import i18n from '@i18n/i18n';
+import theme from '@themes/theme';
+import { buttonStyles } from '@themes';
+
+const { textMuted, textInverse, borderStrong } = theme.colors;
+const { primary, primaryText } = buttonStyles;
 
 const options = [
   {
@@ -125,39 +129,51 @@ const TabEquipmentLocation = ({ route }) => {
     setShowDrawableImage(true);
   }, []);
 
-  const handleEdit = () => {
-    // Implementar la lógica de editar aquí
-  };
-
-  const buttons = [
-    {
-      text: i18n.t('ui:btnSave'),
-      icon: faSave,
-      onPress: handleSave,
-    },
-    {
-      text: i18n.t('ui:btnEdit'),
-      icon: faEdit,
-      onPress: handleEdit,
-    },
-  ];
-
   return (
     <View style={styles.container}>
-      <View style={styles.pickerContainer}>
-        <SelectManager
-          data={options}
-          onValueChange={handleSelectOption}
-          value={selectedOption ? selectedOption.value : null}
-          placeholder={{ label: "Seleccionar opción", value: null }}
-          pickerProps={{ inputAndroid: { color: "black" } }}
-          style={styles.picker}
-          itemStyle={styles.pickerItem}
-        />
-      </View>
+      <Text style={styles.sectionLabel}>
+        {i18n.t('workOrder:equipmentLocationTypeLabel')}
+      </Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ flexGrow: 0 }}
+        contentContainerStyle={styles.chipRow}
+      >
+        {options.map((option) => {
+          const isSelected = selectedOption?.value === option.value;
+          return (
+            <TouchableOpacity
+              key={option.value}
+              style={[styles.chip, isSelected && styles.chipSelected]}
+              onPress={() => handleSelectOption(option.value)}
+            >
+              <View
+                style={[styles.chipThumb, isSelected && styles.chipThumbSelected]}
+              >
+                {option.image ? (
+                  <Image source={option.image} style={styles.chipThumbImage} />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faImage}
+                    size={16}
+                    color={isSelected ? textInverse : textMuted}
+                  />
+                )}
+              </View>
+              <Text
+                style={[styles.chipLabel, isSelected && styles.chipLabelSelected]}
+                numberOfLines={2}
+              >
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
 
-      <View style={styles.imageContainer}>
-        {selectedOption && selectedOption.image && (
+      <View style={styles.canvasCard}>
+        {selectedOption && selectedOption.image ? (
           <DrawableImage
             ref={drawableImageRef}
             fixedImageSource={selectedOption.image}
@@ -166,14 +182,23 @@ const TabEquipmentLocation = ({ route }) => {
             clearPaths={clearPaths}
             onPathsCleared={handleClearPaths}
           />
+        ) : (
+          <View style={styles.emptyState}>
+            <FontAwesomeIcon icon={faImage} size={40} color={borderStrong} />
+            <Text style={styles.emptyStateText}>
+              {selectedOption
+                ? i18n.t('workOrder:equipmentLocationNoImage')
+                : i18n.t('workOrder:equipmentLocationSelectPrompt')}
+            </Text>
+          </View>
         )}
       </View>
 
-      <View style={styles.buttonContainer}>
-        <ActionButtons
-          buttons={buttons}
-          buttonContainerStyle={styles.buttonContainer}
-        />
+      <View style={styles.saveContainer}>
+        <Pressable style={primary} onPress={handleSave}>
+          <FontAwesomeIcon icon={faSave} size={16} color={textInverse} />
+          <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+        </Pressable>
       </View>
     </View>
   );
