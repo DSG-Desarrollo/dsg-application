@@ -7,6 +7,11 @@ export const signature = StyleSheet.create({
   container: { flex: 1 },
   scrollContainer: { flexGrow: 1, padding: 16 },
 
+  saveContainer: {
+    padding: 16,
+    backgroundColor: white,
+  },
+
   formCard: { marginBottom: 16 },
 
   instructionText: {

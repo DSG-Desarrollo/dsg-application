@@ -144,7 +144,7 @@ const FormValidation = ({
         touched,
         errors,
       }) => (
-        <View>
+        <View style={{ flex: 1 }}>
           {children({
             handleChange,
             handleBlur,

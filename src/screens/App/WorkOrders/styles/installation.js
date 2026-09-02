@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { spacing, palette } from '@themes';
 
-const { red, white } = palette;
+const { red, white, gray } = palette;
 const { md } = spacing;
 
 export const installation = StyleSheet.create({
@@ -19,6 +19,8 @@ export const installation = StyleSheet.create({
   footer: {
     padding: md,
     borderTopWidth: 1,
+    borderTopColor: gray[200],
+    backgroundColor: white,
   },
 
   radioGroup: {

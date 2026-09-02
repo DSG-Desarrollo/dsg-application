@@ -27,7 +27,7 @@ import theme from '@themes/theme';
 import i18n from '@i18n/i18n';
 
 const { primary, primaryText } = buttonStyles;
-const { info, infoText } = theme.colors;
+const { info, infoText, textPrimary } = theme.colors;
 
 const { width: screenWidth } = Dimensions.get("window");
 const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen del Card
@@ -127,13 +127,14 @@ const TabInstallationSignatureProof = ({ route }) => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <FormValidation
-          initialValues={initialValues}
-          validationInput={validationInput}
-          onSubmit={handleSave}
-        >
-          {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
+      <FormValidation
+        initialValues={initialValues}
+        validationInput={validationInput}
+        onSubmit={handleSave}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
+          <>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Card title={i18n.t('workOrder:titleSignature')} style={styles.formCard}>
               <View style={localStyles.infoBanner}>
                 <FontAwesomeIcon icon={faInfoCircle} size={15} color={info} style={localStyles.infoIcon} />
@@ -194,24 +195,23 @@ const TabInstallationSignatureProof = ({ route }) => {
                   <Text style={styles.errorText}>{errors.nombre_firma_cliente}</Text>
                 </View>
               )}
-
-              <Pressable style={localStyles.button} onPress={handleSubmit}>
-                <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
-                <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
-              </Pressable>
             </Card>
-          )}
-        </FormValidation>
-      </ScrollView>
+          </ScrollView>
+
+          <View style={styles.saveContainer}>
+            <Pressable style={primary} onPress={handleSubmit}>
+              <FontAwesomeIcon icon={faSave} size={16} color={textPrimary} />
+              <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+            </Pressable>
+          </View>
+          </>
+        )}
+      </FormValidation>
     </KeyboardAvoidingView>
   );
 };
 
 const localStyles = StyleSheet.create({
-  button: {
-    ...primary,
-    marginTop: 16,
-  },
   infoBanner: {
     flexDirection: "row",
     gap: 8,

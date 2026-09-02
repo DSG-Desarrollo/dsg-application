@@ -6,7 +6,7 @@ import FormValidation from '@components/molecules/FormValidation';
 import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '@components/molecules/Card';
-import { spacing, buttonStyles } from '@themes';
+import { spacing, buttonStyles, palette } from '@themes';
 import { installation as styles, common as commonStyles } from './styles';
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +17,7 @@ const { getWorkOrdersByTaskId } = workOrderService;
 
 const { OK, CREATED } = HTTP_CODES;
 const { primary, primaryText } = buttonStyles;
+const { white } = palette;
 
 const FIELD_GROUPS = [
   {
@@ -202,50 +203,53 @@ const TabInstallationType = ({ route }) => {
 
   return (
     <View style={commonStyles.container}>
-      <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
-        <FormValidation
-          initialValues={formInitialValues}
-          isLoading={isLoadingWorkOrder}
-          validationInput={validationInput}
-          onSubmit={handleSave}
-        >
-          {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
-            <View style={styles.container}>
-              {FIELD_GROUPS.map((group) => (
-                <Card
-                  key={group.key}
-                  title={i18n.t(group.titleKey)}
-                  style={{ marginBottom: spacing.md }}
-                >
-                  <SegmentedToggle
-                    options={group.options.map((opt) => ({
-                      value: opt.value,
-                      label: i18n.t(opt.labelKey),
-                    }))}
-                    value={selectedOption[group.key]}
-                    onChange={(value) =>
-                      handleOptionChange(group.key, value, handleChange, handleBlur)
-                    }
-                    error={touched[group.key] && errors[group.key] ? errors[group.key] : null}
-                  />
-                </Card>
-              ))}
+      <FormValidation
+        initialValues={formInitialValues}
+        isLoading={isLoadingWorkOrder}
+        validationInput={validationInput}
+        onSubmit={handleSave}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
+          <>
+            <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
+              <View style={styles.container}>
+                {FIELD_GROUPS.map((group) => (
+                  <Card
+                    key={group.key}
+                    title={i18n.t(group.titleKey)}
+                    style={{ marginBottom: spacing.md }}
+                  >
+                    <SegmentedToggle
+                      options={group.options.map((opt) => ({
+                        value: opt.value,
+                        label: i18n.t(opt.labelKey),
+                      }))}
+                      value={selectedOption[group.key]}
+                      onChange={(value) =>
+                        handleOptionChange(group.key, value, handleChange, handleBlur)
+                      }
+                      error={touched[group.key] && errors[group.key] ? errors[group.key] : null}
+                    />
+                  </Card>
+                ))}
+              </View>
+            </ScrollView>
 
+            <View style={styles.footer}>
               <Pressable style={primary} onPress={handleSubmit} disabled={isLoadingSendData}>
-                {isLoadingSendData ? 
-                  (
-                    <ActivityIndicator size="small" color="#ffffff" />
-                  ) : (
+                {isLoadingSendData ? (
+                  <ActivityIndicator size="small" color={white} />
+                ) : (
                   <>
-                    <FontAwesomeIcon icon={faSave} size={16} color="#ffffff" />
+                    <FontAwesomeIcon icon={faSave} size={16} color={white} />
                     <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
                   </>
                 )}
               </Pressable>
             </View>
-          )}
-        </FormValidation>
-      </ScrollView>
+          </>
+        )}
+      </FormValidation>
     </View>
   );
 };
