@@ -44,7 +44,7 @@ const EvidenceSection = ({
     </View>
 
     <Text style={styles.counter}>
-      {photos.length} de {maxPhotos} fotos
+      {i18n.t('workOrder:photosCounter', { count: photos.length, max: maxPhotos })}
     </Text>
 
     <View style={styles.grid}>

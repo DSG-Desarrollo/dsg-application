@@ -1,19 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import AxiosManager from "@utils/AxiosManager";
+import FetchManager from "@managers/FetchManager";
 import { ToastAndroid } from "react-native";
+import i18n from "@i18n/i18n";
 
-// Definir las claves de los formularios como constantes
+// Definir las claves de los formularios (tabs) por OT como constantes.
+// La firma del cliente YA NO es uno de estos: se captura una única vez por ticket
+// (no por OT) y es lo que dispara la finalización de las OT activas y del ticket,
+// en vez de ser una condición más a completar dentro de cada OT.
 const FORM_KEYS = {
   WORK_ORDER_SUPPLIES: "form_work_order_supplies",
   INSTALLATION_TYPE: "form_installation_type",
   EQUIPMENT_LOCATION: "form_equipment_location",
-  INSTALLATION_SIGNATURE_PROOF: "form_installation_signature_proof",
+  WORK_ORDER_PHOTOS: "form_work_order_photos",
 };
 
 const FORMS = Object.values(FORM_KEYS);
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
-const axiosManager = new AxiosManager(BASE_URL);
+const api = new FetchManager(BASE_URL);
 
 const FormCompletionTracker = {
   markFormAsCompleted: async (
@@ -43,10 +47,6 @@ const FormCompletionTracker = {
       );
 
       // Verificar cuántos formularios están completados
-      const allCompleted = await FormCompletionTracker.checkAllFormsCompleted(
-        taskIdStr,
-        workOrderIdStr
-      );
       const anyCompleted = await FormCompletionTracker.checkAnyFormCompleted(
         taskIdStr,
         workOrderIdStr
@@ -68,7 +68,7 @@ const FormCompletionTracker = {
         );
         // Mostrar Toast de inicio
         ToastAndroid.show(
-          "Proceso iniciado: Primer formulario completado",
+          i18n.t('workOrder:formProcessStartedToast'),
           ToastAndroid.SHORT
         );
       }
@@ -81,19 +81,19 @@ const FormCompletionTracker = {
       const remainingFormsCount = totalFormsCount - completedFormsCount;
 
       ToastAndroid.show(
-        `${completedFormsCount} / ${totalFormsCount} formularios completados. Faltan ${remainingFormsCount} por completar.`,
+        i18n.t('workOrder:formsProgressToast', {
+          completed: completedFormsCount,
+          total: totalFormsCount,
+          remaining: remainingFormsCount,
+        }),
         ToastAndroid.SHORT
       );
 
-      // Finalizar la OT si todos los formularios están completados
-      if (allCompleted.allCompleted) {
-        await FormCompletionTracker.completeWorkOrder(
-          clientId,
-          workOrderIdStr,
-          taskIdStr,
-          userId
-        );
-      }
+      // La OT ya NO se finaliza automáticamente al completar sus tabs: eso ahora lo
+      // dispara la firma única del cliente a nivel de ticket (ver storeTicketClientSignature
+      // en el backend, invocado desde TicketDetailScreen). `allCompleted` queda disponible
+      // para que la pantalla de ticket valide, antes de pedir la firma, que cada OT activa
+      // ya tiene sus tabs completos.
     } catch (error) {
       console.error(
         `Error marcando el formulario ${formKey} como completado: `,
@@ -170,7 +170,7 @@ const FormCompletionTracker = {
 
   startWorkOrder: async (clientId, taskId, workOrderId, userId) => {
     try {
-      const response = await axiosManager.post(
+      const response = await api.post(
         `api/work-orders/${workOrderId}/start`,
         {
           id_cliente: clientId,
@@ -192,7 +192,7 @@ const FormCompletionTracker = {
 
   completeWorkOrder: async (clientId, workOrderId, taskId, userId) => {
     try {
-      const response = await axiosManager.post(
+      const response = await api.post(
         `api/work-orders/${workOrderId}/complete`,
         {
           id_tarea: taskId,
@@ -203,7 +203,7 @@ const FormCompletionTracker = {
         }
       );
       ToastAndroid.show(
-        "Orden de trabajo completada con éxito",
+        i18n.t('workOrder:workOrderCompletedToast'),
         ToastAndroid.SHORT
       );
 

@@ -1,11 +1,14 @@
 // TabWorkOrderPhotos.js
-import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, ToastAndroid } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Pressable, ScrollView, ToastAndroid, ActivityIndicator } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faSave, faTruckLoading, faClipboardCheck, faCamera, faImage } from "@fortawesome/free-solid-svg-icons";
 import * as ImagePicker from "expo-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import EvidenceSection from "@components/molecules/EvidenceSection";
 import CameraCaptureModal from "@components/molecules/CameraCaptureModal";
+import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import workOrderService from "@services/api/workorder.service";
 import { photo as styles, common as commonStyles } from "./styles";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
@@ -23,18 +26,38 @@ const TabWorkOrderPhotos = ({ route }) => {
   const [photos, setPhotos] = useState({ reception: [], delivery: [] });
   const [actionSheetSection, setActionSheetSection] = useState(null); // 'reception' | 'delivery' | null
   const [cameraSection, setCameraSection] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("userData");
+        setUserData(jsonValue ? JSON.parse(jsonValue) : null);
+      } catch (e) {
+        console.error("Error reading userData from storage", e);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const addPhotos = (section, newUris) => {
     setPhotos((prev) => {
       const current = prev[section];
       const room = MAX_PHOTOS - current.length;
       if (room <= 0) {
-        ToastAndroid.show(`Ya alcanzaste el límite de ${MAX_PHOTOS} fotos`, ToastAndroid.SHORT);
+        ToastAndroid.show(
+          i18n.t('workOrder:photosLimitReachedToast', { max: MAX_PHOTOS }),
+          ToastAndroid.SHORT
+        );
         return prev;
       }
       const toAdd = newUris.slice(0, room);
       if (newUris.length > toAdd.length) {
-        ToastAndroid.show(`Solo se agregaron ${toAdd.length} foto(s), llegaste al límite`, ToastAndroid.SHORT);
+        ToastAndroid.show(
+          i18n.t('workOrder:photosLimitPartialToast', { added: toAdd.length }),
+          ToastAndroid.SHORT
+        );
       }
       return { ...prev, [section]: [...current, ...toAdd] };
     });
@@ -54,7 +77,7 @@ const TabWorkOrderPhotos = ({ route }) => {
     setActionSheetSection(null);
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      ToastAndroid.show("Se necesita permiso para acceder a la galería", ToastAndroid.LONG);
+      ToastAndroid.show(i18n.t('workOrder:photosGalleryPermissionDenied'), ToastAndroid.LONG);
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -79,20 +102,59 @@ const TabWorkOrderPhotos = ({ route }) => {
     setCameraSection(null);
   };
 
-  const handleSave = () => {
-    // TODO: integrar con ApiService cuando definamos el endpoint
-    // (formato sugerido: multipart/form-data con id_tarea, id_orden_trabajo,
-    // y arrays de imágenes reception[] / delivery[])
-    ToastAndroid.show("Evidencia lista para enviar (pendiente integrar API)", ToastAndroid.LONG);
+  const handleSave = async () => {
+    console.log("handleSave");
+    if (isSaving) return;
+
+    if (photos.reception.length === 0 || photos.delivery.length === 0) {
+      ToastAndroid.show(i18n.t('workOrder:photosMissingError'), ToastAndroid.LONG);
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const response = await workOrderService.uploadRevisionPhotos(id_orden_trabajo, {
+        clientId: clienteId,
+        taskId: tareaId,
+        receptionPhotos: photos.reception,
+        deliveryPhotos: photos.delivery,
+      });
+
+      if (response?.success) {
+        ToastAndroid.show(i18n.t('workOrder:photosSaveSuccess'), ToastAndroid.LONG);
+
+        if (userData?.employee?.id_usuario_empleado) {
+          await FormCompletionTracker.markFormAsCompleted(
+            "form_work_order_photos",
+            clienteId,
+            tareaId,
+            id_orden_trabajo,
+            userData.employee.id_usuario_empleado
+          );
+        }
+      } else {
+        console.log("else response", response);
+        ToastAndroid.show(
+          response?.error?.message || i18n.t('workOrder:photosSavePartial'),
+          ToastAndroid.LONG
+        );
+      }
+    } catch (error) {
+      console.error("Error al guardar la evidencia fotográfica:", error);
+      ToastAndroid.show(i18n.t('workOrder:photosSaveError'), ToastAndroid.LONG);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
       <EvidenceSection
-        title="Evidencia de recepción"
+        title={i18n.t('workOrder:photosReceptionTitle')}
         icon={faTruckLoading}
-        instruction="Documenta golpes o daños visibles, el número de serie legible y los accesorios incluidos."
+        instruction={i18n.t('workOrder:photosReceptionInstruction')}
         photos={photos.reception}
         maxPhotos={MAX_PHOTOS}
         onAddPress={() => handleAddPress("reception")}
@@ -100,9 +162,9 @@ const TabWorkOrderPhotos = ({ route }) => {
       />
 
       <EvidenceSection
-        title="Evidencia de entrega"
+        title={i18n.t('workOrder:photosDeliveryTitle')}
         icon={faClipboardCheck}
-        instruction="Documenta la instalación terminada, las conexiones y la limpieza del área de trabajo."
+        instruction={i18n.t('workOrder:photosDeliveryInstruction')}
         photos={photos.delivery}
         maxPhotos={MAX_PHOTOS}
         onAddPress={() => handleAddPress("delivery")}
@@ -110,9 +172,17 @@ const TabWorkOrderPhotos = ({ route }) => {
       />
       </ScrollView>
 
-      <Pressable style={primary} onPress={handleSave}>
-        <FontAwesomeIcon icon={faSave} size={14} color={textPrimary} />
-        <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+      <Pressable
+        style={[primary, isSaving && { opacity: 0.6 }]}
+        onPress={handleSave}
+        disabled={isSaving}
+      >
+        {isSaving ? (
+          <ActivityIndicator size="small" color={textPrimary} />
+        ) : (
+          <FontAwesomeIcon icon={faSave} size={14} color={textPrimary} />
+        )}
+        <Text style={primaryText}>{i18n.t(isSaving ? 'ui:btnSaving' : 'ui:btnSave')}</Text>
       </Pressable>
 
       {/* Hoja de acción: tomar foto / elegir de galería */}
@@ -125,11 +195,11 @@ const TabWorkOrderPhotos = ({ route }) => {
           <View style={styles.sheetContainer}>
             <Pressable style={styles.sheetOption} onPress={handleOpenCamera}>
               <FontAwesomeIcon icon={faCamera} size={16} color="#555" />
-              <Text style={styles.sheetOptionText}>Tomar foto</Text>
+              <Text style={styles.sheetOptionText}>{i18n.t('workOrder:photosTakePhoto')}</Text>
             </Pressable>
             <Pressable style={[styles.sheetOption, styles.sheetOptionLast]} onPress={handlePickFromGallery}>
               <FontAwesomeIcon icon={faImage} size={16} color="#555" />
-              <Text style={styles.sheetOptionText}>Elegir de galería</Text>
+              <Text style={styles.sheetOptionText}>{i18n.t('workOrder:photosPickFromGallery')}</Text>
             </Pressable>
           </View>
         </Pressable>
@@ -138,7 +208,9 @@ const TabWorkOrderPhotos = ({ route }) => {
       {/* Cámara */}
       <FullScreenModal visible={!!cameraSection} showToolbar={false}>
         <CameraCaptureModal
-          label={cameraSection === "reception" ? "Evidencia de recepción" : "Evidencia de entrega"}
+          label={cameraSection === "reception"
+            ? i18n.t('workOrder:photosReceptionTitle')
+            : i18n.t('workOrder:photosDeliveryTitle')}
           onCapture={handlePictureTaken}
           onClose={() => setCameraSection(null)}
         />

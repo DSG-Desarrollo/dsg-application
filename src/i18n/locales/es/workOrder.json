@@ -66,5 +66,35 @@
 
   "equipmentLocationTypeLabel": "Tipo de unidad",
   "equipmentLocationSelectPrompt": "Selecciona el tipo de unidad para marcar dónde se instaló el equipo.",
-  "equipmentLocationNoImage": "No hay imagen de referencia disponible para este tipo de unidad."
+  "equipmentLocationNoImage": "No hay imagen de referencia disponible para este tipo de unidad.",
+
+  "photosReceptionTitle": "Evidencia de recepción",
+  "photosDeliveryTitle": "Evidencia de entrega",
+  "photosReceptionInstruction": "Documenta golpes o daños visibles, el número de serie legible y los accesorios incluidos.",
+  "photosDeliveryInstruction": "Documenta la instalación terminada, las conexiones y la limpieza del área de trabajo.",
+  "photosCounter": "{{count}} de {{max}} fotos",
+  "photosLimitReachedToast": "Ya alcanzaste el límite de {{max}} fotos",
+  "photosLimitPartialToast": "Solo se agregaron {{added}} foto(s), llegaste al límite",
+  "photosGalleryPermissionDenied": "Se necesita permiso para acceder a la galería",
+  "photosTakePhoto": "Tomar foto",
+  "photosPickFromGallery": "Elegir de galería",
+  "photosMissingError": "Agrega al menos una foto de recepción y una de entrega antes de guardar.",
+  "photosSaveSuccess": "Evidencia guardada exitosamente",
+  "photosSavePartial": "Algunas fotos no se pudieron subir o guardar. Vuelve a intentarlo.",
+  "photosSaveError": "Hubo un problema al guardar la evidencia.",
+  "cameraPermissionMessage": "Necesitamos acceso a la cámara para tomar la foto.",
+  "cameraGrantPermission": "Dar permiso",
+
+  "formProcessStartedToast": "Proceso iniciado: Primer formulario completado",
+  "formsProgressToast": "{{completed}} / {{total}} formularios completados. Faltan {{remaining}} por completar.",
+  "workOrderCompletedToast": "Orden de trabajo completada con éxito",
+
+  "signatureModeDrawn": "Firma",
+  "signatureModeWritten": "Escribir nombre",
+  "signatureNameValidation": "El nombre es obligatorio y debe tener al menos 3 caracteres",
+  "signatureWrittenLabel": "Firma escrita (nombre completo)",
+  "signatureNoActiveOrders": "No hay órdenes de trabajo activas para firmar en este ticket.",
+  "signatureIncompleteOrders": "Completa los datos de las órdenes {{orders}} antes de firmar.",
+  "signatureSaveSuccess": "Firma guardada. Las órdenes de trabajo activas fueron finalizadas.",
+  "signatureSaveError": "Hubo un problema al guardar la firma. Inténtalo de nuevo."
 }

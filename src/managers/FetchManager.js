@@ -11,6 +11,7 @@ class FetchManager {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
         this.headers = {
+            'Accept': 'application/json',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             Expires: '0',
         };

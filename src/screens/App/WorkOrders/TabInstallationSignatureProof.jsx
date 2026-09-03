@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   TextInput,
-  ToastAndroid,
   KeyboardAvoidingView,
   ScrollView,
   Platform,
@@ -10,23 +9,17 @@ import {
   Pressable,
   Dimensions,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { faSave, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import DrawableImage from "@components/molecules/DrawableImage";
 import Card from "@components/molecules/Card";
-import ApiService from "@services/api/ApiService";
 import FormValidation from "@components/molecules/FormValidation";
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { signature as styles } from "./styles";
 import { buttonStyles } from '@themes';
 import theme from '@themes/theme';
-import { HTTP_CODES } from "@constants";
-
-const { OK } = HTTP_CODES;
-
 import i18n from '@i18n/i18n';
 
 const { primary, primaryText } = buttonStyles;
@@ -35,30 +28,22 @@ const { info, infoText, textPrimary } = theme.colors;
 const { width: screenWidth } = Dimensions.get("window");
 const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen del Card
 
-const SIGNATURE_MODE_OPTIONS = [
-  { value: "dibujada", label: "Firma" },
-  { value: "escrita", label: "Escribir nombre" },
-];
-
-const TabInstallationSignatureProof = ({ route }) => {
-  const [userData, setUserData] = useState(null);
-  const { tareaId, id_orden_trabajo, clienteId } = route.params;
+/**
+ * Captura la firma (dibujada o escrita) del cliente y delega su envío al padre vía
+ * `onSubmit`. No conoce ni la tarea ni ninguna orden de trabajo en particular: la firma
+ * se captura una única vez por ticket y es el padre (TicketDetailScreen) quien decide a
+ * qué OT(s) aplica y qué hacer con la respuesta (guardar, finalizar OT/ticket, etc.).
+ */
+const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const [clearPaths, setClearPaths] = useState(false);
   const [signatureMode, setSignatureMode] = useState("dibujada");
   const drawableImageRef = useRef(null);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem("userData");
-        setUserData(jsonValue ? JSON.parse(jsonValue) : null);
-      } catch (e) {
-        console.error("Error reading userData from storage", e);
-      }
-    };
-    fetchUserData();
-  }, []);
+  const SIGNATURE_MODE_OPTIONS = [
+    { value: "dibujada", label: i18n.t('workOrder:signatureModeDrawn') },
+    { value: "escrita", label: i18n.t('workOrder:signatureModeWritten') },
+  ];
 
   useEffect(() => {
     setShowDrawableImage(true);
@@ -70,59 +55,24 @@ const TabInstallationSignatureProof = ({ route }) => {
       key: "nombre_firma_cliente",
       type: "string",
       min: 3,
-      message: "El nombre es obligatorio y debe tener al menos 3 caracteres",
+      message: i18n.t('workOrder:signatureNameValidation'),
     },
   ];
 
   const handlePathsCleared = () => setClearPaths(false);
 
   const handleSave = async (values) => {
-    try {
-      const isDrawMode = signatureMode === "dibujada";
+    const isDrawMode = signatureMode === "dibujada";
 
-      if (isDrawMode && !drawableImageRef.current) {
-        return;
-      }
-
-      const apiService = new ApiService();
-      const formData = {
-        id_tarea: tareaId,
-        id_orden_trabajo: id_orden_trabajo,
-        nombre_firma_cliente: values.nombre_firma_cliente,
-        tipo_firma: signatureMode,
-        image: isDrawMode ? await drawableImageRef.current.captureCanvas() : null,
-      };
-
-      const response = await apiService.sendFormData(formData, "api/client-signature");
-
-      if (response.status === OK) {
-        ToastAndroid.showWithGravity(
-          response.message || "Registro actualizado exitosamente",
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM
-        );
-        await FormCompletionTracker.markFormAsCompleted(
-          "form_installation_signature_proof",
-          clienteId,
-          tareaId,
-          id_orden_trabajo,
-          userData.employee.id_usuario_empleado
-        );
-      } else {
-        ToastAndroid.showWithGravity(
-          response.message || "Hubo un problema al actualizar el registro",
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM
-        );
-      }
-    } catch (error) {
-      ToastAndroid.showWithGravity(
-        "Hubo un problema al actualizar el registro.",
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM
-      );
-      console.error("Error al guardar los datos:", error);
+    if (isDrawMode && !drawableImageRef.current) {
+      return;
     }
+
+    await onSubmit({
+      nombre_firma_cliente: values.nombre_firma_cliente,
+      tipo_firma: signatureMode,
+      image: isDrawMode ? await drawableImageRef.current.captureCanvas() : null,
+    });
   };
 
   return (
@@ -174,7 +124,7 @@ const TabInstallationSignatureProof = ({ route }) => {
                 </>
               ) : (
                 <View style={styles.signatureContainer}>
-                  <Text style={styles.fieldLabel}>Firma escrita (nombre completo)</Text>
+                  <Text style={styles.fieldLabel}>{i18n.t('workOrder:signatureWrittenLabel')}</Text>
                   <TextInput
                     style={[
                       styles.input,
@@ -202,9 +152,17 @@ const TabInstallationSignatureProof = ({ route }) => {
           </ScrollView>
 
           <View style={styles.saveContainer}>
-            <Pressable style={primary} onPress={handleSubmit}>
-              <FontAwesomeIcon icon={faSave} size={16} color={textPrimary} />
-              <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
+            <Pressable
+              style={[primary, isSubmitting && { opacity: 0.6 }]}
+              onPress={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color={textPrimary} />
+              ) : (
+                <FontAwesomeIcon icon={faSave} size={16} color={textPrimary} />
+              )}
+              <Text style={primaryText}>{i18n.t(isSubmitting ? 'ui:btnSaving' : 'ui:btnSave')}</Text>
             </Pressable>
           </View>
           </>

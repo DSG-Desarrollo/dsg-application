@@ -5,6 +5,7 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faTimes, faBolt, faCameraRotate, faBan } from "@fortawesome/free-solid-svg-icons";
 import theme from '@themes/theme';
+import i18n from '@i18n/i18n';
 
 const CameraCaptureModal = ({ label, onCapture, onClose }) => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -18,13 +19,13 @@ const CameraCaptureModal = ({ label, onCapture, onClose }) => {
     return (
       <View style={[styles.container, styles.permissionContainer]}>
         <Text style={styles.permissionText}>
-          Necesitamos acceso a la cámara para tomar la foto.
+          {i18n.t('workOrder:cameraPermissionMessage')}
         </Text>
         <Pressable style={styles.permissionButton} onPress={requestPermission}>
-          <Text style={styles.permissionButtonText}>Dar permiso</Text>
+          <Text style={styles.permissionButtonText}>{i18n.t('workOrder:cameraGrantPermission')}</Text>
         </Pressable>
         <Pressable onPress={onClose} style={{ marginTop: 12 }}>
-          <Text style={styles.cancelText}>Cancelar</Text>
+          <Text style={styles.cancelText}>{i18n.t('ui:btnCancel')}</Text>
         </Pressable>
       </View>
     );

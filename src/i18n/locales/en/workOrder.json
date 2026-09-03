@@ -66,5 +66,35 @@
 
   "equipmentLocationTypeLabel": "Unit type",
   "equipmentLocationSelectPrompt": "Select the unit type to mark where the equipment was installed.",
-  "equipmentLocationNoImage": "No reference image available for this unit type."
+  "equipmentLocationNoImage": "No reference image available for this unit type.",
+
+  "photosReceptionTitle": "Reception evidence",
+  "photosDeliveryTitle": "Delivery evidence",
+  "photosReceptionInstruction": "Document visible dents or damage, the legible serial number, and included accessories.",
+  "photosDeliveryInstruction": "Document the finished installation, the connections, and the cleanliness of the work area.",
+  "photosCounter": "{{count}} of {{max}} photos",
+  "photosLimitReachedToast": "You already reached the limit of {{max}} photos",
+  "photosLimitPartialToast": "Only {{added}} photo(s) were added, you reached the limit",
+  "photosGalleryPermissionDenied": "Permission is required to access the gallery",
+  "photosTakePhoto": "Take photo",
+  "photosPickFromGallery": "Choose from gallery",
+  "photosMissingError": "Add at least one reception photo and one delivery photo before saving.",
+  "photosSaveSuccess": "Evidence saved successfully",
+  "photosSavePartial": "Some photos could not be uploaded or saved. Please try again.",
+  "photosSaveError": "There was a problem saving the evidence.",
+  "cameraPermissionMessage": "We need camera access to take the photo.",
+  "cameraGrantPermission": "Grant permission",
+
+  "formProcessStartedToast": "Process started: First form completed",
+  "formsProgressToast": "{{completed}} / {{total}} forms completed. {{remaining}} remaining.",
+  "workOrderCompletedToast": "Work order completed successfully",
+
+  "signatureModeDrawn": "Signature",
+  "signatureModeWritten": "Type name",
+  "signatureNameValidation": "The name is required and must be at least 3 characters",
+  "signatureWrittenLabel": "Typed signature (full name)",
+  "signatureNoActiveOrders": "There are no active work orders to sign on this ticket.",
+  "signatureIncompleteOrders": "Complete the data for work orders {{orders}} before signing.",
+  "signatureSaveSuccess": "Signature saved. Active work orders were completed.",
+  "signatureSaveError": "There was a problem saving the signature. Please try again."
 }

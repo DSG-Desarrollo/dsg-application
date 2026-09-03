@@ -5,7 +5,9 @@ import {
   FlatList,
   Text,
   ActivityIndicator,
+  ToastAndroid,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toolbar from "@components/atoms/Toolbar";
 import { Ionicons } from "@expo/vector-icons";
 import style from "@styles/TicketDetailScreenStyles";
@@ -17,11 +19,19 @@ import { faFileSignature } from "@fortawesome/free-solid-svg-icons";
 import FabButton from "@components/atoms/FabButton";
 import FullScreenModal from "@components/atoms/FullScreenModal";
 import TabInstallationSignatureProof from "@screens/App/WorkOrders/TabInstallationSignatureProof";
+import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import workOrderService from "@services/api/workorder.service";
+
+// OT no activas: canceladas ('A') o ya finalizadas ('C') en una firma anterior.
+const INACTIVE_WORK_ORDER_STATUSES = ["A", "C"];
+
 const { successDark } = theme.colors;
 
 const TicketDetailScreen = ({ route, navigation }) => {
   const isFocused = useIsFocused();
   const [signatureModalVisible, setSignatureModalVisible] = useState(false);
+  const [isSubmittingSignature, setIsSubmittingSignature] = useState(false);
+  const [userData, setUserData] = useState(null);
   const {
     tareaId,
     codigo,
@@ -47,8 +57,94 @@ const TicketDetailScreen = ({ route, navigation }) => {
     useFetchUnitWorkOrders(tareaId);
   const navigationRef = useRef();
   const titleWithCode = `${i18n.t('ticket:title')} - ${codigo}`;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("userData");
+        setUserData(jsonValue ? JSON.parse(jsonValue) : null);
+      } catch (e) {
+        console.error("Error reading userData from storage", e);
+      }
+    };
+    fetchUserData();
+  }, []);
+
   const handleBackPress = () => {
     navigation.goBack();
+  };
+
+  // OT del ticket que aún requieren firma/finalización (no canceladas, no ya finalizadas).
+  const getActiveWorkOrders = () =>
+    unitsData.filter(
+      (unit) => !INACTIVE_WORK_ORDER_STATUSES.includes(unit.progreso_orden_trabajo)
+    );
+
+  const handleOpenSignature = () => {
+    if (getActiveWorkOrders().length === 0) {
+      ToastAndroid.show(i18n.t('workOrder:signatureNoActiveOrders'), ToastAndroid.LONG);
+      return;
+    }
+    setSignatureModalVisible(true);
+  };
+
+  // La firma es única por ticket: aplica a todas sus OT activas a la vez. Antes de
+  // firmar, cada una de esas OT debe tener ya sus tabs (Instalación/Materiales/
+  // Ubicación/Fotos) completos; si falta alguna, se bloquea el envío.
+  const handleSignatureSubmit = async ({ nombre_firma_cliente, tipo_firma, image }) => {
+    const activeWorkOrders = getActiveWorkOrders();
+
+    if (activeWorkOrders.length === 0) {
+      ToastAndroid.show(i18n.t('workOrder:signatureNoActiveOrders'), ToastAndroid.LONG);
+      return;
+    }
+
+    const incompleteOrders = [];
+    for (const workOrder of activeWorkOrders) {
+      const { allCompleted } = await FormCompletionTracker.checkAllFormsCompleted(
+        tareaId,
+        workOrder.id_orden_trabajo
+      );
+      if (!allCompleted) {
+        incompleteOrders.push(workOrder.numero_orden ?? workOrder.id_orden_trabajo);
+      }
+    }
+
+    if (incompleteOrders.length > 0) {
+      ToastAndroid.show(
+        i18n.t('workOrder:signatureIncompleteOrders', { orders: incompleteOrders.join(', ') }),
+        ToastAndroid.LONG
+      );
+      return;
+    }
+
+    setIsSubmittingSignature(true);
+
+    try {
+      const response = await workOrderService.saveTicketClientSignature(tareaId, {
+        nombreFirmaCliente: nombre_firma_cliente,
+        tipoFirma: tipo_firma,
+        image,
+        idUsuario: userData?.employee?.id_usuario_empleado,
+        idCliente: clienteId,
+      });
+
+      if (response?.success) {
+        ToastAndroid.show(i18n.t('workOrder:signatureSaveSuccess'), ToastAndroid.LONG);
+        setSignatureModalVisible(false);
+        refetch();
+      } else {
+        ToastAndroid.show(
+          response?.error?.message || i18n.t('workOrder:signatureSaveError'),
+          ToastAndroid.LONG
+        );
+      }
+    } catch (error) {
+      console.error("Error al guardar la firma del cliente:", error);
+      ToastAndroid.show(i18n.t('workOrder:signatureSaveError'), ToastAndroid.LONG);
+    } finally {
+      setIsSubmittingSignature(false);
+    }
   };
   const handleItemClick = (
     id_orden_trabajo,
@@ -308,14 +404,17 @@ const TicketDetailScreen = ({ route, navigation }) => {
         icon={faFileSignature}
         iconColor="#FFFFFF"
         backgroundColor={successDark}
-        onPress={() => setSignatureModalVisible(true)}
+        onPress={handleOpenSignature}
       />
       <FullScreenModal
         visible={signatureModalVisible}
         onClose={() => setSignatureModalVisible(false)}
         title={i18n.t('workOrder:titleSignature')}
       >
-        <TabInstallationSignatureProof route={route} />
+        <TabInstallationSignatureProof
+          onSubmit={handleSignatureSubmit}
+          isSubmitting={isSubmittingSignature}
+        />
       </FullScreenModal>
     </View>
   );

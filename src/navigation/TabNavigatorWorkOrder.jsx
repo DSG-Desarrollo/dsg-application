@@ -116,6 +116,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
       tabKey = "form_equipment_location";
     } else if (route.name === "TabWorkOrderPhotos") {
       labelName = "Fotos";
+      tabKey = "form_work_order_photos";
     }
 
     const isCompleted = completedForms.includes(tabKey);
@@ -142,6 +143,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
       tabKey = "form_equipment_location";
     } else if (route.name === "TabWorkOrderPhotos") {
       iconName = faPhotoFilm;
+      tabKey = "form_work_order_photos";
     }
   
     const isCompleted = completedForms.includes(tabKey);
