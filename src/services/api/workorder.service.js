@@ -74,9 +74,49 @@ async function saveTicketClientSignature(taskId, {
     });
 }
 
+/**
+ * Obtiene la imagen de ubicación de instalación ya guardada para una orden de trabajo,
+ * si existe. Se usa para recuperarla al reabrir el tab de Ubicación (modo edición).
+ *
+ * @param {number} orderId ID de la orden de trabajo (id_orden_trabajo).
+ * @returns {Promise<Object>} Envoltorio estándar `{ success, data, error }`. `data` es
+ *   `null` si no hay imagen guardada, o `{ id_imagen, tipo_equipo, comentario_imagen,
+ *   image_url }` si existe.
+ */
+async function getEquipmentLocationImage(orderId) {
+    return api.get(`img-location-installation-ot/order/${orderId}`);
+}
+
+/**
+ * Guarda (crea o actualiza) la imagen de ubicación de instalación de una orden de trabajo.
+ * El backend hace upsert por id_orden_trabajo: una OT solo tiene una imagen de ubicación.
+ *
+ * @param {number} orderId ID de la orden de trabajo (id_orden_trabajo).
+ * @param {Object} params
+ * @param {number} params.taskId ID de la tarea (id_tarea).
+ * @param {number} params.userId ID del usuario que guarda (usuario_creacion).
+ * @param {string} params.image Imagen del lienzo en base64 (PNG).
+ * @param {string} [params.equipmentType] Tipo de equipo (chip) usado como base del lienzo,
+ *   para poder preseleccionarlo al recuperar la imagen.
+ * @param {string} [params.comment] Comentario opcional de la imagen.
+ * @returns {Promise<Object>} Respuesta de la API con el registro guardado.
+ */
+async function saveEquipmentLocationImage(orderId, { taskId, userId, image, equipmentType = null, comment = null }) {
+    return api.post('img-location-installation-ot', {
+        id_tarea: taskId,
+        id_orden_trabajo: orderId,
+        usuario_creacion: userId,
+        tipo_equipo: equipmentType,
+        image,
+        comentario_imagen: comment,
+    });
+}
+
 export default {
     getWorkOrdersByTaskId,
     getWorkOrdersMaterialsSummary,
     uploadRevisionPhotos,
     saveTicketClientSignature,
+    getEquipmentLocationImage,
+    saveEquipmentLocationImage,
 };

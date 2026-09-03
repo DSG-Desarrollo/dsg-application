@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, Pressable, ToastAndroid } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, Pressable, ToastAndroid, ActivityIndicator } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import DrawableImage from "@components/molecules/DrawableImage";
 import { location as styles } from "./styles";
-import ApiService from "@services/api/ApiService";
+import workOrderService from "@services/api/workorder.service";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { faSave, faImage } from "@fortawesome/free-solid-svg-icons";
@@ -73,11 +73,55 @@ const TabEquipmentLocation = ({ route }) => {
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const drawableImageRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState(null);
+  // Imagen base que se le pasa al lienzo (fixedImageSource): puede ser el asset local
+  // del tipo de equipo elegido, o la imagen ya guardada en el backend (recuperada al
+  // entrar al tab, para el flujo de edición).
+  const [canvasImageSource, setCanvasImageSource] = useState(null);
   const [clearPaths, setClearPaths] = useState(false);
+  // Mientras se consulta si la OT ya tiene una imagen de ubicación guardada. El fetch
+  // es una petición de red, así que mostramos un loader para que el usuario no piense
+  // que el lienzo está vacío por defecto mientras en realidad se está recuperando algo.
+  const [isLoadingSavedImage, setIsLoadingSavedImage] = useState(true);
+
+  // Recuperar la imagen de ubicación ya guardada para esta OT (si existe) al montar el
+  // tab, para no partir siempre de un lienzo en blanco al reabrir en modo edición.
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSavedImage = async () => {
+      try {
+        const response = await workOrderService.getEquipmentLocationImage(id_orden_trabajo);
+        const saved = response?.data;
+        if (isMounted && saved?.image_url) {
+          setCanvasImageSource(saved.image_url);
+
+          // Preseleccionar el chip del tipo de equipo usado originalmente, si el
+          // registro lo tiene guardado (registros guardados antes de este cambio
+          // no lo tendrán, y el chip simplemente queda sin marcar).
+          const matchingOption = options.find((option) => option.value === saved.tipo_equipo);
+          if (matchingOption) {
+            setSelectedOption(matchingOption);
+          }
+        }
+      } catch (error) {
+        console.log("Error al recuperar la imagen de ubicación guardada:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingSavedImage(false);
+        }
+      }
+    };
+
+    fetchSavedImage();
+    return () => {
+      isMounted = false;
+    };
+  }, [id_orden_trabajo]);
 
   const handleSelectOption = (value) => {
     const option = options.find((option) => option.value === value);
     setSelectedOption(option);
+    setCanvasImageSource(option.image);
     setClearPaths(true); // Trigger clearing the paths
   };
 
@@ -85,41 +129,44 @@ const TabEquipmentLocation = ({ route }) => {
     setClearPaths(false); // Reset clearPaths after paths have been cleared
   };
 
+  // Deja el lienzo en blanco: mismo tipo de equipo elegido, pero sin ninguna marca
+  // (a diferencia de deshacer, que retrocede trazo por trazo). Si aún no se ha elegido
+  // un tipo de equipo (solo se ve la imagen recuperada del backend), no hay un asset
+  // "limpio" al cual volver, así que solo se limpian los trazos de esta sesión.
+  const handleBlankCanvas = () => {
+    if (selectedOption) {
+      setCanvasImageSource(selectedOption.image);
+    }
+  };
+
   const handleSave = async () => {
-    // Implementar la lógica de guardar aquí
     try {
-      const apiService = new ApiService();
-
-      if (drawableImageRef.current) {
-        const base64Image = await drawableImageRef.current.captureCanvas();
-        let idOrdenTrabajoInt = parseInt(id_orden_trabajo, 10);
-        const formData = {
-          id_tarea: tareaId,
-          id_orden_trabajo: idOrdenTrabajoInt,
-          comentario_imagen: "Este es un comentario de prueba",
-          usuario_creacion: userData.id_usuario,
-          image: base64Image,
-        };
-        //console.log(base64Image);
-        // Endpoint al que se enviarán los datos
-        const endpoint = "api/img-location-installation-ot";
-        const response = await apiService.sendFormData(formData, endpoint);
-        console.log('Respuesta de la API:', response);
-
-        await FormCompletionTracker.markFormAsCompleted(
-          "form_equipment_location",
-          clienteId,
-          tareaId,
-          id_orden_trabajo,
-          userData.employee.id_usuario_empleado
-        );
-        //console.log('Respuesta de la API:', response);
-
-        ToastAndroid.show("Imagen guardada", ToastAndroid.LONG);
-
-      } else {
+      if (!drawableImageRef.current) {
         console.log("DrawableImage reference is null");
+        return;
       }
+
+      const base64Image = await drawableImageRef.current.captureCanvas();
+      const idOrdenTrabajoInt = parseInt(id_orden_trabajo, 10);
+
+      const response = await workOrderService.saveEquipmentLocationImage(idOrdenTrabajoInt, {
+        taskId: tareaId,
+        userId: userData.id_usuario,
+        image: base64Image,
+        equipmentType: selectedOption?.value,
+        comment: "Este es un comentario de prueba",
+      });
+      console.log('Respuesta de la API:', response);
+
+      await FormCompletionTracker.markFormAsCompleted(
+        "form_equipment_location",
+        clienteId,
+        tareaId,
+        id_orden_trabajo,
+        userData.employee.id_usuario_empleado
+      );
+
+      ToastAndroid.show("Imagen guardada", ToastAndroid.LONG);
     } catch (error) {
       console.log("Error al capturar la imagen del lienzo:", error);
     }
@@ -173,14 +220,22 @@ const TabEquipmentLocation = ({ route }) => {
       </ScrollView>
 
       <View style={styles.canvasCard}>
-        {selectedOption && selectedOption.image ? (
+        {isLoadingSavedImage ? (
+          <View style={styles.emptyState}>
+            <ActivityIndicator size="large" color={borderStrong} />
+            <Text style={styles.emptyStateText}>
+              {i18n.t('workOrder:equipmentLocationLoadingSaved')}
+            </Text>
+          </View>
+        ) : canvasImageSource ? (
           <DrawableImage
             ref={drawableImageRef}
-            fixedImageSource={selectedOption.image}
+            fixedImageSource={canvasImageSource}
             strokeColor="red"
             strokeWidth={4}
             clearPaths={clearPaths}
             onPathsCleared={handleClearPaths}
+            onBlankCanvas={handleBlankCanvas}
           />
         ) : (
           <View style={styles.emptyState}>

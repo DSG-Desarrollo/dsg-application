@@ -65,6 +65,7 @@
   "placeholderSignature": "For example, Jane Doe",
 
   "equipmentLocationTypeLabel": "Unit type",
+  "equipmentLocationLoadingSaved": "Loading saved image...",
   "equipmentLocationSelectPrompt": "Select the unit type to mark where the equipment was installed.",
   "equipmentLocationNoImage": "No reference image available for this unit type.",
 

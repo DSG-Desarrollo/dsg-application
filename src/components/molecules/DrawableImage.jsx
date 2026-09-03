@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
+import { faUndo, faRedo, faEraser } from "@fortawesome/free-solid-svg-icons";
 import {
   Canvas,
   Path,
@@ -37,6 +37,7 @@ const DrawableImage = forwardRef(
       containerStyle,
       clearPaths,
       onPathsCleared,
+      onBlankCanvas,
     },
     ref
   ) => {
@@ -100,6 +101,21 @@ const DrawableImage = forwardRef(
       });
     }, []);
 
+    // Limpia únicamente los trazos dibujados en esta sesión, dejando la imagen base
+    // (fixedImageSource) intacta. No puede borrar marcas ya "horneadas" en una imagen
+    // recuperada previamente guardada: para eso el padre debe cambiar fixedImageSource
+    // por la imagen original sin marcas (por eso se expone onBlankCanvas).
+    const clearAllStrokes = useCallback(() => {
+      setPaths([]);
+      setUndonePaths([]);
+      setHasDrawn(false);
+    }, []);
+
+    const handleBlankCanvas = useCallback(() => {
+      clearAllStrokes();
+      onBlankCanvas?.();
+    }, [clearAllStrokes, onBlankCanvas]);
+
     const getCanvasBase64 = async () => {
       try {
         const imageSnapshot = canvasRef.current?.makeImageSnapshot();
@@ -118,6 +134,7 @@ const DrawableImage = forwardRef(
 
     useImperativeHandle(ref, () => ({
       captureCanvas: getCanvasBase64,
+      clearAllStrokes,
       hasDrawn,
     }));
 
@@ -183,6 +200,14 @@ const DrawableImage = forwardRef(
           >
             <FontAwesomeIcon icon={faRedo} size={30} color="#32CD32" />
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleBlankCanvas}
+            style={[styles.button, styles.blankButton]}
+            accessibilityLabel="Blank canvas"
+            accessibilityHint="Clear all strokes drawn in this session"
+          >
+            <FontAwesomeIcon icon={faEraser} size={26} color="#555" />
+          </TouchableOpacity>
         </View>
       </GestureHandlerRootView>
     );
@@ -226,6 +251,9 @@ const styles = StyleSheet.create({
   redoButton: {
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+  },
+  blankButton: {
+    marginTop: 8,
   },
   colorPickerButton: {
     borderTopLeftRadius: 0,

@@ -65,6 +65,7 @@
   "placeholderSignature": "Ej. Jane Doe",
 
   "equipmentLocationTypeLabel": "Tipo de unidad",
+  "equipmentLocationLoadingSaved": "Cargando imagen guardada...",
   "equipmentLocationSelectPrompt": "Selecciona el tipo de unidad para marcar dónde se instaló el equipo.",
   "equipmentLocationNoImage": "No hay imagen de referencia disponible para este tipo de unidad.",
 

@@ -50,14 +50,16 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
   }, []);
 
   const initialValues = { nombre_firma_cliente: "" };
-  const validationInput = [
-    {
-      key: "nombre_firma_cliente",
-      type: "string",
-      min: 3,
-      message: i18n.t('workOrder:signatureNameValidation'),
-    },
-  ];
+  const validationInput = signatureMode === "escrita"
+    ? [
+        {
+          key: "nombre_firma_cliente",
+          type: "string",
+          min: 3,
+          message: i18n.t('workOrder:signatureNameValidation'),
+        },
+      ]
+    : [];
 
   const handlePathsCleared = () => setClearPaths(false);
 
