@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Modal } from 'react-native';
+import { View, Modal, StyleSheet } from 'react-native';
 import Toolbar from '@components/atoms/Toolbar';
+import PropTypes from "prop-types";
 
-const FullScreenModal = ({ visible, onClose, title, children }) => {
+const FullScreenModal = ({ visible, onClose, title, children, showToolbar = true }) => {
   return (
     <Modal
       visible={visible}
@@ -10,10 +11,24 @@ const FullScreenModal = ({ visible, onClose, title, children }) => {
       presentationStyle="fullScreen"
       onRequestClose={onClose}
     >
-      <Toolbar title={title} onBackPress={onClose} />
-      <View style={{ flex: 1 }}>{children}</View>
+      {showToolbar && <Toolbar title={title} onBackPress={onClose} />}
+      <View style={styles.content}>{children}</View>
     </Modal>
   );
+};
+
+const styles = StyleSheet.create({
+  content: {
+    flex: 1,
+  }
+});
+
+FullScreenModal.propTypes = {
+  visible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string,
+  children: PropTypes.node.isRequired,
+  useToolbar: PropTypes.bool
 };
 
 export default FullScreenModal;

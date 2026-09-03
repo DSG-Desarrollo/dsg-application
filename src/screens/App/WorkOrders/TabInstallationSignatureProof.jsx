@@ -23,6 +23,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { signature as styles } from "./styles";
 import { buttonStyles } from '@themes';
 import theme from '@themes/theme';
+import { HTTP_CODES } from "@constants";
+
+const { OK } = HTTP_CODES;
 
 import i18n from '@i18n/i18n';
 
@@ -92,7 +95,7 @@ const TabInstallationSignatureProof = ({ route }) => {
 
       const response = await apiService.sendFormData(formData, "api/client-signature");
 
-      if (response.status === 200 && response.statusText === "OK") {
+      if (response.status === OK) {
         ToastAndroid.showWithGravity(
           response.message || "Registro actualizado exitosamente",
           ToastAndroid.LONG,

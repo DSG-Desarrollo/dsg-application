@@ -1,6 +1,6 @@
 // TabWorkOrderPhotos.js
 import React, { useState } from "react";
-import { View, Text, Modal, Pressable, ScrollView, ToastAndroid } from "react-native";
+import { View, Text, Pressable, ScrollView, ToastAndroid } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faSave, faTruckLoading, faClipboardCheck, faCamera, faImage } from "@fortawesome/free-solid-svg-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -10,6 +10,7 @@ import { photo as styles, common as commonStyles } from "./styles";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
 import { buttonStyles } from '@themes';
+import FullScreenModal from '@components/atoms/FullScreenModal';
 
 const { textPrimary } = theme.colors;
 const { primary, primaryText } = buttonStyles;
@@ -115,11 +116,10 @@ const TabWorkOrderPhotos = ({ route }) => {
       </Pressable>
 
       {/* Hoja de acción: tomar foto / elegir de galería */}
-      <Modal
+      <FullScreenModal
         visible={!!actionSheetSection}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setActionSheetSection(null)}
+        onClose={() => setActionSheetSection(null)}
+        showToolbar={false}
       >
         <Pressable style={styles.sheetBackdrop} onPress={() => setActionSheetSection(null)}>
           <View style={styles.sheetContainer}>
@@ -133,16 +133,16 @@ const TabWorkOrderPhotos = ({ route }) => {
             </Pressable>
           </View>
         </Pressable>
-      </Modal>
+      </FullScreenModal>
 
       {/* Cámara */}
-      <Modal visible={!!cameraSection} animationType="slide">
+      <FullScreenModal visible={!!cameraSection} showToolbar={false}>
         <CameraCaptureModal
           label={cameraSection === "reception" ? "Evidencia de recepción" : "Evidencia de entrega"}
           onCapture={handlePictureTaken}
           onClose={() => setCameraSection(null)}
         />
-      </Modal>
+      </FullScreenModal>
     </View>
   );
 };
