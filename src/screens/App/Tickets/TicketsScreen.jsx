@@ -4,10 +4,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
-  faBell,
   faCheckCircle,
   faPlayCircle,
   faCalendarCheck,
+  faBullhorn,
 } from "@fortawesome/free-solid-svg-icons";
 import TicketsTab from "./TicketsTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -39,7 +39,7 @@ const tabScreensConfig = [
   {
     name: "Alarms",
     title: i18n.t('ticket:tabAlarms'),
-    icon: faBell,
+    icon: faBullhorn,
     filters: {
       id_tipo_usuario: 5,
       id_tipo_tarea: 18,
