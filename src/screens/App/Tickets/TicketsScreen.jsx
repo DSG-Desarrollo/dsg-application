@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator, Text } from "react-native";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
   faBell,
@@ -10,12 +11,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import TicketsTab from "./TicketsTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import i18n from "@i18n/i18n";
 
 const Tab = createBottomTabNavigator();
 
 const tabScreensConfig = [
   {
     name: "TicketsOfDayScreen",
+    title: i18n.t('ticket:tabProgrammed'),
     icon: faCalendarCheck,
     filters: {
       id_tipo_usuario: 5,
@@ -25,6 +28,7 @@ const tabScreensConfig = [
   },
   {
     name: "TicketsStarted",
+    title: i18n.t('ticket:tabStarted'),
     icon: faPlayCircle,
     filters: {
       id_tipo_usuario: 5,
@@ -34,6 +38,7 @@ const tabScreensConfig = [
   },
   {
     name: "Alarms",
+    title: i18n.t('ticket:tabAlarms'),
     icon: faBell,
     filters: {
       id_tipo_usuario: 5,
@@ -44,6 +49,7 @@ const tabScreensConfig = [
   },
   {
     name: "TicketsCompleted",
+    title: i18n.t('ticket:tabCompleted'),
     icon: faCheckCircle,
     filters: {
       id_tipo_usuario: 5,
@@ -54,8 +60,14 @@ const tabScreensConfig = [
 ];
 
 const TicketsScreen = () => {
+  const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    navigation.setOptions({ title: tabScreensConfig[0].title });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -91,6 +103,18 @@ const TicketsScreen = () => {
   return (
     <Tab.Navigator
       initialRouteName="TicketsOfDayScreen" // Set the default tab to the first one
+      screenListeners={{
+        state: (e) => {
+          const state = e.data.state;
+          const currentRouteName = state.routes[state.index].name;
+          const currentTab = tabScreensConfig.find(
+            (screen) => screen.name === currentRouteName
+          );
+          if (currentTab) {
+            navigation.setOptions({ title: currentTab.title });
+          }
+        },
+      }}
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: "blue",
         tabBarInactiveTintColor: "gray",

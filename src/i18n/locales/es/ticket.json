@@ -4,5 +4,9 @@
   "searchPlaceholder": "Buscar ticket...",
   "search": "Buscar",
   "clearSearch": "Limpiar búsqueda",
-  "noSearchResults": "No se encontraron tickets para \"{{term}}\""
+  "noSearchResults": "No se encontraron tickets para \"{{term}}\"",
+  "tabProgrammed": "Programados",
+  "tabStarted": "Iniciados",
+  "tabAlarms": "Alarmas",
+  "tabCompleted": "Completados"
 }
