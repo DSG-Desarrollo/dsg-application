@@ -400,6 +400,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
         refreshing={loading}
         onRefresh={handleRefresh}
       />
+      {/* Modal para firmar del cliente */}
       <FabButton
         icon={faFileSignature}
         iconColor="#FFFFFF"

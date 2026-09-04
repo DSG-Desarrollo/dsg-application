@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import UnitWorkOrdersService from '@services/api/units/UnitWorkOrdersService';
-import useNetworkState from './useNetworkState';
+import useNetworkState from '@hooks/useNetworkState';
 
 const useFetchUnitWorkOrders = (taskId) => {
     const unitWorkOrdersService = new UnitWorkOrdersService();
