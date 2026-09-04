@@ -89,6 +89,7 @@
   "formProcessStartedToast": "Process started: First form completed",
   "formsProgressToast": "{{completed}} / {{total}} forms completed. {{remaining}} remaining.",
   "workOrderCompletedToast": "Work order completed successfully",
+  "workOrderAllTabsCompletedToast": "Work order completed! All forms were saved successfully.",
 
   "signatureModeDrawn": "Signature",
   "signatureModeWritten": "Type name",

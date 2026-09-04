@@ -43,7 +43,7 @@ const FormCompletionTracker = {
       await AsyncStorage.setItem(taskIdStr, JSON.stringify(ticketData));
 
       console.log(
-        `Formulario ${formKey} marcado como completado para la OT ${workOrderId} en el ticket ${clientId}`
+        `Formulario ${formKey} marcado como completado para la OT ${workOrderId} en el ticket ${taskId} (cliente ${clientId})`
       );
 
       // Verificar cuántos formularios están completados

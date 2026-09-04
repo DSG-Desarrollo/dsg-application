@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -9,7 +9,7 @@ import {
   faWrench,
   faPhotoFilm
 } from "@fortawesome/free-solid-svg-icons";
-import { Text, View } from "react-native";
+import { Text, View, ToastAndroid } from "react-native";
 import {
   TabUnitDetail,
   TabInstallationType,
@@ -20,8 +20,19 @@ import {
 import Toolbar from "@components/atoms/Toolbar";
 import { useNavigation } from "@react-navigation/native";
 import theme from "@themes/theme";
+import i18n from "@i18n/i18n";
+import { WorkOrderFormCompletionProvider } from "@context/WorkOrderFormCompletionContext";
 
 const Tab = createMaterialTopTabNavigator();
+
+// Tabs (formularios) que deben completarse para dar por finalizada la OT. No incluye
+// "TabUnitDetail" (solo informativo, no es un formulario que se guarde).
+const REQUIRED_FORM_KEYS = [
+  "form_installation_type",
+  "form_work_order_supplies",
+  "form_equipment_location",
+  "form_work_order_photos",
+];
 
 const TabNavigatorWorkOrder = ({ route }) => {
   const navigation = useNavigation(); // Accede al objeto de navegación
@@ -49,6 +60,57 @@ const TabNavigatorWorkOrder = ({ route }) => {
     numero_orden,
     progresoOrdenTrabajo,
   } = route.params;
+  const [completedForms, setCompletedForms] = useState([]);
+  // Evita mostrar el toast/redirigir más de una vez por visita a esta OT (p.ej. si el
+  // usuario vuelve a guardar un tab ya completo después de haber completado todos).
+  const hasHandledFullCompletionRef = useRef(false);
+
+  // Función para verificar qué formularios han sido completados. Cuando `notifyIfComplete`
+  // es true (se llama como reacción a que un tab acaba de guardar exitosamente), y con
+  // ese guardado quedan TODOS los formularios de la OT completos -sin importar el orden
+  // en que se hayan ido completando-, se muestra el toast de éxito y se regresa al
+  // detalle del ticket (donde está el listado de unidades). Si algún tab termina con
+  // error, nunca llega a llamar a este callback, así que jamás se dispara el redirect.
+  const checkCompletedForms = async (notifyIfComplete = false) => {
+    try {
+      const taskIdStr = tareaId.toString();
+      const workOrderIdStr = id_orden_trabajo.toString();
+
+      const ticketData =
+        JSON.parse(await AsyncStorage.getItem(taskIdStr)) || {};
+      const workOrderData = ticketData[workOrderIdStr] || {};
+
+      const completed = Object.keys(workOrderData).filter(
+        (formKey) => workOrderData[formKey].status === "completed"
+      );
+
+      setCompletedForms(completed);
+
+      const allRequiredCompleted = REQUIRED_FORM_KEYS.every((key) =>
+        completed.includes(key)
+      );
+
+      if (
+        notifyIfComplete &&
+        allRequiredCompleted &&
+        !hasHandledFullCompletionRef.current
+      ) {
+        hasHandledFullCompletionRef.current = true;
+        ToastAndroid.show(
+          i18n.t('workOrder:workOrderAllTabsCompletedToast'),
+          ToastAndroid.LONG
+        );
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error("Error al verificar los formularios completados: ", error);
+    }
+  };
+
+  useEffect(() => {
+    checkCompletedForms();
+  }, []);
+
   const sharedParams = {
     tareaId,
     codigo,
@@ -73,31 +135,6 @@ const TabNavigatorWorkOrder = ({ route }) => {
     numero_orden,
     progresoOrdenTrabajo,
   };
-  const [completedForms, setCompletedForms] = useState([]);
-
-  // Función para verificar qué formularios han sido completados
-  const checkCompletedForms = async () => {
-    try {
-      const taskIdStr = tareaId.toString();
-      const workOrderIdStr = id_orden_trabajo.toString();
-
-      const ticketData =
-        JSON.parse(await AsyncStorage.getItem(taskIdStr)) || {};
-      const workOrderData = ticketData[workOrderIdStr] || {};
-
-      const completed = Object.keys(workOrderData).filter(
-        (formKey) => workOrderData[formKey].status === "completed"
-      );
-
-      setCompletedForms(completed);
-    } catch (error) {
-      console.error("Error al verificar los formularios completados: ", error);
-    }
-  };
-
-  useEffect(() => {
-    checkCompletedForms();
-  }, []);
 
   const renderTabBarLabel = ({ route, color }) => {
     let labelName;
@@ -157,6 +194,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
   return (
     <View style={{ flex: 1 }}>
       <Toolbar title={ticketCode} onBackPress={() => navigation.goBack()} />
+      <WorkOrderFormCompletionProvider onFormCompleted={() => checkCompletedForms(true)}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarActiveTintColor: theme.colors.accent,
@@ -230,6 +268,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
           initialParams={sharedParams}
         />
       </Tab.Navigator>
+      </WorkOrderFormCompletionProvider>
     </View>
   );
 };

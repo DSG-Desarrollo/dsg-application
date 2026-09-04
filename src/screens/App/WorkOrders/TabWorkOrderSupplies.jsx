@@ -14,6 +14,7 @@ import useFetchProducts from "@hooks/useFetchProducts";
 import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
 import i18n from '@i18n/i18n';
 import { HTTP_CODES } from "@constants";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -34,6 +35,7 @@ const { primary, primaryText } = buttonStyles;
 
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
+  const onFormCompleted = useWorkOrderFormCompletion();
   const [materialsSummary, setMaterialsSummary] = useState([]);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -121,13 +123,18 @@ const TabWorkOrderSupplies = ({ route }) => {
     const endpoint = "api/materials-order";
     const response = await apiService.sendFormData(data, endpoint);
 
-    await FormCompletionTracker.markFormAsCompleted(
-      "form_work_order_supplies",
-      clienteId,
-      tareaId,
-      id_orden_trabajo,
-      userData.employee.id_usuario_empleado
-    );
+    if (userData?.employee?.id_usuario_empleado) {
+      await FormCompletionTracker.markFormAsCompleted(
+        "form_work_order_supplies",
+        clienteId,
+        tareaId,
+        id_orden_trabajo,
+        userData.employee.id_usuario_empleado
+      );
+      onFormCompleted?.();
+    } else {
+      console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");
+    }
 
     console.info("Respuesta de la API:", response);
     if ([OK, CREATED].includes(response.status)) {

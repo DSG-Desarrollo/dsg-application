@@ -89,6 +89,7 @@
   "formProcessStartedToast": "Proceso iniciado: Primer formulario completado",
   "formsProgressToast": "{{completed}} / {{total}} formularios completados. Faltan {{remaining}} por completar.",
   "workOrderCompletedToast": "Orden de trabajo completada con éxito",
+  "workOrderAllTabsCompletedToast": "¡Orden de trabajo completada! Todos los formularios fueron guardados exitosamente.",
 
   "signatureModeDrawn": "Firma",
   "signatureModeWritten": "Escribir nombre",

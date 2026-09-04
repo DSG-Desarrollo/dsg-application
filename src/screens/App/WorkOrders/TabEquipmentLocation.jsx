@@ -6,6 +6,7 @@ import { location as styles } from "./styles";
 import workOrderService from "@services/api/workorder.service";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
 import { faSave, faImage } from "@fortawesome/free-solid-svg-icons";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
@@ -70,6 +71,7 @@ const TabEquipmentLocation = ({ route }) => {
     id_unidad,
     clienteId,
   } = route.params;
+  const onFormCompleted = useWorkOrderFormCompletion();
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const drawableImageRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -151,20 +153,25 @@ const TabEquipmentLocation = ({ route }) => {
 
       const response = await workOrderService.saveEquipmentLocationImage(idOrdenTrabajoInt, {
         taskId: tareaId,
-        userId: userData.id_usuario,
+        userId: userData?.id_usuario,
         image: base64Image,
         equipmentType: selectedOption?.value,
         comment: "Este es un comentario de prueba",
       });
       console.log('Respuesta de la API:', response);
 
-      await FormCompletionTracker.markFormAsCompleted(
-        "form_equipment_location",
-        clienteId,
-        tareaId,
-        id_orden_trabajo,
-        userData.employee.id_usuario_empleado
-      );
+      if (userData?.employee?.id_usuario_empleado) {
+        await FormCompletionTracker.markFormAsCompleted(
+          "form_equipment_location",
+          clienteId,
+          tareaId,
+          id_orden_trabajo,
+          userData.employee.id_usuario_empleado
+        );
+        onFormCompleted?.();
+      } else {
+        console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");
+      }
 
       ToastAndroid.show("Imagen guardada", ToastAndroid.LONG);
     } catch (error) {

@@ -4,6 +4,7 @@ import i18n from '@i18n/i18n';
 import TicketService from '@services/api/tickets/TicketService';
 import FormValidation from '@components/molecules/FormValidation';
 import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
+import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '@components/molecules/Card';
 import { spacing, buttonStyles, palette } from '@themes';
@@ -90,6 +91,7 @@ const TabInstallationType = ({ route }) => {
     id_servicio_cliente,
     id_unidad,
   } = route.params;
+  const onFormCompleted = useWorkOrderFormCompletion();
 
   async function getWorkOrder() {
     try {
@@ -188,7 +190,12 @@ const TabInstallationType = ({ route }) => {
         console.log('Último ID insertado:', response.last_insert_id);
         ToastAndroid.show(response.message, ToastAndroid.LONG);
         
-        await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
+        if (userData?.employee?.id_usuario_empleado) {
+          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
+          onFormCompleted?.();
+        } else {
+          console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");
+        }
       } else {
         // La solicitud no fue exitosa, manejar el caso de manera adecuada
         console.error('La solicitud no fue exitosa:', response.statusText);

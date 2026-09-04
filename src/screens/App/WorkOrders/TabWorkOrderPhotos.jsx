@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import EvidenceSection from "@components/molecules/EvidenceSection";
 import CameraCaptureModal from "@components/molecules/CameraCaptureModal";
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
+import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
 import workOrderService from "@services/api/workorder.service";
 import { photo as styles, common as commonStyles } from "./styles";
 import i18n from '@i18n/i18n';
@@ -22,6 +23,7 @@ const MAX_PHOTOS = 4;
 
 const TabWorkOrderPhotos = ({ route }) => {
   const { tareaId, id_orden_trabajo, clienteId } = route.params;
+  const onFormCompleted = useWorkOrderFormCompletion();
 
   const [photos, setPhotos] = useState({ reception: [], delivery: [] });
   const [actionSheetSection, setActionSheetSection] = useState(null); // 'reception' | 'delivery' | null
@@ -132,6 +134,7 @@ const TabWorkOrderPhotos = ({ route }) => {
             id_orden_trabajo,
             userData.employee.id_usuario_empleado
           );
+          onFormCompleted?.();
         }
       } else {
         console.log("else response", response);
