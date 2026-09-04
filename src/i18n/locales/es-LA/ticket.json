@@ -2,5 +2,9 @@
   "noTickets": "No hay tickets para mostrar",
   "title": "Detalle ticket",
   "plate": "Matrícula",
-  "brand": "Marca"
+  "brand": "Marca",
+  "searchPlaceholder": "Buscar ticket...",
+  "search": "Buscar",
+  "clearSearch": "Limpiar búsqueda",
+  "noSearchResults": "No se encontraron tickets para \"{{term}}\""
 }

@@ -1,4 +1,8 @@
 {
   "noTickets": "No tickets to display",
-  "title": "Ticket detail"
+  "title": "Ticket detail",
+  "searchPlaceholder": "Search ticket...",
+  "search": "Search",
+  "clearSearch": "Clear search",
+  "noSearchResults": "No tickets found for \"{{term}}\""
 }

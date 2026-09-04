@@ -117,6 +117,7 @@ const TicketsScreen = () => {
               }}
               checkNetwork={checkNetwork}
               userData={userData}
+              tabKey={name}
             />
           )}
         />

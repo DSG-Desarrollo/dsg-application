@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
 import TicketList from "@components/organisms/TicketList";
+import TicketSearchBar from "@components/molecules/TicketSearchBar";
 import CustomAlert from "@components/atoms/CustomAlert";
 import CustomScrollView from "@components/atoms/CustomScrollView";
 import useNetworkState from "@hooks/useNetworkState";
@@ -9,7 +10,17 @@ import useSaveToSQLite from "@hooks/tickets/useSaveToSQLite";
 import { useFocusEffect } from '@react-navigation/native';
 import i18n from '@i18n/i18n';
 
-const TicketsTab = ({ filters, checkNetwork }) => {
+const SEARCHABLE_FIELDS = [
+  "codigo",
+  "empresa",
+  "trabajo",
+  "servicio",
+  "direccionTarea",
+  "estado",
+  "requeridos",
+];
+
+const TicketsTab = ({ filters, checkNetwork, tabKey }) => {
   useFocusEffect(
     React.useCallback(() => {
       console.log(`Tab with filters:`, filters);
@@ -18,9 +29,20 @@ const TicketsTab = ({ filters, checkNetwork }) => {
   const [alertError, setAlertError] = useState(null);
   const [dataToDisplay, setDataToDisplay] = useState([]);
   const [isResolvingDisplay, setIsResolvingDisplay] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const { networkState } = useNetworkState();
   const { ticketsData, error, isLoading } = useFetchTickets(filters);
   const { isSaved, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);
+
+  const filteredData = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return dataToDisplay;
+    return dataToDisplay.filter((task) =>
+      SEARCHABLE_FIELDS.some((field) =>
+        String(task[field] || "").toLowerCase().includes(term)
+      )
+    );
+  }, [dataToDisplay, searchTerm]);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,14 +114,21 @@ const TicketsTab = ({ filters, checkNetwork }) => {
             onClose={() => setAlertError(null)}
           />
         )}
+        <TicketSearchBar
+          storageKey={`ticketSearch_${tabKey}`}
+          onSearch={setSearchTerm}
+          onClear={() => setSearchTerm("")}
+        />
         {isLoading || isResolvingDisplay ? (
           <ActivityIndicator size="large" color="#0000ff" />
-        ) : dataToDisplay.length > 0 ? (
+        ) : filteredData.length > 0 ? (
           <View style={styles.ticketsContainer}>
-            {dataToDisplay.map((task, index) => (
+            {filteredData.map((task, index) => (
               <TicketList key={index} {...task} />
             ))}
           </View>
+        ) : searchTerm.trim() ? (
+          <Text>{i18n.t('ticket:noSearchResults', { term: searchTerm.trim() })}</Text>
         ) : (
           <Text>{i18n.t('ticket:noTickets')}</Text>
         )}
