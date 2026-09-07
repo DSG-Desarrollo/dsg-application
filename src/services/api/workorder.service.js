@@ -2,7 +2,7 @@
 
 import Constants from 'expo-constants';
 import FetchManager from '@managers/FetchManager.js';
-import { appendPhotosToFormData } from '@utils/buildPhotosFormData';
+import workOrderPhotosService from '@services/api/workOrders/WorkOrderPhotosService';
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 const api = new FetchManager(`${BASE_URL}/api`);
@@ -19,8 +19,8 @@ async function getWorkOrdersMaterialsSummary(id) {
 
 /**
  * Sube a S3 y guarda en base de datos la evidencia fotográfica (recepción/entrega)
- * de una orden de trabajo. Envía las fotos como multipart/form-data, igual que el
- * endpoint legacy en PHP puro.
+ * de una orden de trabajo. Delega en WorkOrderPhotosService (services/api/workOrders),
+ * que concentra toda la lógica de red de la evidencia fotográfica.
  *
  * @param {number} orderId ID de la orden de trabajo (id_orden_trabajo).
  * @param {Object} params
@@ -30,14 +30,33 @@ async function getWorkOrdersMaterialsSummary(id) {
  * @param {string[]} [params.deliveryPhotos] URIs locales de las fotos de entrega.
  * @returns {Promise<Object>} Respuesta de la API (ApiResponse): { success, data, error }.
  */
-async function uploadRevisionPhotos(orderId, { clientId, taskId, receptionPhotos = [], deliveryPhotos = [] }) {
-    const formData = new FormData();
-    formData.append('clientId', String(clientId));
-    formData.append('taskId', String(taskId));
-    await appendPhotosToFormData(formData, 'reception_photos', receptionPhotos);
-    await appendPhotosToFormData(formData, 'delivery_photos', deliveryPhotos);
+async function uploadRevisionPhotos(orderId, params) {
+    return workOrderPhotosService.upload(orderId, params);
+}
 
-    return api.post(`work-orders/${orderId}/photos`, formData, true);
+/**
+ * Lista la evidencia fotográfica activa (recepción/entrega) de una orden de trabajo,
+ * ya subida a S3, agrupada por tipo. Cada foto trae la URL del proxy de lectura (el
+ * bucket de S3 es privado, no hay URL directa utilizable desde el cliente).
+ *
+ * @param {number} orderId ID de la orden de trabajo (id_orden_trabajo).
+ * @param {Object} params
+ * @param {number} params.clientId
+ * @param {number} params.taskId
+ * @returns {Promise<Object>} Respuesta de la API: { success, data: { ANTES: [], DESPUES: [] }, error }.
+ */
+async function listRevisionPhotos(orderId, params) {
+    return workOrderPhotosService.list(orderId, params);
+}
+
+/**
+ * Elimina (borrado lógico) una foto de evidencia previamente guardada.
+ *
+ * @param {number} idEvidencia
+ * @returns {Promise<Object>} Respuesta de la API: { success, data, error }.
+ */
+async function removeRevisionPhoto(idEvidencia) {
+    return workOrderPhotosService.remove(idEvidencia);
 }
 
 /**
@@ -116,6 +135,8 @@ export default {
     getWorkOrdersByTaskId,
     getWorkOrdersMaterialsSummary,
     uploadRevisionPhotos,
+    listRevisionPhotos,
+    removeRevisionPhoto,
     saveTicketClientSignature,
     getEquipmentLocationImage,
     saveEquipmentLocationImage,

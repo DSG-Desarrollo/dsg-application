@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, Pressable, Image, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Pressable, Image, ActivityIndicator, StyleSheet } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faCameraRetro, faTimes } from "@fortawesome/free-solid-svg-icons";
 import theme from '@themes/theme';
@@ -16,6 +16,40 @@ const {
   textDark,
   warningSurface,
  } = theme.colors;
+
+// Miniatura individual de una foto. Las fotos remotas (ya guardadas) se descargan desde
+// el proxy de S3 y pueden tardar en llegar; muestra su propio indicador de carga hasta
+// que el <Image> resuelve (o falla), en vez de dejar el recuadro en blanco mientras tanto.
+const PhotoThumbnail = ({ photo, onRemove }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <View style={styles.thumb}>
+      <Image
+        source={{ uri: photo.uri }}
+        style={styles.thumbImage}
+        onLoadEnd={() => setIsLoading(false)}
+      />
+
+      {isLoading && (
+        <View style={styles.thumbLoading}>
+          <ActivityIndicator size="small" color={theme.colors.textSecondary} />
+        </View>
+      )}
+
+      <Pressable
+        style={styles.removeBtn}
+        onPress={() => onRemove(photo)}
+      >
+        <FontAwesomeIcon
+          icon={faTimes}
+          size={10}
+          color={theme.colors.textInverse}
+        />
+      </Pressable>
+    </View>
+  );
+};
 
 const EvidenceSection = ({
   title,
@@ -48,24 +82,8 @@ const EvidenceSection = ({
     </Text>
 
     <View style={styles.grid}>
-      {photos.map((uri, index) => (
-        <View key={uri + index} style={styles.thumb}>
-          <Image
-            source={{ uri }}
-            style={styles.thumbImage}
-          />
-
-          <Pressable
-            style={styles.removeBtn}
-            onPress={() => onRemove(index)}
-          >
-            <FontAwesomeIcon
-              icon={faTimes}
-              size={10}
-              color={theme.colors.textInverse}
-            />
-          </Pressable>
-        </View>
+      {photos.map((photo) => (
+        <PhotoThumbnail key={photo.id} photo={photo} onRemove={onRemove} />
       ))}
 
       {photos.length < maxPhotos && (
@@ -144,6 +162,13 @@ const styles = StyleSheet.create({
   thumbImage: {
     width: "100%",
     height: "100%",
+  },
+
+  thumbLoading: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: surface,
   },
 
   removeBtn: {

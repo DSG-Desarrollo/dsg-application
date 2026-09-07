@@ -83,6 +83,8 @@
   "photosSaveSuccess": "Evidence saved successfully",
   "photosSavePartial": "Some photos could not be uploaded or saved. Please try again.",
   "photosSaveError": "There was a problem saving the evidence.",
+  "photosLoadError": "Could not load the saved photos.",
+  "photosDeleteError": "Could not delete the photo. Please try again.",
   "cameraPermissionMessage": "We need camera access to take the photo.",
   "cameraGrantPermission": "Grant permission",
 

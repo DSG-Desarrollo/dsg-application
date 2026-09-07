@@ -83,6 +83,8 @@
   "photosSaveSuccess": "Evidencia guardada exitosamente",
   "photosSavePartial": "Algunas fotos no se pudieron subir o guardar. Vuelve a intentarlo.",
   "photosSaveError": "Hubo un problema al guardar la evidencia.",
+  "photosLoadError": "No se pudieron cargar las fotos guardadas.",
+  "photosDeleteError": "No se pudo eliminar la foto. Inténtalo de nuevo.",
   "cameraPermissionMessage": "Necesitamos acceso a la cámara para tomar la foto.",
   "cameraGrantPermission": "Dar permiso",
 

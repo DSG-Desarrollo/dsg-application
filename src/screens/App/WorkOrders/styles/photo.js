@@ -9,7 +9,11 @@ export const photo = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
   },
-  
+
+  loadingIndicator: {
+    marginTop: 24,
+  },
+
   sheetBackdrop: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.4)",
