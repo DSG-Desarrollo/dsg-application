@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import i18n from '@i18n/i18n';
 import { NetworkInfoStyles } from '../styles';
 import useNetworkState from '@hooks/useNetworkState';
+import DevSyncPanel from '@components/DevSyncPanel';
 
 const NetworkInfo = ({ children }) => {
     const insets = useSafeAreaInsets();
@@ -40,6 +41,7 @@ const NetworkInfo = ({ children }) => {
                     {statusText}
                 </View>
             </View>
+            {__DEV__ && <DevSyncPanel />}
             {children}
         </View>
     );

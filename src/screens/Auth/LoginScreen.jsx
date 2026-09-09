@@ -52,7 +52,10 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
       userData.estado_usuario,
       userData.observacion,
       userData.foto_nombre,
-      userData.registro_usuario
+      userData.registro_usuario,
+      // Se cachea para poder reconstruir userData.employee en un login
+      // offline (la tabla local no tiene employee/position poblados aparte).
+      JSON.stringify(userData.employee || null)
     ];
 
     const checkArgs = [userData.id_usuario];
@@ -127,16 +130,42 @@ export default function LoginScreen({ navigation, setIsAuthenticated }) {
           localUser.clave === md5(password.value);
 
         if (credentialsMatch) {
+          // A diferencia de lo que se pensaba antes, userData en AsyncStorage
+          // NO sobrevive necesariamente hasta acá: handleLogout lo borra
+          // (multiRemove ['userData', 'sessionActive']), así que si el
+          // usuario cerró sesión antes de perder conexión, AsyncStorage
+          // queda vacío. Hay que reconstruir userData desde la copia local
+          // (SQLite) y volver a persistirlo, igual que hace el login online,
+          // o pantallas como Tickets (que leen userData.employee de
+          // AsyncStorage) se rompen tras un login offline.
+          const reconstructedUser = {
+            id_usuario: localUser.id_usuario,
+            id_tipo_usuario: localUser.id_tipo_usuario,
+            usuario: localUser.usuario,
+            clave: localUser.clave,
+            estado_usuario: localUser.estado_usuario,
+            observacion: localUser.observacion,
+            foto_nombre: localUser.foto_nombre,
+            registro_usuario: localUser.registro_usuario,
+            employee: localUser.employee_json ? JSON.parse(localUser.employee_json) : null,
+          };
+          if (!reconstructedUser.employee) {
+            // Mismo caso que en el login online: sin 'employee' cacheado,
+            // pantallas como Tickets no pueden resolver
+            // userData.employee.id_empleado. Pasa si el primer login de
+            // este dispositivo fue anterior a este fix (employee_json
+            // nunca se guardó) o si el backend no devolvió la relación.
+            console.warn('Login offline exitoso pero sin "employee" cacheado:', localUser);
+          }
+          await AsyncStorage.setItem('userData', JSON.stringify(reconstructedUser));
           // Igual que en el login online: solo persistimos la sesión como
-          // "recordada" si el switch está activo. userData ya está en
-          // AsyncStorage de un login online previo (es la copia que
-          // getUserByUsername valida contra SQLite), así que aquí solo
-          // falta marcar la sesión como activa.
+          // "recordada" si el switch está activo.
           if (rememberSession) {
             await storeSessionActive(true);
           }
           setIsAuthenticated(true);
           Alert.alert('Éxito', 'Inicio de sesión exitoso sin conexión.');
+          console.log('Inicio de sesión exitoso sin conexión. Usuario:', reconstructedUser);
         } else {
           Alert.alert('Error', 'Usuario o contraseña incorrectos.');
           return;

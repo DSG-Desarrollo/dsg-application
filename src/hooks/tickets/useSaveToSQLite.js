@@ -45,7 +45,13 @@ const useSaveToSQLite = (data) => {
           primaryData[key] = value;
         } else if (typeof value === 'object' && value !== null) {
           switch (key) {
-            case 'customers_services':
+            // El backend serializa la relación Tasks::customerService() como
+            // 'customer_service' (singular) — la clave de este switch decía
+            // 'customers_services' (plural, nombre de la tabla local), así que
+            // nunca matcheaba: este objeto se descartaba en 'default' y la
+            // tabla local 'customers_services' quedaba siempre vacía, lo que
+            // rompía el JOIN de fetchAllSavedTickets en modo offline.
+            case 'customer_service':
               await upsertDataIntoTable('customers_services', value, 'id_servicio_cliente');
               break;
             case 'priority':
@@ -114,11 +120,34 @@ const useSaveToSQLite = (data) => {
     }
   };
 
-  const fetchAllSavedTickets = async (taskId) => {
+  // filters replica lo que cada pestaña le manda al backend online (ver
+  // tabScreensConfig en TicketsScreen.jsx): progressTask (array -> progreso_tarea
+  // IN (...)) e id_tipo_tarea (usado solo por la pestaña Alarmas). Sin este
+  // filtro, cada pestaña offline traía TODO lo guardado alguna vez en el
+  // dispositivo (sin WHERE ni LIMIT) — mezclaba tickets de otras pestañas y
+  // procesaba de más en JS, lo que además contribuía a que se sintiera lenta.
+  // OJO: a diferencia del backend, acá NO filtramos por id_usuario/id_tipo_usuario
+  // porque esa lógica de asignación vive en TaskFilterService (backend) y no hay
+  // una columna local equivalente confiable para replicarla 1:1.
+  const fetchAllSavedTickets = async (filters = {}) => {
+    const conditions = [];
+    const params = [];
+
+    if (Array.isArray(filters.progressTask) && filters.progressTask.length > 0) {
+      conditions.push(`task.progreso_tarea IN (${filters.progressTask.map(() => '?').join(', ')})`);
+      params.push(...filters.progressTask);
+    }
+    if (filters.id_tipo_tarea) {
+      conditions.push('task.id_tipo_tarea = ?');
+      params.push(filters.id_tipo_tarea);
+    }
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
     const query = `
       SELECT DISTINCT
         task.id,
         task.id_tarea,
+        task.id_tipo_tarea,
         task.codigo_tarea,
         task.estado_tarea,
         task.descripcion_tarea,
@@ -146,12 +175,13 @@ const useSaveToSQLite = (data) => {
       JOIN types_tasks ON task.id_tipo_tarea = types_tasks.id_tipo_tarea
       JOIN service on types_tasks.id_servicio = service.id_servicio
       JOIN priority ON task.id_prioridad_tarea = priority.id_prioridad_tarea
+      ${whereClause}
       ORDER BY task.id_tarea DESC
       ;
     `;
 
     try {
-      const result = await getAllAsyncSql(query);
+      const result = await getAllAsyncSql(query, params);
       setSavedData(result);
       //console.log('Task data:', result);
       return result; // Devuelve el resultado obtenido

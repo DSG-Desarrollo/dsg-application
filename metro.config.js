@@ -21,6 +21,9 @@ const aliases = {
   '@hooks': path.resolve(__dirname, 'src/hooks'),
   '@context': path.resolve(__dirname, 'src/context'),
   '@routes': path.resolve(__dirname, 'src/data'),
+  '@sync': path.resolve(__dirname, 'src/sync'),
+  '@network': path.resolve(__dirname, 'src/network'),
+  '@repositories': path.resolve(__dirname, 'src/repositories'),
 };
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

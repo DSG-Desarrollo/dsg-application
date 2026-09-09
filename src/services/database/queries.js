@@ -9,7 +9,8 @@ const userQueries = {
                       user_status AS estado_usuario,
                       observation AS observacion,
                       photo_name AS foto_nombre,
-                      user_registration AS registro_usuario
+                      user_registration AS registro_usuario,
+                      employee_json AS employee_json
                   FROM user WHERE employee_id = ?`,
     getUsersAll: `SELECT * FROM user`,
     truncateUsers: `DELETE FROM user`,
@@ -23,13 +24,14 @@ const userQueries = {
                       user_status AS estado_usuario,
                       observation AS observacion,
                       photo_name AS foto_nombre,
-                      user_registration AS registro_usuario
+                      user_registration AS registro_usuario,
+                      employee_json AS employee_json
                   FROM user WHERE username = ?`,
 };
 
 const userInsertQueries = {
-    insertUser: `INSERT INTO user (employee_id, user_type_id, username, password, user_status, observation, photo_name, user_registration) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    updateUser: `UPDATE user SET user_type_id = ?, username = ?, password = ?, user_status = ?, observation = ?, photo_name = ?, user_registration = ? WHERE employee_id = ?`,
+    insertUser: `INSERT INTO user (employee_id, user_type_id, username, password, user_status, observation, photo_name, user_registration, employee_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    updateUser: `UPDATE user SET user_type_id = ?, username = ?, password = ?, user_status = ?, observation = ?, photo_name = ?, user_registration = ?, employee_json = ? WHERE employee_id = ?`,
 };
 
 const queries = {

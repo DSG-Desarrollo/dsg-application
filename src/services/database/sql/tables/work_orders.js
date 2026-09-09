@@ -15,7 +15,12 @@ const WORK_ORDERS = {
         fin_orden_trabajo: 'TEXT',
         estado_orden_trabajo: 'TEXT',
         estado_orden_trabajo: 'TEXT',
-        version: 'INTEGER NULL'
+        version: 'INTEGER NULL',
+        // Metadatos de sincronización (SPEC.md, sección 7). id_orden_trabajo ya hace de server_id
+        // (las OT siempre se originan en el servidor), por lo que no se necesita local_id.
+        sync_status: "TEXT DEFAULT 'synced'",
+        deleted_at: 'TEXT NULL',
+        last_synced_at: 'TEXT NULL'
     },
     FOREIGN_KEYS: {
         task_id: {

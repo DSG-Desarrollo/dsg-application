@@ -24,7 +24,6 @@ const tabScreensConfig = [
       id_tipo_usuario: 5,
       progressTask: ["P"],
     },
-    checkNetwork: true,
   },
   {
     name: "TicketsStarted",
@@ -34,7 +33,6 @@ const tabScreensConfig = [
       id_tipo_usuario: 5,
       progressTask: ["I"],
     },
-    checkNetwork: false,
   },
   {
     name: "Alarms",
@@ -45,7 +43,6 @@ const tabScreensConfig = [
       id_tipo_tarea: 18,
       progressTask: ["I", "P", "C"],
     },
-    checkNetwork: false,
   },
   {
     name: "TicketsCompleted",
@@ -55,7 +52,6 @@ const tabScreensConfig = [
       id_tipo_usuario: 5,
       progressTask: ["C"],
     },
-    checkNetwork: false,
   },
 ];
 
@@ -128,7 +124,7 @@ const TicketsScreen = () => {
         },
       })}
     >
-      {tabScreensConfig.map(({ name, filters, checkNetwork }) => (
+      {tabScreensConfig.map(({ name, filters }) => (
         <Tab.Screen
           key={name}
           name={name}
@@ -139,7 +135,6 @@ const TicketsScreen = () => {
                 id_usuario: userData.employee.id_empleado,
                 id_tipo_usuario: userData.id_tipo_usuario,
               }}
-              checkNetwork={checkNetwork}
               userData={userData}
               tabKey={name}
             />

@@ -17,6 +17,9 @@
       "@hooks/*": ["./src/hooks/*"],
       "@context/*": ["./src/context/*"],
       "@routes/*": ["./src/data/*"],
+      "@sync/*": ["./src/sync/*"],
+      "@network/*": ["./src/network/*"],
+      "@repositories/*": ["./src/repositories/*"]
     }
   },
   "include": ["**/*.js", "**/*.jsx"],

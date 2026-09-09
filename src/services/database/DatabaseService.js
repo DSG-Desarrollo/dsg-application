@@ -93,6 +93,40 @@ class DatabaseService {
                 this.handleError(`Error al crear la tabla '${schema.tableName}':`, error);
             }
         }
+        await this.createIndexes();
+    }
+
+    /**
+     * Crea índices sobre las columnas que se usan como clave de negocio en JOINs
+     * (fetchAllSavedTickets, offline) y en el chequeo existencia/INSERT-vs-UPDATE de
+     * upsertDataIntoTable (se ejecuta una vez por fila guardada). Sin esto, cada uno de
+     * esos lookups hacía un table scan completo, y empeoraba con el uso ya que las
+     * tablas locales van acumulando filas sesión tras sesión sin purgarse. Idempotente:
+     * CREATE INDEX IF NOT EXISTS no falla ni duplica en instalaciones ya existentes.
+     */
+    async createIndexes() {
+        const indexes = [
+            ['idx_task_id_tarea', 'task', 'id_tarea'],
+            ['idx_task_id_servicio_cliente', 'task', 'id_servicio_cliente'],
+            ['idx_task_id_tipo_tarea', 'task', 'id_tipo_tarea'],
+            ['idx_task_id_prioridad_tarea', 'task', 'id_prioridad_tarea'],
+            ['idx_customers_services_id_servicio_cliente', 'customers_services', 'id_servicio_cliente'],
+            ['idx_types_tasks_id_tipo_tarea', 'types_tasks', 'id_tipo_tarea'],
+            ['idx_types_tasks_id_servicio', 'types_tasks', 'id_servicio'],
+            ['idx_service_id_servicio', 'service', 'id_servicio'],
+            ['idx_priority_id_prioridad_tarea', 'priority', 'id_prioridad_tarea'],
+            ['idx_author_id_usuario', 'author', 'id_usuario'],
+            ['idx_user_employee_id', 'user', 'employee_id'],
+            ['idx_user_username', 'user', 'username'],
+        ];
+
+        for (const [indexName, tableName, column] of indexes) {
+            try {
+                await this.db.execAsync(`CREATE INDEX IF NOT EXISTS ${indexName} ON ${tableName} (${column})`);
+            } catch (error) {
+                this.handleError(`Error al crear el índice '${indexName}':`, error);
+            }
+        }
     }
 
     /**

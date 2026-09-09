@@ -54,9 +54,14 @@ const TicketList = (props) => {
   const badgeColor =
     ticketListStyles.badgeColors[progresoTarea] ||
     ticketListStyles.badgeColors.default;
-  const cardColor =
-    ticketListStyles.cardColorsV2Adapted[colorTipoTarea] ||
-    ticketListStyles.cardColorsV2Adapted.default;
+  // colorTipoTarea puede ser un color hex real (types_tasks.color_tipo_tarea,
+  // definido por tipo de tarea en el backend) o, si no está disponible, el
+  // id_tipo_tarea numérico como clave de la paleta estática de respaldo.
+  const isHexColor = typeof colorTipoTarea === "string" && colorTipoTarea.startsWith("#");
+  const cardColor = isHexColor
+    ? colorTipoTarea
+    : ticketListStyles.cardColorsV2Adapted[colorTipoTarea] ||
+      ticketListStyles.cardColorsV2Adapted.default;
   const priorityIconName =
     ticketListStyles.priorityIcons[prioridad] || "priority-high";
   const priorityIconColor =

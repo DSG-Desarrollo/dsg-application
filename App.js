@@ -15,6 +15,7 @@ import DrawerNavigation from '@navigation/DrawerNavigator';
 import TicketDetailScreen from '@screens/App/Tickets/TicketDetailScreen';
 import TabNavigatorWorkOrder from '@navigation/TabNavigatorWorkOrder';
 import { DatabaseProvider } from '@context/DatabaseContext';
+import { SyncProvider } from '@context/SyncContext';
 import NetworkInfo from '@utils/NetworkInfo';
 import { getSessionActive } from '@utils/storageUtils';
 import { View, ActivityIndicator } from 'react-native';
@@ -60,47 +61,49 @@ const App = () => {
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <PaperProvider theme={theme}>
           <DatabaseProvider>
-            <NetworkInfo>
-              <NavigationContainer>
-                <SafeAreaView style={{ flex: 1 }}>
-                  <Stack.Navigator
-                    initialRouteName={isAuthenticated ? 'DrawerNavigation' : 'LoginScreen'}
-                    screenOptions={{ headerShown: false }}
-                  >
-                    {isAuthenticated ? (
-                      <Stack.Screen name="DrawerNavigation">
-                        {(props) => <DrawerNavigation {...props} setIsAuthenticated={setIsAuthenticated} />}
-                      </Stack.Screen>
-                    ) : (
+            <SyncProvider>
+              <NetworkInfo>
+                <NavigationContainer>
+                  <SafeAreaView style={{ flex: 1 }}>
+                    <Stack.Navigator
+                      initialRouteName={isAuthenticated ? 'DrawerNavigation' : 'LoginScreen'}
+                      screenOptions={{ headerShown: false }}
+                    >
+                      {isAuthenticated ? (
+                        <Stack.Screen name="DrawerNavigation">
+                          {(props) => <DrawerNavigation {...props} setIsAuthenticated={setIsAuthenticated} />}
+                        </Stack.Screen>
+                      ) : (
+                        <Stack.Screen
+                          name="LoginScreen"
+                          options={{
+                            title: 'Inicio de Sesión',
+                          }}
+                        >
+                          {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+                        </Stack.Screen>
+                      )}
                       <Stack.Screen
-                        name="LoginScreen"
+                        name="ResetPasswordScreen"
+                        component={ResetPasswordScreen}
+                      />
+                      <Stack.Screen
+                        name="TicketDetailScreen"
+                        component={TicketDetailScreen}
                         options={{
-                          title: 'Inicio de Sesión',
+                          headerBackTitle: 'Custom Back',
+                          headerBackTitleStyle: { fontSize: 30 },
                         }}
-                      >
-                        {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
-                      </Stack.Screen>
-                    )}
-                    <Stack.Screen
-                      name="ResetPasswordScreen"
-                      component={ResetPasswordScreen}
-                    />
-                    <Stack.Screen
-                      name="TicketDetailScreen"
-                      component={TicketDetailScreen}
-                      options={{
-                        headerBackTitle: 'Custom Back',
-                        headerBackTitleStyle: { fontSize: 30 },
-                      }}
-                    />
-                    <Stack.Screen
-                      name="TabNavigatorWorkOrder"
-                      component={TabNavigatorWorkOrder}
-                    />
-                  </Stack.Navigator>
-                </SafeAreaView>
-              </NavigationContainer>
-            </NetworkInfo>
+                      />
+                      <Stack.Screen
+                        name="TabNavigatorWorkOrder"
+                        component={TabNavigatorWorkOrder}
+                      />
+                    </Stack.Navigator>
+                  </SafeAreaView>
+                </NavigationContainer>
+              </NetworkInfo>
+            </SyncProvider>
           </DatabaseProvider>
         </PaperProvider>
       </SafeAreaProvider>

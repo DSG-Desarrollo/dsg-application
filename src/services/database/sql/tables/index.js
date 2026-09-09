@@ -4,6 +4,7 @@ export { default as employees } from './employees';
 export { default as priorities } from './priorities';
 export { default as positions } from './positions';
 export { default as services } from './services';
+export { default as sync_queue } from './sync_queue';
 export { default as tasks } from './tasks';
 export { default as types_tasks } from './types_tasks';
 export { default as units } from './units';

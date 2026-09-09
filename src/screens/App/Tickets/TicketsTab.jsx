@@ -20,7 +20,7 @@ const SEARCHABLE_FIELDS = [
   "requeridos",
 ];
 
-const TicketsTab = ({ filters, checkNetwork, tabKey }) => {
+const TicketsTab = ({ filters, tabKey }) => {
   useFocusEffect(
     React.useCallback(() => {
       console.log(`Tab with filters:`, filters);
@@ -53,15 +53,18 @@ const TicketsTab = ({ filters, checkNetwork, tabKey }) => {
         let result;
         if (networkState.isConnected) {
           if (ticketsData.length > 0) {
-            await fetchAllSavedTickets();
             result = ticketsData.map(mapTicketData);
           } else {
-            result = (await fetchAllSavedTickets()).map(mapTicketData);
+            result = (await fetchAllSavedTickets(filters)).map(mapTicketData);
           }
-        } else if (checkNetwork) {
-          result = (await fetchAllSavedTickets()).map(mapTicketData);
         } else {
-          result = ticketsData.map(mapTicketData);
+          // Antes, solo la pestaña con checkNetwork=true leía de SQLite offline;
+          // las demás (Iniciados/Alarmas/Completados) usaban 'ticketsData' de
+          // useFetchTickets, que nunca llega a pedir nada offline (su propio
+          // efecto corta en isConnected=false) — quedaban siempre vacías. Ahora
+          // las 4 pestañas usan el mismo fallback local, filtrado por filters
+          // igual que el resto de esta función.
+          result = (await fetchAllSavedTickets(filters)).map(mapTicketData);
         }
         if (!cancelled) setDataToDisplay(result);
       } catch (error) {
@@ -95,7 +98,12 @@ const TicketsTab = ({ filters, checkNetwork, tabKey }) => {
     idPrioridadTarea: task.id_prioridad_tarea,
     trabajo: task.types_tasks?.tipo_tarea || task.tipo_tarea,
     servicio: task.types_tasks?.service?.servicio || task.servicio,
-    colorTipoTarea: task.types_tasks?.color_tipo_tarea || task.id_tipo_tarea,
+    // task.types_tasks.color_tipo_tarea es la forma "online" (objeto anidado,
+    // tal cual llega de la API); task.color_tipo_tarea es la forma "offline"
+    // (fetchAllSavedTickets hace un JOIN plano, sin anidar). Si ninguna está
+    // disponible, caemos al id_tipo_tarea numérico, que TicketList usa como
+    // clave de la paleta estática cardColorsV2Adapted.
+    colorTipoTarea: task.types_tasks?.color_tipo_tarea || task.color_tipo_tarea || task.id_tipo_tarea,
     direccionTarea: task.direccion_tarea,
     requeridos: task.numero_solicitud,
     ordenRequerida: task.orden_requerida,
