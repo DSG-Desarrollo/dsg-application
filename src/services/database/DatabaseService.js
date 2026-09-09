@@ -118,6 +118,8 @@ class DatabaseService {
             ['idx_author_id_usuario', 'author', 'id_usuario'],
             ['idx_user_employee_id', 'user', 'employee_id'],
             ['idx_user_username', 'user', 'username'],
+            ['idx_units_id_tarea', 'units', 'id_tarea'],
+            ['idx_units_id_unidad', 'units', 'id_unidad'],
         ];
 
         for (const [indexName, tableName, column] of indexes) {

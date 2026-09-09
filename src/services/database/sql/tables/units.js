@@ -4,6 +4,12 @@ const UNITS = {
         id: 'INTEGER PRIMARY KEY',
         id_tarea: 'INTEGER',
         id_orden_trabajo: 'INTEGER',
+        // numero_orden/progreso_orden_trabajo: el backend (UnitsQuery) sí los
+        // devuelve y TicketDetailScreen los usa para el color/ícono de cada
+        // OT, pero no estaban en este schema — sin ellos no se puede cachear
+        // lo necesario para pintar la pantalla igual offline que online.
+        numero_orden: 'TEXT NULL',
+        progreso_orden_trabajo: 'TEXT NULL',
         id_unidad: 'INTEGER',
         id_servicio_cliente: 'INTEGER',
         unidad: 'TEXT',
