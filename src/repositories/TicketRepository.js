@@ -5,11 +5,11 @@ import useNetworkState from '../hooks/useNetworkState';
 
 const TicketRepository = () => {
   const ticketService = new TicketService();
-  const { isConnected } = useNetworkState();
+  const { networkState } = useNetworkState();
   //const { insertTickets, getLocalTickets } = useLocalDatabaseService();
 
   const getTickets = async (filters) => {
-    if (isConnected) {
+    if (networkState.isConnected) {
       const tickets = await ticketService.getTickets(filters);
       //await insertTickets(tickets);
       return tickets;
