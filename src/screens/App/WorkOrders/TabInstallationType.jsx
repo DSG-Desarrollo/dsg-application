@@ -191,7 +191,17 @@ const TabInstallationType = ({ route }) => {
       ToastAndroid.show('Instalación guardada correctamente.', ToastAndroid.LONG);
 
       if (userData?.employee?.id_usuario_empleado) {
-        await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
+        await FormCompletionTracker.markFormAsCompleted(
+          "form_installation_type",
+          clienteId,
+          tareaId,
+          id_orden_trabajo,
+          userData.employee.id_usuario_empleado,
+          () => workOrderRepository.startWorkOrder(tareaId, id_orden_trabajo, {
+            userId: userData.employee.id_usuario_empleado,
+            clienteId,
+          })
+        );
         onFormCompleted?.();
       } else {
         console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");

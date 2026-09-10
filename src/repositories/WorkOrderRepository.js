@@ -524,9 +524,16 @@ const WorkOrderRepository = () => {
             );
         }
 
+        // La firma es la finalización de TODO el ticket, no solo de estas OT: TicketDetailScreen
+        // solo deja llegar hasta acá cuando ya no quedan OT activas con tabs incompletos (ver
+        // handleSignatureSubmit), así que completar las OT activas SIEMPRE completa la tarea —
+        // mismo criterio que el backend (WorkOrdersController::completeSingleWorkOrder, que
+        // marca progreso_tarea='C' apenas orden_completada alcanza orden_requerida). Sin esto,
+        // el ticket seguía apareciendo bajo la pestaña "Iniciados" (que filtra por
+        // task.progreso_tarea local) hasta el próximo fetch online que trajera el estado real.
         await executeSql(
-            `UPDATE task SET comentario_cliente = ?, comentario_final_tecnico = ? WHERE id_tarea = ?`,
-            [comentarioCliente, comentarioFinalTecnico, taskId]
+            `UPDATE task SET comentario_cliente = ?, comentario_final_tecnico = ?, progreso_tarea = 'C', fecha_fin_tarea = ?, orden_completada = COALESCE(orden_requerida, orden_completada) WHERE id_tarea = ?`,
+            [comentarioCliente, comentarioFinalTecnico, now, taskId]
         );
 
         const operationId = Crypto.randomUUID();
@@ -548,6 +555,82 @@ const WorkOrderRepository = () => {
                 // archivo recién al momento de sincronizar (mismo criterio que 'location'/'photo_upload').
                 local_image_path: localImagePath,
             },
+            expectedVersion: null,
+        });
+
+        SyncManager.requestSync();
+
+        return { operationId };
+    };
+
+    /**
+     * Marca como iniciada una OT (y, si es la primera en progreso de su tarea, también
+     * inicia la tarea/ticket) de forma offline-first. El ticket "se da por iniciado"
+     * cuando el técnico completa el PRIMER tab de cualquiera de sus OT (lo dispara
+     * FormCompletionTracker.markFormAsCompleted) — hasta ahora ese paso pegaba directo a
+     * la API (FormCompletionTracker.startWorkOrder) y no funcionaba sin conexión. Escribe
+     * local YA con el mismo criterio 'I' que aplica el backend
+     * (WorkOrdersController::startTaskAndWorkOrder: si no hay otra OT de la tarea ya en
+     * 'I'/'C'/'R', la tarea también se marca iniciada) y encola una operación 'start' que
+     * SyncManager manda a POST /api/work-orders/{id}/start en cuanto hay conexión.
+     *
+     * @param {number} taskId
+     * @param {number} idOrdenTrabajo
+     * @param {{ userId: number, clienteId: number }} params
+     * @returns {Promise<{ operationId: (string|null) }>} `operationId` es null si la OT
+     *   ya estaba iniciada (o más allá) localmente y no había nada que hacer.
+     */
+    const startWorkOrder = async (taskId, idOrdenTrabajo, { userId, clienteId }) => {
+        taskId = Number(taskId);
+        idOrdenTrabajo = Number(idOrdenTrabajo);
+
+        const current = await getLocalById(idOrdenTrabajo);
+        if (!current) {
+            throw new Error(`No existe la orden de trabajo ${idOrdenTrabajo} en la base local`);
+        }
+
+        // Ya iniciada (o completada/revisada) localmente: no repetir el efecto ni
+        // encolar de nuevo. FormCompletionTracker solo llama a esto una vez por diseño
+        // (al completar el primer tab), pero un dispositivo que reintenta el guardado de
+        // ese primer tab offline podría volver a pasar por acá.
+        if (current.progreso_orden_trabajo && current.progreso_orden_trabajo !== 'P') {
+            return { operationId: null };
+        }
+
+        const now = new Date().toISOString();
+
+        // Mismo criterio que WorkOrdersController::startTaskAndWorkOrder: si esta es la
+        // única OT de la tarea en progreso, la tarea (ticket) también se da por iniciada.
+        const inProgressCount = await getFirstAsyncSql(
+            `SELECT COUNT(*) as count FROM work_orders WHERE id_tarea = ? AND progreso_orden_trabajo IN ('I','C','R')`,
+            [taskId]
+        );
+        if ((inProgressCount?.count ?? 0) === 0) {
+            await executeSql(
+                `UPDATE task SET progreso_tarea = 'I', fecha_inicio_tarea = ? WHERE id_tarea = ?`,
+                [now, taskId]
+            );
+        }
+
+        await executeSql(
+            `UPDATE work_orders SET progreso_orden_trabajo = 'I', inicio_orden_trabajo = ?, sync_status = 'pending' WHERE id_orden_trabajo = ?`,
+            [now, idOrdenTrabajo]
+        );
+        // 'units' es de donde TicketDetailScreen lee el progreso de cada OT
+        // (getActiveWorkOrders) — sin actualizarla también, la pantalla seguiría
+        // mostrando la OT como "programada" aunque ya se haya iniciado offline.
+        await executeSql(
+            `UPDATE units SET progreso_orden_trabajo = 'I' WHERE id_orden_trabajo = ?`,
+            [idOrdenTrabajo]
+        );
+
+        const operationId = Crypto.randomUUID();
+        await SyncQueue.enqueue(executeSql, {
+            operationId,
+            entity: 'work_orders',
+            entityId: idOrdenTrabajo,
+            action: 'start',
+            payload: { id_tarea: taskId, id_orden_trabajo: idOrdenTrabajo, id_usuario: userId, id_cliente: clienteId },
             expectedVersion: null,
         });
 
@@ -618,6 +701,7 @@ const WorkOrderRepository = () => {
         removeLocalPhoto,
         cachePhotosFromServer,
         completeTicket,
+        startWorkOrder,
         updateStatus,
     };
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect, useReducer } from 'react';
-import TicketService from '../../services/api/tickets/TicketService';
+import { useIsFocused } from '@react-navigation/native';
+import TicketService from '@services/api/tickets/TicketService';
 import useNetworkState from '../useNetworkState';
 
 const initialState = {
@@ -25,9 +26,16 @@ const useFetchTickets = (filters) => {
   const { networkState } = useNetworkState();
   const [state, dispatch] = useReducer(reducer, initialState);
   const ticketService = new TicketService();
+  // TicketsScreen usa un bottom tab navigator (createBottomTabNavigator), que por
+  // defecto mantiene cada pestaña montada una vez visitada en vez de desmontarla al
+  // cambiar de tab. Sin isFocused acá, este hook solo pedía datos una vez (al montar/al
+  // reconectar) y una pestaña visitada antes de que un ticket cambiara de estado en el
+  // servidor (p.ej. se completó offline y luego sincronizó) quedaba con esa lista vieja
+  // para siempre en esa sesión — el usuario tenía que reiniciar la app para verla al día.
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (!networkState.isConnected) return;
+    if (!networkState.isConnected || !isFocused) return;
 
     const fetchTickets = async () => {
       dispatch({ type: 'FETCH_INIT' });
@@ -44,7 +52,7 @@ const useFetchTickets = (filters) => {
     };
 
     fetchTickets();
-  }, [networkState.isConnected]);
+  }, [networkState.isConnected, isFocused]);
 
   return state;
 };

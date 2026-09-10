@@ -103,9 +103,26 @@ class SyncManager {
         const photoUploadRows = pendingRows.filter((row) => row.action === 'photo_upload');
         const photoDeleteRows = pendingRows.filter((row) => row.action === 'photo_delete');
         const completeTicketRows = pendingRows.filter((row) => row.action === 'complete_ticket');
+        const startRows = pendingRows.filter((row) => row.action === 'start');
 
         if (updateRows.length > 0) {
             await this._pushUpdateOperations(updateRows);
+        }
+
+        for (const row of startRows) {
+            await this._pushSimpleOperation(row, {
+                // operation_id viaja en el payload para que el backend pueda deduplicar
+                // (SPEC.md §9 — WorkOrdersController::startTaskAndWorkOrder chequea
+                // sync_operations, igual que install/materials).
+                call: (payload) => SyncService.startWorkOrder(payload.id_orden_trabajo, { ...payload, operation_id: row.operation_id }),
+                // Misma forma de respuesta que materials — status/message van en el nivel
+                // superior, sin envolver en {data: {...}}.
+                parseResult: (response) => ({ status: response?.status, message: response?.message }),
+                onSuccess: (tx) => tx.executeSql(
+                    `UPDATE work_orders SET sync_status = 'synced', last_synced_at = ? WHERE id_orden_trabajo = ?`,
+                    [new Date().toISOString(), row.entity_id]
+                ),
+            });
         }
 
         for (const row of installRows) {

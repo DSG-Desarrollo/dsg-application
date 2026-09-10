@@ -116,6 +116,21 @@ class SyncService {
     async completeTicket(payload) {
         return this.api.post(`tasks/${payload.id_tarea}/client-signature`, payload);
     }
+
+    /**
+     * Pega a POST /api/work-orders/{id}/start (WorkOrdersController::startTaskAndWorkOrder):
+     * marca la OT (y, si aplica, la tarea) como iniciada. Se dispara offline-first desde
+     * WorkOrderRepository.startWorkOrder cuando el técnico completa el primer tab de la
+     * OT (antes pegaba directo a la API desde FormCompletionTracker y no funcionaba sin
+     * conexión). Misma forma de respuesta que storeMaterialsOrder — status/message van en
+     * el nivel superior, sin envolver en {data: {...}}.
+     * @param {number} idOrdenTrabajo
+     * @param {{operation_id: string, id_tarea: number, id_usuario: number, id_cliente: number}} payload
+     * @returns {Promise<Object>} { task, work_order, message, status, statusText }.
+     */
+    async startWorkOrder(idOrdenTrabajo, payload) {
+        return this.api.post(`work-orders/${idOrdenTrabajo}/start`, payload);
+    }
 }
 
 export { SyncService };

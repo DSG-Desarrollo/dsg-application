@@ -20,12 +20,21 @@ const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 const api = new FetchManager(BASE_URL);
 
 const FormCompletionTracker = {
+  /**
+   * @param {() => Promise<void>} [startWorkOrderFn] Callback offline-first para iniciar
+   *   la OT/tarea (ver WorkOrderRepository.startWorkOrder), inyectado por la pantalla que
+   *   llama (es la única que tiene acceso al hook useDatabase()/WorkOrderRepository() —
+   *   este módulo es un objeto plano, no un componente). Si no se pasa, se usa el
+   *   comportamiento anterior (llamada directa a la API, solo funciona con conexión) como
+   *   respaldo para no romper algún llamador que todavía no lo pase.
+   */
   markFormAsCompleted: async (
     formKey,
     clientId,
     taskId,
     workOrderId,
-    userId
+    userId,
+    startWorkOrderFn
   ) => {
     try {
       const taskIdStr = taskId.toString();
@@ -60,12 +69,19 @@ const FormCompletionTracker = {
 
       // Iniciar la OT si es el primer formulario completado
       if (isFirstCompleted) {
-        await FormCompletionTracker.startWorkOrder(
-          clientId,
-          taskIdStr,
-          workOrderIdStr,
-          userId
-        );
+        if (startWorkOrderFn) {
+          await startWorkOrderFn();
+        } else {
+          console.warn(
+            `FormCompletionTracker.markFormAsCompleted llamado sin startWorkOrderFn para la OT ${workOrderId}: se usa el POST directo (no funciona offline).`
+          );
+          await FormCompletionTracker.startWorkOrder(
+            clientId,
+            taskIdStr,
+            workOrderIdStr,
+            userId
+          );
+        }
         // Mostrar Toast de inicio
         ToastAndroid.show(
           i18n.t('workOrder:formProcessStartedToast'),
