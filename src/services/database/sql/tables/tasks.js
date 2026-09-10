@@ -28,6 +28,7 @@ const TASKS = {
         solicitud_programacion: 'TEXT NULL',
         comentario_programacion: 'TEXT NULL',
         comentario_cliente: 'TEXT NULL',
+        comentario_final_tecnico: 'TEXT NULL',
         id_autorizacion_programacion: 'INTEGER NULL',
         fecha_revision: 'TEXT NULL',
         comentario_rechazo: 'TEXT NULL',

@@ -19,8 +19,9 @@ import { faFileSignature } from "@fortawesome/free-solid-svg-icons";
 import FabButton from "@components/atoms/FabButton";
 import FullScreenModal from "@components/atoms/FullScreenModal";
 import TabInstallationSignatureProof from "@screens/App/WorkOrders/TabInstallationSignatureProof";
+import TicketCompletionCommentsModal from "@components/molecules/TicketCompletionCommentsModal";
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
-import workOrderService from "@services/api/workorder.service";
+import WorkOrderRepository from '@repositories/WorkOrderRepository';
 
 // OT no activas: canceladas ('A') o ya finalizadas ('C') en una firma anterior.
 const INACTIVE_WORK_ORDER_STATUSES = ["A", "C"];
@@ -30,8 +31,14 @@ const { successDark } = theme.colors;
 const TicketDetailScreen = ({ route, navigation }) => {
   const isFocused = useIsFocused();
   const [signatureModalVisible, setSignatureModalVisible] = useState(false);
+  const [commentsModalVisible, setCommentsModalVisible] = useState(false);
+  // Firma ya capturada (tab de firma), en espera de los comentarios finales (modal de
+  // comentarios) antes de disparar el cierre real del ticket — ver handleSignatureSubmit
+  // vs handleCompleteTicket.
+  const [pendingSignature, setPendingSignature] = useState(null);
   const [isSubmittingSignature, setIsSubmittingSignature] = useState(false);
   const [userData, setUserData] = useState(null);
+  const workOrderRepository = WorkOrderRepository();
   const {
     tareaId,
     codigo,
@@ -90,7 +97,10 @@ const TicketDetailScreen = ({ route, navigation }) => {
 
   // La firma es única por ticket: aplica a todas sus OT activas a la vez. Antes de
   // firmar, cada una de esas OT debe tener ya sus tabs (Instalación/Materiales/
-  // Ubicación/Fotos) completos; si falta alguna, se bloquea el envío.
+  // Ubicación/Fotos) completos; si falta alguna, se bloquea el envío. Este es solo el
+  // paso 1 (capturar la firma): ya no dispara el guardado — eso lo hace
+  // handleCompleteTicket, después de que el modal de comentarios recolecte los
+  // comentarios finales (opcionales) de cliente/técnico.
   const handleSignatureSubmit = async ({ nombre_firma_cliente, tipo_firma, image }) => {
     const activeWorkOrders = getActiveWorkOrders();
 
@@ -118,27 +128,48 @@ const TicketDetailScreen = ({ route, navigation }) => {
       return;
     }
 
+    setPendingSignature({ nombre_firma_cliente, tipo_firma, image });
+    setSignatureModalVisible(false);
+    setCommentsModalVisible(true);
+  };
+
+  // Paso 2 (disparado por el modal de comentarios): acá sí se guarda de verdad. Offline-
+  // first: escribe todo local YA (firma como archivo, OT activas -> 'C', comentarios en
+  // la tarea) y encola el cierre real — SyncManager lo manda a POST
+  // /tasks/{id}/client-signature en cuanto hay conexión (ver WorkOrderRepository.completeTicket).
+  // "Guardado" ya no depende de que ese POST termine, igual que el resto de los tabs.
+  const handleCompleteTicket = async ({ comentario_cliente, comentario_final_tecnico }) => {
+    if (!pendingSignature) return;
+
+    const activeWorkOrders = getActiveWorkOrders();
+    if (activeWorkOrders.length === 0) {
+      ToastAndroid.show(i18n.t('workOrder:signatureNoActiveOrders'), ToastAndroid.LONG);
+      setCommentsModalVisible(false);
+      setPendingSignature(null);
+      return;
+    }
+
     setIsSubmittingSignature(true);
 
     try {
-      const response = await workOrderService.saveTicketClientSignature(tareaId, {
-        nombreFirmaCliente: nombre_firma_cliente,
-        tipoFirma: tipo_firma,
-        image,
-        idUsuario: userData?.employee?.id_usuario_empleado,
-        idCliente: clienteId,
-      });
+      await workOrderRepository.completeTicket(
+        tareaId,
+        activeWorkOrders.map((workOrder) => workOrder.id_orden_trabajo),
+        {
+          userId: userData?.employee?.id_usuario_empleado,
+          clienteId,
+          nombreFirmaCliente: pendingSignature.nombre_firma_cliente,
+          tipoFirma: pendingSignature.tipo_firma,
+          image: pendingSignature.image,
+          comentarioCliente: comentario_cliente,
+          comentarioFinalTecnico: comentario_final_tecnico,
+        }
+      );
 
-      if (response?.success) {
-        ToastAndroid.show(i18n.t('workOrder:signatureSaveSuccess'), ToastAndroid.LONG);
-        setSignatureModalVisible(false);
-        refetch();
-      } else {
-        ToastAndroid.show(
-          response?.error?.message || i18n.t('workOrder:signatureSaveError'),
-          ToastAndroid.LONG
-        );
-      }
+      ToastAndroid.show(i18n.t('workOrder:signatureSaveSuccess'), ToastAndroid.LONG);
+      setCommentsModalVisible(false);
+      setPendingSignature(null);
+      refetch();
     } catch (error) {
       console.error("Error al guardar la firma del cliente:", error);
       ToastAndroid.show(i18n.t('workOrder:signatureSaveError'), ToastAndroid.LONG);
@@ -417,6 +448,15 @@ const TicketDetailScreen = ({ route, navigation }) => {
           isSubmitting={isSubmittingSignature}
         />
       </FullScreenModal>
+      <TicketCompletionCommentsModal
+        visible={commentsModalVisible}
+        onClose={() => {
+          setCommentsModalVisible(false);
+          setPendingSignature(null);
+        }}
+        onConfirm={handleCompleteTicket}
+        isSubmitting={isSubmittingSignature}
+      />
     </View>
   );
 };

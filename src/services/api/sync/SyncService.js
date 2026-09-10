@@ -102,6 +102,20 @@ class SyncService {
     async deleteWorkOrderPhoto(remoteId) {
         return this.api.delete(`work-orders/photos/${remoteId}`);
     }
+
+    /**
+     * Pega a POST /api/tasks/{id}/client-signature (WorkOrdersController::storeTicketClientSignature):
+     * firma única del cliente + comentarios finales, finaliza las OT activas de la tarea
+     * y (si con eso se completan todas las requeridas) el ticket, disparando el correo a
+     * Monitoreo. El paso más sensible de todo el flujo offline-first — por eso lleva
+     * operation_id incluso más en serio que el resto: el backend lo valida contra su
+     * propio ledger de idempotencia antes de tocar nada.
+     * @param {{operation_id: string, id_tarea: number, id_usuario: number, id_cliente: number, nombre_firma_cliente: (string|null), tipo_firma: string, image: (string|null), comentario_cliente: (string|null), comentario_final_tecnico: (string|null)}} payload
+     * @returns {Promise<Object>} { success, data: { work_order_ids }, error, message }.
+     */
+    async completeTicket(payload) {
+        return this.api.post(`tasks/${payload.id_tarea}/client-signature`, payload);
+    }
 }
 
 export { SyncService };

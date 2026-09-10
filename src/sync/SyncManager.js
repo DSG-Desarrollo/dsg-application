@@ -102,6 +102,7 @@ class SyncManager {
         const locationRows = pendingRows.filter((row) => row.action === 'location');
         const photoUploadRows = pendingRows.filter((row) => row.action === 'photo_upload');
         const photoDeleteRows = pendingRows.filter((row) => row.action === 'photo_delete');
+        const completeTicketRows = pendingRows.filter((row) => row.action === 'complete_ticket');
 
         if (updateRows.length > 0) {
             await this._pushUpdateOperations(updateRows);
@@ -228,6 +229,42 @@ class SyncManager {
                 // que el servidor confirma, la fila queda como tombstone (deleted_at) por
                 // si hay que reintentar.
                 onSuccess: (tx) => tx.executeSql(`DELETE FROM work_order_photos WHERE id = ?`, [row.entity_id]),
+            });
+        }
+
+        for (const row of completeTicketRows) {
+            // Paso más sensible de todo el offline-first: finaliza el ticket y dispara el
+            // correo a Monitoreo (WorkOrdersController::storeTicketClientSignature). Por
+            // eso el operation_id viaja siempre, y el backend lo valida contra su propio
+            // ledger antes de reprocesar — así un reintento sobre un ticket que ya quedó
+            // cerrado la vez anterior no vuelve a intentar nada ni reenvía el correo.
+            const payload = JSON.parse(row.payload || '{}');
+            const workOrderIds = payload.work_order_ids || [];
+
+            await this._pushSimpleOperation(row, {
+                call: async (p) => {
+                    const { local_image_path, work_order_ids, ...rest } = p;
+                    let image = null;
+                    if (local_image_path) {
+                        // El base64 no vive en el payload de la cola (SPEC.md §32); se
+                        // lee del disco recién acá, al sincronizar.
+                        image = await FileSystem.readAsStringAsync(local_image_path, { encoding: FileSystem.EncodingType.Base64 });
+                    }
+                    return SyncService.completeTicket({ ...rest, image, operation_id: row.operation_id });
+                },
+                // Igual forma de respuesta que location/photo_upload — {success, data, error}.
+                parseResult: (response) => ({
+                    status: response?.success ? 200 : response?.error?.statusCode,
+                    message: response?.message || response?.error?.message,
+                }),
+                onSuccess: async (tx) => {
+                    for (const workOrderId of workOrderIds) {
+                        await tx.executeSql(
+                            `UPDATE work_orders SET sync_status = 'synced', last_synced_at = ? WHERE id_orden_trabajo = ?`,
+                            [new Date().toISOString(), workOrderId]
+                        );
+                    }
+                },
             });
         }
     }

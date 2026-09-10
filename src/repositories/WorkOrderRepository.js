@@ -18,6 +18,7 @@ import SyncManager from '@sync/SyncManager';
 
 const EQUIPMENT_LOCATION_DIR = `${FileSystem.documentDirectory}equipment_location/`;
 const WORK_ORDER_PHOTOS_DIR = `${FileSystem.documentDirectory}work_order_photos/`;
+const TICKET_SIGNATURES_DIR = `${FileSystem.documentDirectory}ticket_signatures/`;
 
 const MUTABLE_FIELDS = ['progreso_orden_trabajo', 'comentario_orden'];
 
@@ -475,6 +476,87 @@ const WorkOrderRepository = () => {
     };
 
     /**
+     * Cierra el ticket de forma offline-first: la firma del cliente (tab de firma) y los
+     * dos comentarios finales (modal de comentarios) escriben local YA (funciona sin
+     * conexión) y encolan UNA operación 'complete_ticket' que SyncManager manda a POST
+     * /tasks/{id}/client-signature (mismo endpoint que ya usaba este flujo online) en
+     * cuanto hay conexión. Es el paso más sensible de todo el offline-first: finaliza el
+     * ticket y dispara el correo a Monitoreo — por eso, además del operation_id de
+     * siempre, el backend valida contra su propio ledger de idempotencia (ver
+     * WorkOrdersController::storeTicketClientSignature).
+     *
+     * @param {number} taskId
+     * @param {Array<number>} activeWorkOrderIds OT activas que se están firmando/cerrando.
+     * @param {{
+     *   userId: number, clienteId: number,
+     *   nombreFirmaCliente: (string|null), tipoFirma: string, image: (string|null),
+     *   comentarioCliente: (string|null), comentarioFinalTecnico: (string|null)
+     * }} params `image` es el base64 (PNG) del lienzo, o null en modo "escrita".
+     * @returns {Promise<{ operationId: string }>}
+     */
+    const completeTicket = async (taskId, activeWorkOrderIds, params) => {
+        taskId = Number(taskId);
+        const workOrderIds = activeWorkOrderIds.map(Number);
+        const {
+            userId, clienteId, nombreFirmaCliente, tipoFirma, image,
+            comentarioCliente, comentarioFinalTecnico,
+        } = params;
+
+        let localImagePath = null;
+        if (image) {
+            await FileSystem.makeDirectoryAsync(TICKET_SIGNATURES_DIR, { intermediates: true }).catch(() => {});
+            localImagePath = `${TICKET_SIGNATURES_DIR}${taskId}-${Date.now()}.jpg`;
+            await FileSystem.writeAsStringAsync(localImagePath, image, { encoding: FileSystem.EncodingType.Base64 });
+        }
+
+        const now = new Date().toISOString();
+        for (const idOrdenTrabajo of workOrderIds) {
+            // 'units' es de donde TicketDetailScreen lee el progreso de cada OT
+            // (getActiveWorkOrders) — sin actualizarla también, la pantalla seguiría
+            // mostrando la OT como activa aunque ya se haya firmado/cerrado offline.
+            await executeSql(
+                `UPDATE units SET progreso_orden_trabajo = 'C' WHERE id_orden_trabajo = ?`,
+                [idOrdenTrabajo]
+            );
+            await executeSql(
+                `UPDATE work_orders SET progreso_orden_trabajo = 'C', fin_orden_trabajo = ?, sync_status = 'pending' WHERE id_orden_trabajo = ?`,
+                [now, idOrdenTrabajo]
+            );
+        }
+
+        await executeSql(
+            `UPDATE task SET comentario_cliente = ?, comentario_final_tecnico = ? WHERE id_tarea = ?`,
+            [comentarioCliente, comentarioFinalTecnico, taskId]
+        );
+
+        const operationId = Crypto.randomUUID();
+        await SyncQueue.enqueue(executeSql, {
+            operationId,
+            entity: 'tasks',
+            entityId: taskId,
+            action: 'complete_ticket',
+            payload: {
+                id_tarea: taskId,
+                id_usuario: userId,
+                id_cliente: clienteId,
+                nombre_firma_cliente: nombreFirmaCliente,
+                tipo_firma: tipoFirma,
+                comentario_cliente: comentarioCliente,
+                comentario_final_tecnico: comentarioFinalTecnico,
+                work_order_ids: workOrderIds,
+                // El base64 NO viaja acá (infla la cola local); SyncManager lee este
+                // archivo recién al momento de sincronizar (mismo criterio que 'location'/'photo_upload').
+                local_image_path: localImagePath,
+            },
+            expectedVersion: null,
+        });
+
+        SyncManager.requestSync();
+
+        return { operationId };
+    };
+
+    /**
      * Actualiza el progreso/comentario de una OT de forma optimista: escribe primero en
      * SQLite local (funciona completamente offline) y encola la operación para que
      * SyncManager la envíe cuando haya conexión (SPEC.md, sección 2 — la operación local
@@ -535,6 +617,7 @@ const WorkOrderRepository = () => {
         addLocalPhoto,
         removeLocalPhoto,
         cachePhotosFromServer,
+        completeTicket,
         updateStatus,
     };
 };
