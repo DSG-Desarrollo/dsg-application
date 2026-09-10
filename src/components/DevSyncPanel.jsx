@@ -77,9 +77,24 @@ const DevSyncPanel = () => {
         }
     };
 
-    const handleSyncNow = () => {
+    // El log en pantalla (appendLog) trunca a 1500 caracteres y el recuadro es chico —
+    // para inspeccionar payloads/errores completos hay que mirar la terminal de Metro.
+    // Por eso acá siempre espejamos con console.log/console.error (sin truncar) además
+    // de actualizar el panel.
+    const handleSyncNow = async () => {
+        console.log(`[DevSyncPanel] NetworkMonitor.isConnected=${NetworkMonitor.getIsConnected()} -> syncNow()`);
         appendLog(`NetworkMonitor.isConnected=${NetworkMonitor.getIsConnected()} -> disparando syncNow()`);
-        SyncManager.requestSync();
+        try {
+            // Se llama a syncNow() directo (no requestSync(), que es fire-and-forget) para
+            // poder esperarlo acá y mostrar la cola actualizada apenas termina.
+            await SyncManager.syncNow();
+            console.log('[DevSyncPanel] syncNow() terminó sin lanzar error.');
+            appendLog('syncNow() terminó.');
+        } catch (error) {
+            console.error('[DevSyncPanel] syncNow() lanzó un error:', error);
+            appendLog(`syncNow() lanzó: ${error.message}`);
+        }
+        await handleInspectQueue();
     };
 
     // Sube el archivo .db de SQLite al backend (requiere conexión) para poder
@@ -131,10 +146,14 @@ const DevSyncPanel = () => {
     const handleInspectQueue = async () => {
         try {
             const rows = (await getAllAsyncSql(
-                `SELECT id, operation_id, entity_id, status, attempts, last_error FROM sync_queue ORDER BY id DESC LIMIT 10`
+                `SELECT id, operation_id, entity, entity_id, action, payload, status, attempts, last_error, next_retry_at FROM sync_queue ORDER BY id DESC LIMIT 10`
             )) || [];
-            appendLog(`cola (últimas 10): ${JSON.stringify(rows)}`);
+            // console.log no trunca como appendLog, y acá es donde importa ver 'action' y
+            // 'payload' completos para saber qué se está mandando realmente al backend.
+            console.log('[DevSyncPanel] cola (últimas 10):', JSON.stringify(rows, null, 2));
+            appendLog(`cola (últimas 10, ver terminal para el detalle completo): ${JSON.stringify(rows)}`);
         } catch (error) {
+            console.error('[DevSyncPanel] Error al inspeccionar la cola:', error);
             appendLog(`Error al inspeccionar la cola: ${error.message}`);
         }
     };
@@ -143,7 +162,7 @@ const DevSyncPanel = () => {
         <View style={styles.container}>
             <Text style={styles.title}>DEV — Sync WorkOrders</Text>
             <Text style={styles.status}>
-                {`estado=${syncState.status} pendientes=${syncState.pendingCount} fallidas=${syncState.failedCount} conflictos=${syncState.conflictCount}`}
+                {`estado=${syncState.status} pendientes=${syncState.pendingCount} fallidas=${syncState.failedCount} permanentes=${syncState.failedPermanentCount} conflictos=${syncState.conflictCount}`}
             </Text>
             <View style={styles.row}>
                 <TextInput

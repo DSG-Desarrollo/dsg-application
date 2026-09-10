@@ -11,21 +11,15 @@ import {
 } from "react-native";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import useFetchProducts from "@hooks/useFetchProducts";
-import ApiService from "@services/api/ApiService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
 import i18n from '@i18n/i18n';
-import { HTTP_CODES } from "@constants";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { spacing, palette } from '@themes';
+import WorkOrderRepository from '@repositories/WorkOrderRepository';
 
 const { white } = palette;
-const { OK, CREATED } = HTTP_CODES;
-
-// Services
-import workOrderService from "@services/api/workorder.service";
-const { getWorkOrdersMaterialsSummary } = workOrderService;
 
 // Styles
 import { common as commonStyles, supplies as styles } from './styles';
@@ -58,6 +52,7 @@ const TabWorkOrderSupplies = ({ route }) => {
 
   const [productQuantities, setProductQuantities] = useState({});
   const { productsData, loading, error } = useFetchProducts();
+  const workOrderRepository = WorkOrderRepository();
   const sortedProductsData = productsData.sort((a, b) =>
     a.productName.localeCompare(b.productName)
   );
@@ -70,16 +65,15 @@ const TabWorkOrderSupplies = ({ route }) => {
     }));
   };
 
+  // Offline-first: se lee siempre de SQLite local (materials_order), nunca de la API
+  // directamente — la tabla se puebla en cada guardado exitoso (ver handleSave), con o
+  // sin conexión, así que no hace falta un fetch de red para mostrar lo ya guardado.
   async function getWorderOrderMaterialsSummary() {
     try {
-      const response = await getWorkOrdersMaterialsSummary(id_orden_trabajo);
-      if (response?.success && Array.isArray(response.data)) {
-        setMaterialsSummary(response.data);
-      }
+      const rows = await workOrderRepository.getLocalMaterials(id_orden_trabajo);
+      setMaterialsSummary(rows);
     } catch (error) {
       console.error('Error al obtener los materiales:', error.message);
-    } finally {
-      setIsLoadingSendData(false);
     }
   }
 
@@ -109,38 +103,41 @@ const TabWorkOrderSupplies = ({ route }) => {
 
   const handleSave = async () => {
     setIsLoadingSendData(true);
-    const apiService = new ApiService();
 
-    const data = sortedProductsData
-    .map((product) => ({
-      id_orden_trabajo: id_orden_trabajo,
+    // Offline-first: escribe todas las líneas en SQLite local de inmediato (upsert/borrado
+    // según cantidad, igual que sp_upsert_material_orden) y encola el batch completo para
+    // que SyncManager lo mande a POST /api/materials-order en cuanto haya conexión (ver
+    // WorkOrderRepository.saveMaterials). Antes esto llamaba a ApiService.sendFormData
+    // directo: sin conexión, esa llamada fallaba y además el catch de ApiService tragaba
+    // el error sin relanzarlo ni devolver nada, dejando `response` undefined — el
+    // `response.status` de más abajo tiraba abajo la pantalla.
+    const lines = sortedProductsData.map((product) => ({
       id_aprovisionamiento: product.id,
       cantidad: parseInt(productQuantities[product.id] || "0", 10),
     }));
 
-    console.log("Datos enviados", data);
+    try {
+      await workOrderRepository.saveMaterials(tareaId, id_orden_trabajo, lines);
+      ToastAndroid.show('Materiales guardados correctamente.', ToastAndroid.LONG);
 
-    const endpoint = "api/materials-order";
-    const response = await apiService.sendFormData(data, endpoint);
-
-    if (userData?.employee?.id_usuario_empleado) {
-      await FormCompletionTracker.markFormAsCompleted(
-        "form_work_order_supplies",
-        clienteId,
-        tareaId,
-        id_orden_trabajo,
-        userData.employee.id_usuario_empleado
-      );
-      onFormCompleted?.();
-    } else {
-      console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");
+      if (userData?.employee?.id_usuario_empleado) {
+        await FormCompletionTracker.markFormAsCompleted(
+          "form_work_order_supplies",
+          clienteId,
+          tareaId,
+          id_orden_trabajo,
+          userData.employee.id_usuario_empleado
+        );
+        onFormCompleted?.();
+      } else {
+        console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");
+      }
+    } catch (error) {
+      console.error('Error al guardar los materiales:', error.message);
+      ToastAndroid.show('No se pudieron guardar los materiales.', ToastAndroid.LONG);
+    } finally {
+      setIsLoadingSendData(false);
     }
-
-    console.info("Respuesta de la API:", response);
-    if ([OK, CREATED].includes(response.status)) {
-      ToastAndroid.show(response.message, ToastAndroid.LONG);
-    }
-    setIsLoadingSendData(false);
   };
 
   const handleStep = (id, delta) => {

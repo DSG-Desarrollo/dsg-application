@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import DatabaseService from '../services/database/DatabaseService';
 import Constants from 'expo-constants';
 
@@ -25,7 +25,13 @@ export const DatabaseProvider = ({ children }) => {
     initializeDatabase();
   }, []);
 
-  const getTableStructure = async (tableName) => {
+  // useCallback (con databaseService como única dependencia real) para que estas
+  // funciones mantengan la misma referencia entre renders salvo cuando la conexión a
+  // SQLite realmente cambia. Sin esto, cualquier consumidor que las use en un array de
+  // dependencias de useEffect (p.ej. SyncContext, para suscribirse a NetworkMonitor) se
+  // desuscribía y resuscribía en cada render de DatabaseProvider, no solo cuando hacía
+  // falta.
+  const getTableStructure = useCallback(async (tableName) => {
     try {
       if (databaseService) {
         return await databaseService.getTableStructure(tableName);
@@ -34,9 +40,9 @@ export const DatabaseProvider = ({ children }) => {
       console.error('Error al obtener la estructura de la tabla:', error);
     }
     return null;
-  };
+  }, [databaseService]);
 
-  const executeSql = async (sql, params = []) => {
+  const executeSql = useCallback(async (sql, params = []) => {
     try {
       if (databaseService) {
         return await databaseService.executeSql(sql, params);
@@ -45,9 +51,9 @@ export const DatabaseProvider = ({ children }) => {
       console.error('Error al ejecutar la consulta SQL:', error);
     }
     return null;
-  };
+  }, [databaseService]);
 
-  const getAllAsyncSql = async (sql, params = []) => {
+  const getAllAsyncSql = useCallback(async (sql, params = []) => {
     try {
       if (databaseService) {
         return await databaseService.getAllRows(sql, params);
@@ -56,9 +62,9 @@ export const DatabaseProvider = ({ children }) => {
       console.error('Error al ejecutar la consulta SQL:', error);
     }
     return null;
-  };
+  }, [databaseService]);
 
-  const getFirstAsyncSql = async (sql, params = []) => {
+  const getFirstAsyncSql = useCallback(async (sql, params = []) => {
     try {
       if (databaseService) {
         return await databaseService.getFirstRow(sql, params);
@@ -67,14 +73,14 @@ export const DatabaseProvider = ({ children }) => {
       console.error('Error al ejecutar la consulta SQL:', error);
     }
     return null;
-  }
+  }, [databaseService]);
 
-  const runExclusive = async (callback) => {
+  const runExclusive = useCallback(async (callback) => {
     if (databaseService) {
       return await databaseService.runExclusive(callback);
     }
     return null;
-  };
+  }, [databaseService]);
 
   return (
     <DatabaseContext.Provider value={

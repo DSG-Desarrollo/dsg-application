@@ -7,6 +7,9 @@ let state = {
     status: 'idle', // idle | syncing | success | error | offline | conflict
     pendingCount: 0,
     failedCount: 0,
+    // Rechazos definitivos del servidor (4xx) — SPEC.md §18/§46 caso 7: se muestran
+    // aparte de failedCount (que sí sigue reintentando) porque no se reintentan solos.
+    failedPermanentCount: 0,
     conflictCount: 0,
     lastSyncedAt: null,
     lastError: null,

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import UnitWorkOrdersService from '@services/api/units/UnitWorkOrdersService';
 import useNetworkState from '@hooks/useNetworkState';
 import { useDatabase } from '@context/DatabaseContext';
+import WorkOrderRepository from '@repositories/WorkOrderRepository';
 
 // Columnas cacheadas localmente por cada unidad (id_tarea no viene en la
 // respuesta del backend — UnitsQuery la recibe como parámetro pero no la
@@ -19,6 +20,7 @@ const useFetchUnitWorkOrders = (taskId) => {
     const [error, setError] = useState(null);
     const { networkState } = useNetworkState();
     const { getAllAsyncSql, runExclusive } = useDatabase();
+    const workOrderRepository = WorkOrderRepository();
 
     const fetchSavedUnits = useCallback(async () => {
         const query = `SELECT * FROM units WHERE id_tarea = ? ORDER BY id_orden_trabajo DESC`;
@@ -95,7 +97,19 @@ const useFetchUnitWorkOrders = (taskId) => {
             const unitsResponse = await unitWorkOrdersService.getUnits(query);
             if (Array.isArray(unitsResponse)) {
                 setUnitsData(unitsResponse);
-                saveUnitsLocally(unitsResponse);
+                // No deben tirar la pantalla abajo si algo falla al cachear: ya tenemos
+                // los datos frescos de la red para mostrar. Antes se llamaban sin await
+                // ni catch — un fallo acá se volvía una promesa rechazada sin manejar.
+                try {
+                    await saveUnitsLocally(unitsResponse);
+                } catch (cacheError) {
+                    console.error('Error al cachear unidades en SQLite:', cacheError);
+                }
+                try {
+                    await workOrderRepository.seedFromUnits(taskId, unitsResponse);
+                } catch (cacheError) {
+                    console.error('Error al sembrar work_orders desde unidades:', cacheError);
+                }
             } else {
                 setError(unitsResponse?.error || 'Error al obtener los datos.');
             }

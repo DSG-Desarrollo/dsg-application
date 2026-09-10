@@ -66,6 +66,7 @@ class SyncManager {
                 status: 'success',
                 pendingCount: counts.pending,
                 failedCount: counts.failed,
+                failedPermanentCount: counts.failed_permanent,
                 conflictCount: counts.conflict,
                 lastSyncedAt: new Date().toISOString(),
                 lastError: null,
@@ -84,6 +85,46 @@ class SyncManager {
             return;
         }
 
+        // 'update' (progreso_orden_trabajo/comentario_orden) va por el slice genérico
+        // versionado (/api/sync/push, con expected_version/conflict). 'install' (tab
+        // Instalación) pega directo a /api/work-orders, que no tiene ese control de
+        // versión — cada acción tiene su propio endpoint y su propio manejo de resultado.
+        const updateRows = pendingRows.filter((row) => row.action === 'update');
+        const installRows = pendingRows.filter((row) => row.action === 'install');
+        const materialsRows = pendingRows.filter((row) => row.action === 'materials');
+
+        if (updateRows.length > 0) {
+            await this._pushUpdateOperations(updateRows);
+        }
+
+        for (const row of installRows) {
+            await this._pushSimpleOperation(row, {
+                // operation_id viaja en el payload para que el backend pueda deduplicar
+                // (SPEC.md §9 — WorkOrdersController::store ahora chequea sync_operations).
+                call: (payload) => SyncService.storeWorkOrderInstallation({ ...payload, operation_id: row.operation_id }),
+                parseResult: (response) => ({ status: response?.data?.status, message: response?.data?.message }),
+                onSuccess: (tx) => tx.executeSql(
+                    `UPDATE work_orders SET sync_status = 'synced', last_synced_at = ? WHERE id_orden_trabajo = ?`,
+                    [new Date().toISOString(), row.entity_id]
+                ),
+            });
+        }
+
+        for (const row of materialsRows) {
+            await this._pushSimpleOperation(row, {
+                call: (payload) => SyncService.storeMaterialsOrder({ operation_id: row.operation_id, lines: payload.lines || [] }),
+                parseResult: (response) => ({ status: response?.status, message: response?.message }),
+                onSuccess: (tx) => tx.executeSql(
+                    // Todas las líneas 'pending' de esta OT vienen del mismo batch que
+                    // recién se confirmó: se marcan 'synced' juntas.
+                    `UPDATE materials_order SET sync_status = 'synced' WHERE id_orden_trabajo = ? AND sync_status = 'pending'`,
+                    [row.entity_id]
+                ),
+            });
+        }
+    }
+
+    async _pushUpdateOperations(pendingRows) {
         const operations = pendingRows.map((row) => ({
             operation_id: row.operation_id,
             entity: row.entity,
@@ -106,6 +147,79 @@ class SyncManager {
         }
     }
 
+    /**
+     * Maneja el push de una operación cuyo endpoint no tiene control de versión (a
+     * diferencia de 'update', que sí lo tiene — ver _pushUpdateOperations/_applyPushResult
+     * — y por eso usa /api/sync/push con expected_version/conflict). Reutilizado por
+     * 'install' y 'materials'; la próxima acción de este tipo (Ubicación, Fotos) suma un
+     * `call`/`parseResult`/`onSuccess` acá en vez de repetir todo el manejo de
+     * éxito/error/logging/clasificación de errores.
+     *
+     * Clasifica la respuesta (SPEC.md §18 y §46 caso 7): un 4xx es un rechazo definitivo
+     * del servidor — la misma request nunca va a tener éxito sin cambiar los datos, así
+     * que NO se reintenta sola indefinidamente (markPermanentlyFailed). Un 5xx, o
+     * cualquier excepción de red/transporte, se trata como transitorio y sí se reintenta
+     * con backoff exponencial (igual que 'update').
+     *
+     * @param {object} row Fila de sync_queue.
+     * @param {object} options
+     * @param {(payload: object) => Promise<object>} options.call Llama al endpoint de la acción.
+     * @param {(response: object) => {status: (number|undefined), message: (string|undefined)}} options.parseResult
+     *   Normaliza la respuesta — distintos endpoints envuelven distinto (install:
+     *   {data:{status}}, materials: {status} plano).
+     * @param {(tx: object) => Promise<void>} options.onSuccess Efecto local a aplicar en la
+     *   misma transacción que marca la cola como synced.
+     */
+    async _pushSimpleOperation(row, { call, parseResult, onSuccess }) {
+        const label = row.action;
+        try {
+            const payload = JSON.parse(row.payload || '{}');
+            // Log completo (sin truncar, a diferencia del recuadro de DevSyncPanel) de
+            // cada intento real, automático o manual, para poder diagnosticar por qué el
+            // backend rechaza una operación sin depender de apretar botones en el panel.
+            console.log(`[SyncManager] ${label} -> operation_id=${row.operation_id}`, JSON.stringify(payload));
+            const response = await call(payload);
+            console.log(`[SyncManager] ${label} <- respuesta operation_id=${row.operation_id}`, JSON.stringify(response));
+
+            const { status, message } = parseResult(response);
+            const classification = RetryPolicy.classifyHttpStatus(status);
+
+            if (classification === 'success') {
+                // Registro + cola se actualizan en la misma transacción (SPEC.md, sección 24):
+                // nunca debe quedar el dato local en su nuevo estado con la cola sin marcar synced.
+                await this.db.runExclusive(async (tx) => {
+                    await onSuccess(tx);
+                    await SyncQueue.markSynced(tx.executeSql, row.id);
+                });
+                return;
+            }
+
+            if (classification === 'permanent') {
+                console.error(`[SyncManager] ${label} operation_id=${row.operation_id} rechazado en forma permanente (status=${status}): ${message}`);
+                await SyncQueue.markPermanentlyFailed(this.db.executeSql, row.id, {
+                    error: message || `Rechazo definitivo del servidor (status ${status})`,
+                });
+                return;
+            }
+
+            const attempts = (row.attempts || 0) + 1;
+            await SyncQueue.markFailed(this.db.executeSql, row.id, {
+                attempts,
+                error: message || 'Error desconocido al sincronizar',
+                nextRetryAt: RetryPolicy.getNextRetryAt(attempts),
+            });
+        } catch (error) {
+            // Excepción real (red/timeout/JS) siempre se trata como transitoria.
+            console.error(`[SyncManager] ${label} operation_id=${row.operation_id} lanzó una excepción:`, error);
+            const attempts = (row.attempts || 0) + 1;
+            await SyncQueue.markFailed(this.db.executeSql, row.id, {
+                attempts,
+                error: error.message || 'Error de red al sincronizar',
+                nextRetryAt: RetryPolicy.getNextRetryAt(attempts),
+            });
+        }
+    }
+
     async _applyPushResult(row, result) {
         if (result.status === 'synced') {
             // Registro + cola se actualizan en la misma transacción (SPEC.md, sección 24): nunca
@@ -123,6 +237,14 @@ class SyncManager {
         if (result.status === 'conflict') {
             ConflictResolver.resolveConflict(row.entity, { queueRow: row, serverResult: result });
             await SyncQueue.markConflict(this.db.executeSql, row.id);
+            return;
+        }
+
+        // "Unsupported entity/action" es un rechazo permanente y conocido del propio
+        // backend (SyncController::processOperation) — un error de configuración/código,
+        // no algo transitorio; reintentarlo no va a cambiar el resultado (SPEC.md §18).
+        if (result.error === 'Unsupported entity/action for this sync endpoint') {
+            await SyncQueue.markPermanentlyFailed(this.db.executeSql, row.id, { error: result.error });
             return;
         }
 

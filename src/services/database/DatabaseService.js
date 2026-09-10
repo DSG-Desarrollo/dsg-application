@@ -120,6 +120,11 @@ class DatabaseService {
             ['idx_user_username', 'user', 'username'],
             ['idx_units_id_tarea', 'units', 'id_tarea'],
             ['idx_units_id_unidad', 'units', 'id_unidad'],
+            ['idx_work_orders_id_orden_trabajo', 'work_orders', 'id_orden_trabajo'],
+            ['idx_work_orders_id_tarea', 'work_orders', 'id_tarea'],
+            ['idx_supplies_id_aprovisionamiento', 'supplies', 'id_aprovisionamiento'],
+            ['idx_supplies_employee_id', 'supplies', 'employee_id'],
+            ['idx_materials_order_id_orden_trabajo', 'materials_order', 'id_orden_trabajo'],
         ];
 
         for (const [indexName, tableName, column] of indexes) {

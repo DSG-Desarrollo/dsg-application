@@ -29,12 +29,23 @@ class ProductsService {
                     variables
                 };
 
+                const requestPromise = this.api.request('graphql', 'POST', queryWithVariables);
+                // Si gana el timeout, esta promesa queda "huérfana": la petición real sigue
+                // viva y puede resolver/rechazar mucho después (p.ej. al reconectar WiFi),
+                // sin nada que la esté esperando ya — eso se manifestaba como un rechazo de
+                // promesa sin manejar. Este catch mudo evita que se propague sin tocar el
+                // resultado de la carrera de abajo.
+                requestPromise.catch(() => {});
+
                 const resultData = await Promise.race([
-                    this.api.request('graphql', 'POST', queryWithVariables),
+                    requestPromise,
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout))
                 ]);
 
                 // Verificar si los datos recibidos tienen la estructura esperada
+                if (!resultData || !resultData.data) {
+                    return { error: 'La estructura de datos de la API no es la esperada.' };
+                }
                 const dataKey = Object.keys(resultData.data)[0];
                 if (resultData && resultData.data && Array.isArray(resultData.data[dataKey]) && resultData.data[dataKey].length > 0) {
                     return resultData.data[dataKey]; // Devolver los datos obtenidos

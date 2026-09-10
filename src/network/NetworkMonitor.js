@@ -35,15 +35,19 @@ class NetworkMonitor {
     _applyState(netInfoState) {
         const quality = evaluateConnectionQuality(netInfoState);
         if (!quality) {
+            console.log('[NetworkMonitor] evento de NetInfo ignorado (quality=null):', JSON.stringify(netInfoState));
             return;
         }
 
         const wasConnected = this.isConnected;
         this.isConnected = quality.isConnected;
+        console.log(`[NetworkMonitor] wasConnected=${wasConnected} -> isConnected=${this.isConnected} (type=${quality.type}) listeners=${this.listeners.size}`);
 
         if (!wasConnected && this.isConnected) {
+            console.log('[NetworkMonitor] disparando evento "online" a los listeners');
             this.listeners.forEach((listener) => listener({ type: 'online' }));
         } else if (wasConnected && !this.isConnected) {
+            console.log('[NetworkMonitor] disparando evento "offline" a los listeners');
             this.listeners.forEach((listener) => listener({ type: 'offline' }));
         }
     }

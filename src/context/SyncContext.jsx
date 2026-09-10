@@ -33,13 +33,18 @@ export const SyncProvider = ({ children }) => {
         // puede usar los datos locales mientras esto corre en segundo plano.
         SyncManager.requestSync();
 
+        console.log('[SyncContext] suscribiéndose a NetworkMonitor');
         const unsubscribe = NetworkMonitor.subscribe((event) => {
+            console.log(`[SyncContext] evento de NetworkMonitor recibido: ${event.type}`);
             if (event.type === 'online') {
                 SyncManager.requestSync();
             }
         });
 
-        return unsubscribe;
+        return () => {
+            console.log('[SyncContext] desuscribiéndose de NetworkMonitor (efecto se re-ejecuta o se desmonta)');
+            unsubscribe();
+        };
     }, [isDatabaseInitialized, executeSql, getAllAsyncSql, getFirstAsyncSql, runExclusive]);
 
     return (

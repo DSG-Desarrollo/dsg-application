@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View, ScrollView, Text, ToastAndroid, Pressable } from 'react-native';
 import i18n from '@i18n/i18n';
-import TicketService from '@services/api/tickets/TicketService';
 import FormValidation from '@components/molecules/FormValidation';
 import FormCompletionTracker from '@components/atoms/FormCompletionTracker';
 import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
@@ -12,11 +11,8 @@ import { installation as styles, common as commonStyles } from './styles';
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { HTTP_CODES } from "@constants";
-import workOrderService from "@services/api/workorder.service";
-const { getWorkOrdersByTaskId } = workOrderService;
+import WorkOrderRepository from '@repositories/WorkOrderRepository';
 
-const { OK, CREATED } = HTTP_CODES;
 const { primary, primaryText } = buttonStyles;
 const { white } = palette;
 
@@ -92,13 +88,17 @@ const TabInstallationType = ({ route }) => {
     id_unidad,
   } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
+  const workOrderRepository = WorkOrderRepository();
 
+  // Offline-first: se lee siempre de SQLite local, nunca de la API directamente.
+  // work_orders se puebla (id_tarea, numero_orden, progreso_orden_trabajo) apenas se
+  // traen las unidades del ticket (useFetchUnitWorkOrders -> seedFromUnits), y
+  // 'instalacion' se actualiza local de inmediato al guardar este formulario (ver
+  // handleSave/saveInstallation) — no hace falta ninguna llamada de red para mostrar
+  // el estado actual, con o sin conexión.
   async function getWorkOrder() {
     try {
-      const workOrders = await getWorkOrdersByTaskId(tareaId);
-      const currentWorkOrder = workOrders.data.find(
-          (workOrder) => String(workOrder.id_orden_trabajo) === String(id_orden_trabajo)
-      );
+      const currentWorkOrder = await workOrderRepository.getLocalById(id_orden_trabajo);
 
       if (currentWorkOrder?.instalacion) {
         const [vehicle, installationType, powerOffType, batteryType] = currentWorkOrder.instalacion.split('|');
@@ -144,8 +144,6 @@ const TabInstallationType = ({ route }) => {
     { key: "batteryType", type: "string", message: i18n.t("workOrder:batteryMessageValidation") }
   ];
 
-  const ticketService = new TicketService();
-
   const [selectedOption, setSelectedOption] = useState({
     id_tarea: tareaId,
     id_orden_trabajo: id_orden_trabajo,
@@ -178,31 +176,29 @@ const TabInstallationType = ({ route }) => {
     setIsLoadingSendData(true);
 
     try {
-      // Enviar los datos utilizando el método sendFormData de TicketService
-      const response = await ticketService.sendFormData(selectedOption, 'api/work-orders');
-      console.log('Respuesta del servidor:', response);
+      // Offline-first: escribe 'instalacion' en SQLite local de inmediato y encola el
+      // envío a POST /api/work-orders (SyncManager lo manda en cuanto hay conexión, ver
+      // WorkOrderRepository.saveInstallation). El formulario ya no depende de que el
+      // request al servidor termine — ni siquiera de que haya conexión — para considerar
+      // el guardado exitoso, igual que el resto del flujo offline-first de la app.
+      await workOrderRepository.saveInstallation(tareaId, id_orden_trabajo, {
+        vehicle: selectedOption.vehicle,
+        installationType: selectedOption.installationType,
+        powerOffType: selectedOption.powerOffType,
+        batteryType: selectedOption.batteryType,
+      });
 
-      // Verificar si la respuesta indica que la solicitud fue exitosa (código de estado HTTP 201)
-      console.log('response.status', response.status);
-      if (response.status === CREATED || response.status === OK) {
-        // La solicitud fue exitosa
-        console.log('Datos del registro insertado:', response.data);
-        console.log('Último ID insertado:', response.last_insert_id);
-        ToastAndroid.show(response.message, ToastAndroid.LONG);
-        
-        if (userData?.employee?.id_usuario_empleado) {
-          await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
-          onFormCompleted?.();
-        } else {
-          console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");
-        }
+      ToastAndroid.show('Instalación guardada correctamente.', ToastAndroid.LONG);
+
+      if (userData?.employee?.id_usuario_empleado) {
+        await FormCompletionTracker.markFormAsCompleted("form_installation_type", clienteId, tareaId, id_orden_trabajo, userData.employee.id_usuario_empleado);
+        onFormCompleted?.();
       } else {
-        // La solicitud no fue exitosa, manejar el caso de manera adecuada
-        console.error('La solicitud no fue exitosa:', response.statusText);
+        console.warn("No se pudo marcar el formulario como completado: userData aún no está disponible.");
       }
-      
     } catch (error) {
-      console.error('Error al enviar los datos_:', error.message);
+      console.error('Error al guardar la instalación:', error.message);
+      ToastAndroid.show('No se pudo guardar la instalación.', ToastAndroid.LONG);
     } finally {
       setIsLoadingSendData(false);
     }
