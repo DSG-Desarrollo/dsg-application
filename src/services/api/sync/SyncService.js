@@ -60,6 +60,48 @@ class SyncService {
     async storeMaterialsOrder(payload) {
         return this.api.post('materials-order', payload);
     }
+
+    /**
+     * Pega a /api/img-location-installation-ot (InstallationImgWorkOrderController::store)
+     * con el base64 de la imagen de ubicación ya leído del archivo local (ver SyncManager,
+     * acción 'location'). Upsert simple por id_orden_trabajo, sin control de versión.
+     * OJO: esta respuesta usa App\Http\Responses\ApiResponse — {success, data, error},
+     * sin un código HTTP numérico explícito en el body.
+     * @param {{operation_id: string, id_tarea: number, id_orden_trabajo: number, usuario_creacion: number, tipo_equipo: (string|null), comentario_imagen: (string|null), image: string}} payload
+     * @returns {Promise<Object>} { success, data, error, message }.
+     */
+    async storeEquipmentLocationImage(payload) {
+        return this.api.post('img-location-installation-ot', payload);
+    }
+
+    /**
+     * Pega a /api/work-orders/{id}/photos (WorkOrderRevisionPhotosController::store),
+     * multipart, con UNA sola foto (no un batch, a diferencia de cómo la llama
+     * TabWorkOrderPhotos online): cada foto es su propia operación de cola/idempotencia
+     * (ver WorkOrderRepository.addLocalPhoto). Igual forma de respuesta que
+     * storeEquipmentLocationImage — {success, data, error} sin status HTTP numérico —
+     * pero acá 'data.summary[tipo].records[0]' trae el id_evidencia/url reales de la
+     * foto recién guardada (agregado justo para este flujo offline-first: la subida en
+     * sí no es idempotente por naturaleza — reintentarla sin este id duplicaría la foto).
+     * @param {number} idOrdenTrabajo
+     * @param {FormData} formData
+     * @returns {Promise<Object>}
+     */
+    async uploadWorkOrderPhoto(idOrdenTrabajo, formData) {
+        return this.api.post(`work-orders/${idOrdenTrabajo}/photos`, formData, true);
+    }
+
+    /**
+     * Pega a DELETE /api/work-orders/photos/{idEvidencia} (borrado lógico). A diferencia
+     * del resto de las acciones, no lleva idempotencia por operation_id: reintentar un
+     * borrado ya aplicado simplemente vuelve a dar 404 "ya fue eliminada" — mismo
+     * resultado final, así que ya es idempotente en efecto sin necesidad de un ledger.
+     * @param {number} remoteId id_evidencia
+     * @returns {Promise<Object>}
+     */
+    async deleteWorkOrderPhoto(remoteId) {
+        return this.api.delete(`work-orders/photos/${remoteId}`);
+    }
 }
 
 export { SyncService };

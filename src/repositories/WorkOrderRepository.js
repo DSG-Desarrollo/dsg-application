@@ -8,9 +8,16 @@
 // useDatabase() para SQLite local, sin que las pantallas toquen SQLite ni la API
 // directamente (SPEC.md, sección 4).
 import * as Crypto from 'expo-crypto';
+// Ver DevSyncPanel.jsx: el import "default" de expo-file-system en SDK 54+ cambió a las
+// clases File/Directory; documentDirectory/writeAsStringAsync/etc. siguen existiendo,
+// pero solo en el subpath /legacy.
+import * as FileSystem from 'expo-file-system/legacy';
 import { useDatabase } from '@context/DatabaseContext';
 import * as SyncQueue from '@sync/SyncQueue';
 import SyncManager from '@sync/SyncManager';
+
+const EQUIPMENT_LOCATION_DIR = `${FileSystem.documentDirectory}equipment_location/`;
+const WORK_ORDER_PHOTOS_DIR = `${FileSystem.documentDirectory}work_order_photos/`;
 
 const MUTABLE_FIELDS = ['progreso_orden_trabajo', 'comentario_orden'];
 
@@ -217,6 +224,257 @@ const WorkOrderRepository = () => {
     };
 
     /**
+     * @param {number} idOrdenTrabajo
+     * @returns {Promise<object|null>}
+     */
+    const getLocalEquipmentLocationImage = async (idOrdenTrabajo) => {
+        return getFirstAsyncSql(
+            `SELECT * FROM equipment_location_images WHERE id_orden_trabajo = ?`,
+            [Number(idOrdenTrabajo)]
+        );
+    };
+
+    /**
+     * Hidrata la caché local con la imagen de ubicación ya guardada en el servidor —
+     * solo para la primera vez que se abre esta OT en este dispositivo (ver
+     * useEquipmentLocationImage: si ya hay algo local, sea 'synced' o 'pending', nunca se
+     * llama a esto ni se pisa). Descarga el archivo real, no solo la URL, para que quede
+     * disponible offline de ahí en más.
+     *
+     * @param {number} taskId
+     * @param {number} idOrdenTrabajo
+     * @param {{ tipo_equipo?: string, comentario_imagen?: string, image_url: string }} serverData
+     * @returns {Promise<object|null>}
+     */
+    const cacheEquipmentLocationImageFromServer = async (taskId, idOrdenTrabajo, serverData) => {
+        taskId = Number(taskId);
+        idOrdenTrabajo = Number(idOrdenTrabajo);
+
+        const existing = await getLocalEquipmentLocationImage(idOrdenTrabajo);
+        if (existing) {
+            return existing;
+        }
+
+        await FileSystem.makeDirectoryAsync(EQUIPMENT_LOCATION_DIR, { intermediates: true }).catch(() => {});
+        const localPath = `${EQUIPMENT_LOCATION_DIR}${idOrdenTrabajo}.jpg`;
+        await FileSystem.downloadAsync(serverData.image_url, localPath);
+
+        const now = new Date().toISOString();
+        await executeSql(
+            `INSERT INTO equipment_location_images (id_orden_trabajo, id_tarea, tipo_equipo, comentario_imagen, local_image_path, remote_image_url, sync_status, last_synced_at)
+             VALUES (?, ?, ?, ?, ?, ?, 'synced', ?)`,
+            [idOrdenTrabajo, taskId, serverData.tipo_equipo ?? null, serverData.comentario_imagen ?? null, localPath, serverData.image_url, now]
+        );
+
+        return getLocalEquipmentLocationImage(idOrdenTrabajo);
+    };
+
+    /**
+     * Guarda la imagen de ubicación (tab "Ubicación") de forma offline-first (SPEC.md §32:
+     * el archivo no debe depender de que haya Internet en el momento de capturarlo).
+     * Escribe el archivo local YA (expo-file-system) y el registro en SQLite, y encola una
+     * operación 'location' — SyncManager lee el archivo, arma el base64 y lo manda a POST
+     * /img-location-installation-ot cuando hay conexión.
+     *
+     * @param {number} taskId
+     * @param {number} idOrdenTrabajo
+     * @param {{ userId: number, image: string, equipmentType?: string, comment?: string }} params
+     *   `image` es el base64 (PNG) capturado del lienzo.
+     * @returns {Promise<{ operationId: string }>}
+     */
+    const saveEquipmentLocationImage = async (taskId, idOrdenTrabajo, { userId, image, equipmentType, comment }) => {
+        taskId = Number(taskId);
+        idOrdenTrabajo = Number(idOrdenTrabajo);
+
+        await FileSystem.makeDirectoryAsync(EQUIPMENT_LOCATION_DIR, { intermediates: true }).catch(() => {});
+        const localPath = `${EQUIPMENT_LOCATION_DIR}${idOrdenTrabajo}.jpg`;
+        await FileSystem.writeAsStringAsync(localPath, image, { encoding: FileSystem.EncodingType.Base64 });
+
+        const existing = await getLocalEquipmentLocationImage(idOrdenTrabajo);
+        if (existing) {
+            await executeSql(
+                `UPDATE equipment_location_images SET tipo_equipo = ?, comentario_imagen = ?, local_image_path = ?, sync_status = 'pending' WHERE id_orden_trabajo = ?`,
+                [equipmentType ?? null, comment ?? null, localPath, idOrdenTrabajo]
+            );
+        } else {
+            await executeSql(
+                `INSERT INTO equipment_location_images (id_orden_trabajo, id_tarea, tipo_equipo, comentario_imagen, local_image_path, sync_status)
+                 VALUES (?, ?, ?, ?, ?, 'pending')`,
+                [idOrdenTrabajo, taskId, equipmentType ?? null, comment ?? null, localPath]
+            );
+        }
+
+        const operationId = Crypto.randomUUID();
+        await SyncQueue.enqueue(executeSql, {
+            operationId,
+            entity: 'work_orders',
+            entityId: idOrdenTrabajo,
+            action: 'location',
+            payload: {
+                id_tarea: taskId,
+                id_orden_trabajo: idOrdenTrabajo,
+                usuario_creacion: userId,
+                tipo_equipo: equipmentType ?? null,
+                comentario_imagen: comment ?? null,
+                // El base64 NO viaja acá (infla la cola local): SyncManager lee este
+                // archivo recién al momento de sincronizar.
+                local_image_path: localPath,
+            },
+            expectedVersion: null,
+        });
+
+        SyncManager.requestSync();
+
+        return { operationId };
+    };
+
+    /**
+     * @param {number} idOrdenTrabajo
+     * @returns {Promise<Array<object>>} Filas activas (deleted_at IS NULL), tanto ya
+     *   sincronizadas como con cambios locales todavía pendientes de subir/borrar.
+     */
+    const getLocalPhotos = async (idOrdenTrabajo) => {
+        return (await getAllAsyncSql(
+            `SELECT * FROM work_order_photos WHERE id_orden_trabajo = ? AND deleted_at IS NULL ORDER BY id ASC`,
+            [Number(idOrdenTrabajo)]
+        )) || [];
+    };
+
+    /**
+     * Agrega una foto (tab "Fotos") de forma offline-first (SPEC.md §32). La URI que
+     * entrega el picker/cámara es un archivo temporal sin garantía de sobrevivir más
+     * allá de esta sesión — se copia a almacenamiento propio de la app antes de
+     * registrar nada, para que quede disponible aunque se cierre la app antes de
+     * sincronizar. Encola una operación 'photo_upload' por foto (no un batch): así cada
+     * subida es una unidad de idempotencia propia, y borrar una foto individual más
+     * tarde (ver removeLocalPhoto) puede cancelar solo SU operación sin afectar a otras.
+     *
+     * @param {number} taskId
+     * @param {number} idOrdenTrabajo
+     * @param {number} clienteId
+     * @param {'reception'|'delivery'} section
+     * @param {string} pickedUri URI local del picker/cámara (file:// o content://).
+     * @returns {Promise<object>} La fila local recién creada.
+     */
+    const addLocalPhoto = async (taskId, idOrdenTrabajo, clienteId, section, pickedUri) => {
+        taskId = Number(taskId);
+        idOrdenTrabajo = Number(idOrdenTrabajo);
+        clienteId = Number(clienteId);
+
+        await FileSystem.makeDirectoryAsync(WORK_ORDER_PHOTOS_DIR, { intermediates: true }).catch(() => {});
+        const localPath = `${WORK_ORDER_PHOTOS_DIR}${idOrdenTrabajo}-${section}-${Crypto.randomUUID()}.jpg`;
+        await FileSystem.copyAsync({ from: pickedUri, to: localPath });
+
+        const insertResult = await executeSql(
+            `INSERT INTO work_order_photos (id_orden_trabajo, id_tarea, cliente_id, section, local_path, sync_status) VALUES (?, ?, ?, ?, ?, 'pending')`,
+            [idOrdenTrabajo, taskId, clienteId, section, localPath]
+        );
+        const localId = insertResult?.lastInsertRowId;
+
+        const operationId = Crypto.randomUUID();
+        await SyncQueue.enqueue(executeSql, {
+            operationId,
+            entity: 'work_order_photos',
+            entityId: localId,
+            action: 'photo_upload',
+            payload: {
+                id_orden_trabajo: idOrdenTrabajo,
+                id_tarea: taskId,
+                cliente_id: clienteId,
+                section,
+                local_id: localId,
+                // El binario NO viaja acá (infla la cola local): SyncManager lee este
+                // archivo recién al momento de sincronizar.
+                local_path: localPath,
+            },
+            expectedVersion: null,
+        });
+
+        SyncManager.requestSync();
+
+        return getFirstAsyncSql(`SELECT * FROM work_order_photos WHERE id = ?`, [localId]);
+    };
+
+    /**
+     * Quita una foto ya persistida localmente (id local, no el uri efímero del picker).
+     * Si todavía no se subió (sin remote_id), se borra local YA y de paso se cancela
+     * cualquier operación 'photo_upload' todavía en cola para esa fila — si no, se
+     * subiría una foto que el usuario ya sacó antes de que le tocara el turno. Si ya
+     * estaba subida, se marca como tombstone (deleted_at, SPEC.md §13: no desaparece de
+     * inmediato del registro de sincronización) y se encola 'photo_delete'.
+     *
+     * @param {number} localId
+     */
+    const removeLocalPhoto = async (localId) => {
+        const photo = await getFirstAsyncSql(`SELECT * FROM work_order_photos WHERE id = ?`, [localId]);
+        if (!photo) {
+            return;
+        }
+
+        if (!photo.remote_id) {
+            await SyncQueue.removeByEntity(executeSql, { entity: 'work_order_photos', entityId: localId, action: 'photo_upload' });
+            await executeSql(`DELETE FROM work_order_photos WHERE id = ?`, [localId]);
+            return;
+        }
+
+        const operationId = Crypto.randomUUID();
+        await executeSql(
+            `UPDATE work_order_photos SET deleted_at = ?, sync_status = 'pending' WHERE id = ?`,
+            [new Date().toISOString(), localId]
+        );
+        await SyncQueue.enqueue(executeSql, {
+            operationId,
+            entity: 'work_order_photos',
+            entityId: localId,
+            action: 'photo_delete',
+            payload: { remote_id: photo.remote_id },
+            expectedVersion: null,
+        });
+
+        SyncManager.requestSync();
+    };
+
+    /**
+     * Hidrata la caché local con la evidencia ya guardada en el servidor — solo cuando
+     * no hay nada local todavía para esta OT (primera vez en este dispositivo). Descarga
+     * cada imagen (vía el proxy de lectura; S3 es privado) para que quede disponible
+     * offline de ahí en más.
+     *
+     * @param {number} taskId
+     * @param {number} idOrdenTrabajo
+     * @param {number} clienteId
+     * @param {{ANTES?: Array<{id_evidencia: number, url: string}>, DESPUES?: Array<{id_evidencia: number, url: string}>}} grouped
+     */
+    const cachePhotosFromServer = async (taskId, idOrdenTrabajo, clienteId, grouped) => {
+        taskId = Number(taskId);
+        idOrdenTrabajo = Number(idOrdenTrabajo);
+        clienteId = Number(clienteId);
+
+        const sectionByTipo = { ANTES: 'reception', DESPUES: 'delivery' };
+        await FileSystem.makeDirectoryAsync(WORK_ORDER_PHOTOS_DIR, { intermediates: true }).catch(() => {});
+
+        for (const [tipo, section] of Object.entries(sectionByTipo)) {
+            for (const item of grouped[tipo] || []) {
+                const localPath = `${WORK_ORDER_PHOTOS_DIR}${idOrdenTrabajo}-${section}-${item.id_evidencia}.jpg`;
+                try {
+                    await FileSystem.downloadAsync(item.url, localPath);
+                } catch (error) {
+                    // Una descarga fallida (p.ej. proxy momentáneamente caído) no debe
+                    // impedir cachear el resto de las fotos.
+                    console.error(`Error al descargar la foto de evidencia ${item.id_evidencia}:`, error);
+                    continue;
+                }
+
+                await executeSql(
+                    `INSERT INTO work_order_photos (id_orden_trabajo, id_tarea, cliente_id, section, local_path, remote_id, remote_url, sync_status)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, 'synced')`,
+                    [idOrdenTrabajo, taskId, clienteId, section, localPath, item.id_evidencia, item.url]
+                );
+            }
+        }
+    };
+
+    /**
      * Actualiza el progreso/comentario de una OT de forma optimista: escribe primero en
      * SQLite local (funciona completamente offline) y encola la operación para que
      * SyncManager la envíe cuando haya conexión (SPEC.md, sección 2 — la operación local
@@ -270,6 +528,13 @@ const WorkOrderRepository = () => {
         saveInstallation,
         getLocalMaterials,
         saveMaterials,
+        getLocalEquipmentLocationImage,
+        cacheEquipmentLocationImageFromServer,
+        saveEquipmentLocationImage,
+        getLocalPhotos,
+        addLocalPhoto,
+        removeLocalPhoto,
+        cachePhotosFromServer,
         updateStatus,
     };
 };

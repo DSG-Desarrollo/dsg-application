@@ -4,12 +4,19 @@
 // `configure()` se llama una vez al iniciar la app (ver SyncContext.jsx); a partir de
 // ahí, cualquier módulo puede importar esta misma instancia y llamar `requestSync()`.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// Ver DevSyncPanel.jsx: import "legacy" a propósito (documentDirectory/readAsStringAsync
+// en el subpath default de expo-file-system SDK 54+ ya no son estos mismos).
+import * as FileSystem from 'expo-file-system/legacy';
 import * as SyncQueue from './SyncQueue';
 import * as ConflictResolver from './ConflictResolver';
 import * as RetryPolicy from './RetryPolicy';
 import * as SyncState from './SyncState';
 import SyncService from '@services/api/sync/SyncService';
 import NetworkMonitor from '@network/NetworkMonitor';
+// Mismo helper que ya usaba WorkOrderPhotosService.upload (lee el archivo con la API
+// `File`, no `fetch`, que para file:// en Expo puede devolver un 404 falso — ver el
+// comentario en el propio archivo).
+import appendPhotosToFormData from '@utils/buildPhotosFormData';
 
 const CURSOR_STORAGE_KEY = 'sync_cursor_work_orders';
 
@@ -92,6 +99,9 @@ class SyncManager {
         const updateRows = pendingRows.filter((row) => row.action === 'update');
         const installRows = pendingRows.filter((row) => row.action === 'install');
         const materialsRows = pendingRows.filter((row) => row.action === 'materials');
+        const locationRows = pendingRows.filter((row) => row.action === 'location');
+        const photoUploadRows = pendingRows.filter((row) => row.action === 'photo_upload');
+        const photoDeleteRows = pendingRows.filter((row) => row.action === 'photo_delete');
 
         if (updateRows.length > 0) {
             await this._pushUpdateOperations(updateRows);
@@ -120,6 +130,104 @@ class SyncManager {
                     `UPDATE materials_order SET sync_status = 'synced' WHERE id_orden_trabajo = ? AND sync_status = 'pending'`,
                     [row.entity_id]
                 ),
+            });
+        }
+
+        for (const row of locationRows) {
+            await this._pushSimpleOperation(row, {
+                // El base64 no vive en el payload de la cola (SPEC.md §32 — el archivo es
+                // la fuente de verdad local); se lee del disco recién acá, al sincronizar.
+                call: async (payload) => {
+                    const { local_image_path, ...rest } = payload;
+                    const image = await FileSystem.readAsStringAsync(local_image_path, { encoding: FileSystem.EncodingType.Base64 });
+                    return SyncService.storeEquipmentLocationImage({ ...rest, image, operation_id: row.operation_id });
+                },
+                // InstallationImgWorkOrderController::store usa App\Http\Responses\ApiResponse
+                // ({success, data, error}), sin un código HTTP numérico en el body — a
+                // diferencia de install/materials, acá se sintetiza el status a partir de
+                // 'success' (y de error.statusCode cuando la request sí falló del lado servidor).
+                parseResult: (response) => ({
+                    status: response?.success ? 200 : response?.error?.statusCode,
+                    message: response?.message || response?.error?.message,
+                }),
+                onSuccess: (tx) => tx.executeSql(
+                    `UPDATE equipment_location_images SET sync_status = 'synced', last_synced_at = ? WHERE id_orden_trabajo = ?`,
+                    [new Date().toISOString(), row.entity_id]
+                ),
+            });
+        }
+
+        for (const row of photoUploadRows) {
+            // A diferencia de install/materials/location (upsert por clave natural — un
+            // reintento no crea nada de más), subir una foto NO es idempotente por
+            // naturaleza: por eso acá sí importa capturar el id_evidencia/url reales que
+            // devuelve el backend (agregado justo para esto — ver
+            // WorkOrderRevisionPhotosController::store) y guardarlos localmente, en vez
+            // de asumir que "success" alcanza.
+            let uploadedRecord = null;
+
+            await this._pushSimpleOperation(row, {
+                call: async (payload) => {
+                    const formData = new FormData();
+                    formData.append('clientId', String(payload.cliente_id));
+                    formData.append('taskId', String(payload.id_tarea));
+                    formData.append('operation_id', row.operation_id);
+                    const fieldName = payload.section === 'reception' ? 'reception_photos' : 'delivery_photos';
+                    // El binario NO vive en el payload de la cola (SPEC.md §32); se lee
+                    // del disco recién acá, al sincronizar (mismo criterio que 'location').
+                    await appendPhotosToFormData(formData, fieldName, [payload.local_path]);
+                    const response = await SyncService.uploadWorkOrderPhoto(payload.id_orden_trabajo, formData);
+                    const tipoKey = payload.section === 'reception' ? 'ANTES' : 'DESPUES';
+                    uploadedRecord = response?.data?.summary?.[tipoKey]?.records?.[0] || null;
+                    return response;
+                },
+                // Igual forma de respuesta que 'location' — {success, data, error}, sin
+                // status HTTP numérico en el body.
+                parseResult: (response) => ({
+                    status: response?.success ? 200 : response?.error?.statusCode,
+                    message: response?.message || response?.error?.message,
+                }),
+                onSuccess: (tx) => tx.executeSql(
+                    `UPDATE work_order_photos SET remote_id = ?, remote_url = ?, sync_status = 'synced' WHERE id = ?`,
+                    [uploadedRecord?.id_evidencia ?? null, uploadedRecord?.url ?? null, row.entity_id]
+                ),
+            });
+        }
+
+        for (const row of photoDeleteRows) {
+            await this._pushSimpleOperation(row, {
+                call: async (payload) => {
+                    try {
+                        return await SyncService.deleteWorkOrderPhoto(payload.remote_id);
+                    } catch (error) {
+                        // FetchManager.delete() (a diferencia de post/get) SÍ lanza en
+                        // status no-2xx — lo normalizamos acá a la forma
+                        // {success, error:{statusCode}} que maneja parseResult.
+                        if (error?.response?.status === 404) {
+                            // Ya no existe del lado servidor (probable reintento sobre un
+                            // borrado que sí se aplicó la vez anterior, con la respuesta
+                            // perdida en el camino): el estado final deseado ya se
+                            // cumple, así que se trata como éxito para poder limpiar la
+                            // fila local — no como un rechazo permanente.
+                            return { success: true };
+                        }
+                        if (error?.response?.status) {
+                            return {
+                                success: false,
+                                error: { statusCode: error.response.status, message: error.response.data?.error?.message || error.message },
+                            };
+                        }
+                        throw error;
+                    }
+                },
+                parseResult: (response) => ({
+                    status: response?.success ? 200 : response?.error?.statusCode,
+                    message: response?.message || response?.error?.message,
+                }),
+                // Recién acá se borra la fila local (no antes, en removeLocalPhoto): hasta
+                // que el servidor confirma, la fila queda como tombstone (deleted_at) por
+                // si hay que reintentar.
+                onSuccess: (tx) => tx.executeSql(`DELETE FROM work_order_photos WHERE id = ?`, [row.entity_id]),
             });
         }
     }

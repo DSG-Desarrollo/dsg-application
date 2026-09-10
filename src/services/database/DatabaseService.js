@@ -125,6 +125,8 @@ class DatabaseService {
             ['idx_supplies_id_aprovisionamiento', 'supplies', 'id_aprovisionamiento'],
             ['idx_supplies_employee_id', 'supplies', 'employee_id'],
             ['idx_materials_order_id_orden_trabajo', 'materials_order', 'id_orden_trabajo'],
+            ['idx_equipment_location_images_id_orden_trabajo', 'equipment_location_images', 'id_orden_trabajo'],
+            ['idx_work_order_photos_id_orden_trabajo', 'work_order_photos', 'id_orden_trabajo'],
         ];
 
         for (const [indexName, tableName, column] of indexes) {

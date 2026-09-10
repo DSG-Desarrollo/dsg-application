@@ -3,7 +3,6 @@ import { View, Text, Image, ScrollView, TouchableOpacity, Pressable, ToastAndroi
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import DrawableImage from "@components/molecules/DrawableImage";
 import { location as styles } from "./styles";
-import workOrderService from "@services/api/workorder.service";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
@@ -11,6 +10,8 @@ import { faSave, faImage } from "@fortawesome/free-solid-svg-icons";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
 import { buttonStyles } from '@themes';
+import WorkOrderRepository from '@repositories/WorkOrderRepository';
+import useEquipmentLocationImage from '@hooks/useEquipmentLocationImage';
 
 const { textMuted, textInverse, borderStrong } = theme.colors;
 const { primary, primaryText } = buttonStyles;
@@ -72,53 +73,37 @@ const TabEquipmentLocation = ({ route }) => {
     clienteId,
   } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
+  const workOrderRepository = WorkOrderRepository();
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const drawableImageRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState(null);
   // Imagen base que se le pasa al lienzo (fixedImageSource): puede ser el asset local
-  // del tipo de equipo elegido, o la imagen ya guardada en el backend (recuperada al
-  // entrar al tab, para el flujo de edición).
+  // del tipo de equipo elegido, o la imagen ya guardada (local_image_path — un archivo
+  // real en el dispositivo, ver useEquipmentLocationImage/WorkOrderRepository).
   const [canvasImageSource, setCanvasImageSource] = useState(null);
   const [clearPaths, setClearPaths] = useState(false);
-  // Mientras se consulta si la OT ya tiene una imagen de ubicación guardada. El fetch
-  // es una petición de red, así que mostramos un loader para que el usuario no piense
-  // que el lienzo está vacío por defecto mientras en realidad se está recuperando algo.
-  const [isLoadingSavedImage, setIsLoadingSavedImage] = useState(true);
 
-  // Recuperar la imagen de ubicación ya guardada para esta OT (si existe) al montar el
-  // tab, para no partir siempre de un lienzo en blanco al reabrir en modo edición.
+  // Offline-first: se lee siempre de SQLite local (local_image_path apunta a un archivo
+  // real en el dispositivo). Si es la primera vez que se abre esta OT en este
+  // dispositivo y hay conexión, el hook hidrata una vez desde el servidor; si ya hay
+  // algo local (sincronizado o pendiente), nunca se pisa.
+  const { record: savedImage, isLoading: isLoadingSavedImage } = useEquipmentLocationImage(id_orden_trabajo, tareaId);
+
   useEffect(() => {
-    let isMounted = true;
+    if (!savedImage?.local_image_path) {
+      return;
+    }
 
-    const fetchSavedImage = async () => {
-      try {
-        const response = await workOrderService.getEquipmentLocationImage(id_orden_trabajo);
-        const saved = response?.data;
-        if (isMounted && saved?.image_url) {
-          setCanvasImageSource(saved.image_url);
+    setCanvasImageSource(savedImage.local_image_path);
 
-          // Preseleccionar el chip del tipo de equipo usado originalmente, si el
-          // registro lo tiene guardado (registros guardados antes de este cambio
-          // no lo tendrán, y el chip simplemente queda sin marcar).
-          const matchingOption = options.find((option) => option.value === saved.tipo_equipo);
-          if (matchingOption) {
-            setSelectedOption(matchingOption);
-          }
-        }
-      } catch (error) {
-        console.log("Error al recuperar la imagen de ubicación guardada:", error);
-      } finally {
-        if (isMounted) {
-          setIsLoadingSavedImage(false);
-        }
-      }
-    };
-
-    fetchSavedImage();
-    return () => {
-      isMounted = false;
-    };
-  }, [id_orden_trabajo]);
+    // Preseleccionar el chip del tipo de equipo usado originalmente, si el registro lo
+    // tiene guardado (registros guardados antes de este cambio no lo tendrán, y el chip
+    // simplemente queda sin marcar).
+    const matchingOption = options.find((option) => option.value === savedImage.tipo_equipo);
+    if (matchingOption) {
+      setSelectedOption(matchingOption);
+    }
+  }, [savedImage]);
 
   const handleSelectOption = (value) => {
     const option = options.find((option) => option.value === value);
@@ -151,14 +136,15 @@ const TabEquipmentLocation = ({ route }) => {
       const base64Image = await drawableImageRef.current.captureCanvas();
       const idOrdenTrabajoInt = parseInt(id_orden_trabajo, 10);
 
-      const response = await workOrderService.saveEquipmentLocationImage(idOrdenTrabajoInt, {
-        taskId: tareaId,
+      // Offline-first: escribe el archivo local YA (funciona sin conexión) y encola el
+      // envío a POST /img-location-installation-ot (SyncManager lo manda en cuanto hay
+      // conexión, ver WorkOrderRepository.saveEquipmentLocationImage).
+      await workOrderRepository.saveEquipmentLocationImage(tareaId, idOrdenTrabajoInt, {
         userId: userData?.id_usuario,
         image: base64Image,
         equipmentType: selectedOption?.value,
         comment: "Este es un comentario de prueba",
       });
-      console.log('Respuesta de la API:', response);
 
       if (userData?.employee?.id_usuario_empleado) {
         await FormCompletionTracker.markFormAsCompleted(
@@ -175,7 +161,8 @@ const TabEquipmentLocation = ({ route }) => {
 
       ToastAndroid.show("Imagen guardada", ToastAndroid.LONG);
     } catch (error) {
-      console.log("Error al capturar la imagen del lienzo:", error);
+      console.error("Error al guardar la imagen de ubicación:", error);
+      ToastAndroid.show("No se pudo guardar la imagen.", ToastAndroid.LONG);
     }
   };
 

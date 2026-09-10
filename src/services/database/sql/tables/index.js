@@ -1,6 +1,7 @@
 export { default as authors } from './authors';
 export { default as customers_services } from './customers_services';
 export { default as employees } from './employees';
+export { default as equipment_location_images } from './equipment_location_images';
 export { default as materials_order } from './materials_order';
 export { default as priorities } from './priorities';
 export { default as positions } from './positions';
@@ -12,3 +13,4 @@ export { default as types_tasks } from './types_tasks';
 export { default as units } from './units';
 export { default as users } from './users';
 export { default as work_orders } from './work_orders';
+export { default as work_order_photos } from './work_order_photos';

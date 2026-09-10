@@ -1,5 +1,5 @@
 // TabWorkOrderPhotos.js
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView, ToastAndroid, ActivityIndicator } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faSave, faTruckLoading, faClipboardCheck, faCamera, faImage } from "@fortawesome/free-solid-svg-icons";
@@ -9,7 +9,8 @@ import EvidenceSection from "@components/molecules/EvidenceSection";
 import CameraCaptureModal from "@components/molecules/CameraCaptureModal";
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
-import workOrderService from "@services/api/workorder.service";
+import WorkOrderRepository from '@repositories/WorkOrderRepository';
+import useWorkOrderPhotos from '@hooks/useWorkOrderPhotos';
 import { photo as styles, common as commonStyles } from "./styles";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
@@ -25,12 +26,11 @@ const TabWorkOrderPhotos = ({ route }) => {
   const { tareaId, id_orden_trabajo, clienteId } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
 
-  const [photos, setPhotos] = useState({ reception: [], delivery: [] });
   const [actionSheetSection, setActionSheetSection] = useState(null); // 'reception' | 'delivery' | null
   const [cameraSection, setCameraSection] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
   const [userData, setUserData] = useState(null);
+  const workOrderRepository = WorkOrderRepository();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -44,49 +44,16 @@ const TabWorkOrderPhotos = ({ route }) => {
     fetchUserData();
   }, []);
 
-  // Recupera la evidencia fotográfica ya guardada (subida en una visita previa a este
-  // tab, o recién subida en esta misma visita) para que el técnico la vea y pueda
-  // quitarla o completarla, en vez de partir siempre de galerías vacías. Cada foto trae
-  // la URL del proxy de lectura (el bucket de S3 es privado, no se puede apuntar directo
-  // a S3 desde el cliente). Se reutiliza tanto al montar el tab como después de subir
-  // fotos nuevas, para que el estado local quede sincronizado con lo que de verdad
-  // quedó guardado (con su id_evidencia real, ya no la URI local del dispositivo).
-  const loadPhotos = useCallback(async ({ silent = false } = {}) => {
-    if (!silent) setIsLoadingPhotos(true);
+  // Offline-first: se lee siempre de SQLite local (local_path apunta a un archivo real
+  // en el dispositivo — ver WorkOrderRepository/useWorkOrderPhotos). Si no hay nada
+  // local todavía y hay conexión, el hook hidrata una vez desde el servidor.
+  const { photos, setPhotos, isLoading: isLoadingPhotos, refetch: loadPhotos } =
+    useWorkOrderPhotos(id_orden_trabajo, tareaId, clienteId);
 
-    try {
-      const response = await workOrderService.listRevisionPhotos(id_orden_trabajo, {
-        clientId: clienteId,
-        taskId: tareaId,
-      });
-
-      if (response?.success) {
-        const toItems = (list = []) => list.map((item) => ({
-          id: item.id_evidencia,
-          uri: item.url,
-          remote: true,
-        }));
-
-        setPhotos({
-          reception: toItems(response.data?.ANTES),
-          delivery: toItems(response.data?.DESPUES),
-        });
-      }
-
-      return !!response?.success;
-    } catch (error) {
-      console.error("Error al recuperar la evidencia fotográfica guardada:", error);
-      ToastAndroid.show(i18n.t('workOrder:photosLoadError'), ToastAndroid.LONG);
-      return false;
-    } finally {
-      if (!silent) setIsLoadingPhotos(false);
-    }
-  }, [id_orden_trabajo, clienteId, tareaId]);
-
-  useEffect(() => {
-    loadPhotos();
-  }, [loadPhotos]);
-
+  // 'staged' distingue una foto recién tomada/elegida en esta visita (todavía no tocó
+  // SQLite ni la cola: vive solo en el estado de React, con la URI efímera del picker/
+  // cámara) de una ya persistida localmente (guardada en esta visita o en una anterior,
+  // remota o no) — remove/save la tratan distinto (ver removePhoto/handleSave).
   const addPhotos = (section, newUris) => {
     setPhotos((prev) => {
       const current = prev[section];
@@ -98,7 +65,7 @@ const TabWorkOrderPhotos = ({ route }) => {
         );
         return prev;
       }
-      const toAdd = newUris.slice(0, room).map((uri) => ({ id: uri, uri, remote: false }));
+      const toAdd = newUris.slice(0, room).map((uri) => ({ id: uri, uri, remote: false, staged: true }));
       if (newUris.length > toAdd.length) {
         ToastAndroid.show(
           i18n.t('workOrder:photosLimitPartialToast', { added: toAdd.length }),
@@ -109,23 +76,23 @@ const TabWorkOrderPhotos = ({ route }) => {
     });
   };
 
-  // Una foto ya guardada (remote: true) vive en la base de datos: quitarla dispara el
-  // borrado lógico en el backend, de forma optimista (revierte si falla). Una foto recién
-  // tomada/elegida que aún no se guardó nunca tocó el backend, así que quitarla solo
-  // actualiza el estado local, igual que antes.
+  // Una foto 'staged' (recién tomada/elegida en esta visita) nunca tocó SQLite ni la
+  // cola: quitarla solo actualiza el estado local, como antes. Una ya persistida
+  // (remota o local sin sincronizar todavía) usa removeLocalPhoto, que es offline-first
+  // (SPEC.md §32/§13): local o pendiente sin subir -> se borra ya y se cancela la
+  // subida en cola si la había; ya remota -> tombstone local + cola 'photo_delete'. En
+  // ambos casos la escritura local es inmediata y no depende de la red, así que ya no
+  // hace falta el revert-on-failure que tenía el flujo online-only anterior.
   const removePhoto = async (section, photo) => {
     setPhotos((prev) => ({
       ...prev,
       [section]: prev[section].filter((p) => p.id !== photo.id),
     }));
 
-    if (!photo.remote) return;
+    if (photo.staged) return;
 
     try {
-      const response = await workOrderService.removeRevisionPhoto(photo.id);
-      if (!response?.success) {
-        throw new Error(response?.error?.message || 'No se pudo eliminar la foto');
-      }
+      await workOrderRepository.removeLocalPhoto(photo.id);
     } catch (error) {
       console.error("Error al eliminar la foto de evidencia:", error);
       ToastAndroid.show(i18n.t('workOrder:photosDeleteError'), ToastAndroid.LONG);
@@ -176,53 +143,40 @@ const TabWorkOrderPhotos = ({ route }) => {
       return;
     }
 
-    // Las fotos ya guardadas (remote: true) no se vuelven a subir; solo se envían las
-    // recién tomadas/elegidas en esta visita al tab.
-    const newReceptionPhotos = photos.reception.filter((p) => !p.remote).map((p) => p.uri);
-    const newDeliveryPhotos = photos.delivery.filter((p) => !p.remote).map((p) => p.uri);
-    const hasNewPhotos = newReceptionPhotos.length > 0 || newDeliveryPhotos.length > 0;
+    // Las fotos ya persistidas (remotas o locales de una visita anterior) no se vuelven
+    // a procesar; solo las 'staged' de esta visita (recién tomadas/elegidas).
+    const stagedReception = photos.reception.filter((p) => p.staged);
+    const stagedDelivery = photos.delivery.filter((p) => p.staged);
 
     setIsSaving(true);
 
     try {
-      let success = true;
-
-      if (hasNewPhotos) {
-        const response = await workOrderService.uploadRevisionPhotos(id_orden_trabajo, {
-          clientId: clienteId,
-          taskId: tareaId,
-          receptionPhotos: newReceptionPhotos,
-          deliveryPhotos: newDeliveryPhotos,
-        });
-
-        success = !!response?.success;
-
-        if (success) {
-          // Refresca desde el servidor: reemplaza las entradas locales recién subidas
-          // por las remotas reales (con su id_evidencia), fuente de verdad para poder
-          // quitarlas más adelante.
-          await loadPhotos({ silent: true });
-        } else {
-          ToastAndroid.show(
-            response?.error?.message || i18n.t('workOrder:photosSavePartial'),
-            ToastAndroid.LONG
-          );
-        }
+      // Offline-first: cada foto escribe su archivo local YA (funciona sin conexión) y
+      // encola su propia subida — SyncManager la manda a POST .../photos en cuanto hay
+      // conexión (ver WorkOrderRepository.addLocalPhoto). "Guardado" ya no depende de
+      // que el POST al servidor termine, igual que el resto de los tabs offline-first.
+      for (const photo of stagedReception) {
+        await workOrderRepository.addLocalPhoto(tareaId, id_orden_trabajo, clienteId, "reception", photo.uri);
+      }
+      for (const photo of stagedDelivery) {
+        await workOrderRepository.addLocalPhoto(tareaId, id_orden_trabajo, clienteId, "delivery", photo.uri);
       }
 
-      if (success) {
-        ToastAndroid.show(i18n.t('workOrder:photosSaveSuccess'), ToastAndroid.LONG);
+      // Reemplaza las entradas 'staged' (URI efímera del picker) por las persistidas
+      // localmente (con su id de SQLite, estable entre sesiones).
+      await loadPhotos();
 
-        if (userData?.employee?.id_usuario_empleado) {
-          await FormCompletionTracker.markFormAsCompleted(
-            "form_work_order_photos",
-            clienteId,
-            tareaId,
-            id_orden_trabajo,
-            userData.employee.id_usuario_empleado
-          );
-          onFormCompleted?.();
-        }
+      ToastAndroid.show(i18n.t('workOrder:photosSaveSuccess'), ToastAndroid.LONG);
+
+      if (userData?.employee?.id_usuario_empleado) {
+        await FormCompletionTracker.markFormAsCompleted(
+          "form_work_order_photos",
+          clienteId,
+          tareaId,
+          id_orden_trabajo,
+          userData.employee.id_usuario_empleado
+        );
+        onFormCompleted?.();
       }
     } catch (error) {
       console.error("Error al guardar la evidencia fotográfica:", error);

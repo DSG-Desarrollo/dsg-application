@@ -49,6 +49,17 @@ export const markPermanentlyFailed = async (executeSql, id, { error }) => {
     );
 };
 
+// Cancela una operación todavía no procesada (p.ej. subir una foto que el usuario borró
+// antes de que llegara a sincronizarse — sin esto, se subiría igual algo que ya no
+// debería existir). Solo toca filas 'pending'/'failed': una ya 'synced' no se cancela
+// retroactivamente (para eso existe la acción de borrado correspondiente).
+export const removeByEntity = async (executeSql, { entity, entityId, action }) => {
+    await executeSql(
+        `DELETE FROM sync_queue WHERE entity = ? AND entity_id = ? AND action = ? AND status IN ('pending', 'failed')`,
+        [entity, entityId, action]
+    );
+};
+
 export const countByStatus = async (getAllRows) => {
     const rows = await getAllRows(`SELECT status, COUNT(*) as count FROM sync_queue GROUP BY status`);
     const counts = { pending: 0, failed: 0, failed_permanent: 0, conflict: 0, synced: 0 };
@@ -58,4 +69,4 @@ export const countByStatus = async (getAllRows) => {
     return counts;
 };
 
-export default { enqueue, listPending, markSynced, markConflict, markFailed, markPermanentlyFailed, countByStatus };
+export default { enqueue, listPending, markSynced, markConflict, markFailed, markPermanentlyFailed, removeByEntity, countByStatus };
