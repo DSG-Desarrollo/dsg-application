@@ -1,6 +1,6 @@
 // components/molecules/CameraCaptureModal.js
 import React, { useRef, useState } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, ToastAndroid } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faTimes, faBolt, faCameraRotate, faBan } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +11,7 @@ const CameraCaptureModal = ({ label, onCapture, onClose }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState("back");
   const [flash, setFlash] = useState("off");
+  const [isCapturing, setIsCapturing] = useState(false);
   const cameraRef = useRef(null);
 
   if (!permission) return <View style={styles.container} />;
@@ -32,9 +33,25 @@ const CameraCaptureModal = ({ label, onCapture, onClose }) => {
   }
 
   const handleCapture = async () => {
-    if (!cameraRef.current) return;
-    const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-    onCapture(photo.uri);
+    // takePictureAsync rechaza con "Failed to capture image" si se llama de nuevo
+    // mientras una captura ya está en curso (doble tap en el obturador) o antes de
+    // que la vista de cámara esté lista; sin este guard y el try/catch, la promesa
+    // quedaba sin manejar y el usuario no recibía ningún feedback.
+    if (!cameraRef.current || isCapturing) return;
+    setIsCapturing(true);
+    try {
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+      if (photo?.uri) {
+        onCapture(photo.uri);
+      } else {
+        ToastAndroid.show(i18n.t('workOrder:cameraCaptureError'), ToastAndroid.LONG);
+      }
+    } catch (error) {
+      console.error("Error al tomar la foto:", error);
+      ToastAndroid.show(i18n.t('workOrder:cameraCaptureError'), ToastAndroid.LONG);
+    } finally {
+      setIsCapturing(false);
+    }
   };
 
   return (
@@ -64,7 +81,11 @@ const CameraCaptureModal = ({ label, onCapture, onClose }) => {
 
       <View style={styles.bottomBar}>
         <View style={{ width: 36 }} />
-        <Pressable style={styles.shutterOuter} onPress={handleCapture}>
+        <Pressable
+          style={[styles.shutterOuter, isCapturing && { opacity: 0.5 }]}
+          onPress={handleCapture}
+          disabled={isCapturing}
+        >
           <View style={styles.shutterInner} />
         </Pressable>
         <Pressable

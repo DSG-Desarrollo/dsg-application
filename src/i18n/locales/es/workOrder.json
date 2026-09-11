@@ -87,6 +87,7 @@
   "photosDeleteError": "No se pudo eliminar la foto. Inténtalo de nuevo.",
   "cameraPermissionMessage": "Necesitamos acceso a la cámara para tomar la foto.",
   "cameraGrantPermission": "Dar permiso",
+  "cameraCaptureError": "No se pudo tomar la foto. Intenta de nuevo.",
 
   "formProcessStartedToast": "Proceso iniciado: Primer formulario completado",
   "formsProgressToast": "{{completed}} / {{total}} formularios completados. Faltan {{remaining}} por completar.",

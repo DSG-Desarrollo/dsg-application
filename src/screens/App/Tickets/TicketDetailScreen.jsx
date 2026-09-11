@@ -78,7 +78,14 @@ const TicketDetailScreen = ({ route, navigation }) => {
   }, []);
 
   const handleBackPress = () => {
-    navigation.goBack();
+    // Si esta pantalla se restauró como raíz (p.ej. estado de navegación
+    // persistido tras un reload) no hay historial al que volver; goBack()
+    // incondicional dispara "GO_BACK was not handled by any navigator".
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate("DrawerNavigation");
+    }
   };
 
   // OT del ticket que aún requieren firma/finalización (no canceladas, no ya finalizadas).
@@ -400,7 +407,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
       case "C":
         return "shield-checkmark-sharp";
       default:
-        return "ios-help-circle";
+        return "help-circle-sharp";
     }
   };
 

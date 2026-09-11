@@ -87,6 +87,7 @@
   "photosDeleteError": "Could not delete the photo. Please try again.",
   "cameraPermissionMessage": "We need camera access to take the photo.",
   "cameraGrantPermission": "Grant permission",
+  "cameraCaptureError": "Could not take the photo. Please try again.",
 
   "formProcessStartedToast": "Process started: First form completed",
   "formsProgressToast": "{{completed}} / {{total}} forms completed. {{remaining}} remaining.",

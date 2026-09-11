@@ -65,6 +65,17 @@ const TabNavigatorWorkOrder = ({ route }) => {
   // usuario vuelve a guardar un tab ya completo después de haber completado todos).
   const hasHandledFullCompletionRef = useRef(false);
 
+  // Si esta pantalla se restauró como raíz (p.ej. estado de navegación persistido
+  // tras un reload) no hay historial al que volver; goBack() incondicional dispara
+  // "GO_BACK was not handled by any navigator".
+  const goBackSafely = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate("DrawerNavigation");
+    }
+  };
+
   // Función para verificar qué formularios han sido completados. Cuando `notifyIfComplete`
   // es true (se llama como reacción a que un tab acaba de guardar exitosamente), y con
   // ese guardado quedan TODOS los formularios de la OT completos -sin importar el orden
@@ -100,7 +111,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
           i18n.t('workOrder:workOrderAllTabsCompletedToast'),
           ToastAndroid.LONG
         );
-        navigation.goBack();
+        goBackSafely();
       }
     } catch (error) {
       console.error("Error al verificar los formularios completados: ", error);
@@ -193,7 +204,7 @@ const TabNavigatorWorkOrder = ({ route }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <Toolbar title={ticketCode} onBackPress={() => navigation.goBack()} />
+      <Toolbar title={ticketCode} onBackPress={goBackSafely} />
       <WorkOrderFormCompletionProvider onFormCompleted={() => checkCompletedForms(true)}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
