@@ -12,5 +12,16 @@
     "profile": "Profile",
     "tickets": "Tickets",
     "ticketList": "Ticket List",
-    "closeSession": "Close Session"
+    "closeSession": "Close Session",
+    "settings": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "languageDescription": "Application language",
+    "english": "English",
+    "spanish": "Español",
+    "spanishLatinAmerica": "Español (Latinoamérica)"
 }

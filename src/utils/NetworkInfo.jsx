@@ -41,7 +41,6 @@ const NetworkInfo = ({ children }) => {
                     {statusText}
                 </View>
             </View>
-            {__DEV__ && <DevSyncPanel />}
             {children}
         </View>
     );

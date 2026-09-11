@@ -1,9 +1,10 @@
-import { 
-  Dashboard, 
-  ProfileScreen, 
-  TicketsScreen 
+import {
+  Dashboard,
+  ProfileScreen,
+  TicketsScreen,
+  SettingsScreen,
 } from '@screens';
-import { faHome, faTicketAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faTicketAlt, faUserCircle, faGear } from '@fortawesome/free-solid-svg-icons';
 import i18n from '@i18n/i18n';
 
 export const routes = {
@@ -32,6 +33,15 @@ export const routes = {
     name: 'Perfil',
     requiredLevel: [2, 5],
     order: 3,
+    isActive: 1,
+  },
+  SettingsScreen: {
+    screen: SettingsScreen,
+    iconName: faGear,
+    title: i18n.t('ui:settings'),
+    name: 'Settings',
+    requiredLevel: [1, 5],
+    order: 4,
     isActive: 1,
   },
 };
