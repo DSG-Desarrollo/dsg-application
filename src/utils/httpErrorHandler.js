@@ -1,4 +1,13 @@
 // utils/httpErrorHandler.js
+import { HTTP_CODES } from '@constants';
+
+const {
+    BAD_REQUEST,
+    UNAUTHORIZED,
+    FORBIDDEN,
+    NOT_FOUND,
+    INTERNAL_SERVER_ERROR,
+ } = HTTP_CODES;
 
 /**
  * Método para manejar los errores devueltos por las solicitudes HTTP.
@@ -16,15 +25,15 @@ export const handleHttpError = (error) => {
 
     // Manejar los errores más comunes basados en el código de estado
     switch (status) {
-        case 400:
+        case BAD_REQUEST:
             throw new Error(`Error de solicitud: ${data.message || 'Datos de solicitud inválidos.'}`);
-        case 401:
+        case UNAUTHORIZED:
             throw new Error(`Error de autorización: ${data.message || 'No autorizado.'}`);
-        case 403:
+        case FORBIDDEN:
             throw new Error(`Acceso prohibido: ${data.message || 'No tienes permiso para acceder a este recurso.'}`);
-        case 404:
+        case NOT_FOUND:
             throw new Error(`Recurso no encontrado: ${data.message || 'El recurso solicitado no existe.'}`);
-        case 500:
+        case INTERNAL_SERVER_ERROR:
             throw new Error(`Error interno del servidor: ${data.message || 'Error en el servidor.'}`);
         default:
             // Si el código de estado no está manejado, lanzar un mensaje genérico

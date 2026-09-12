@@ -56,7 +56,14 @@ class SyncManager {
             return;
         }
 
-        if (!NetworkMonitor.getIsConnected()) {
+        // No confiar solo en el valor cacheado por el listener pasivo de NetInfo: en
+        // Android, sobre todo cruzando modo avión, el evento de reconexión a veces no
+        // llega (falla conocida de @react-native-community/netinfo) y el valor cacheado
+        // queda pegado en 'false' para siempre, aunque la red ya haya vuelto — dejando la
+        // cola sin sincronizar de forma silenciosa e indefinida. checkNow() fuerza una
+        // lectura fresca contra NetInfo.fetch() justo antes de intentar sincronizar.
+        const isConnected = await NetworkMonitor.checkNow();
+        if (!isConnected) {
             SyncState.setState({ status: 'offline' });
             return;
         }

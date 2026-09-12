@@ -1,15 +1,9 @@
-import AxiosManager from '@utils/AxiosManager';
+import FetchManager from '@managers/FetchManager.js';
 import Constants from 'expo-constants';
 import { HTTP_CODES } from '@constants';
+import { handleHttpError } from '@utils/httpErrorHandler';
 
-const { 
-    OK, 
-    BAD_REQUEST, 
-    UNAUTHORIZED,
-    FORBIDDEN,
-    NOT_FOUND,
-    INTERNAL_SERVER_ERROR,
- } = HTTP_CODES;
+const { OK } = HTTP_CODES;
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 
@@ -21,7 +15,7 @@ class TicketService {
      * Crea una instancia del servicio de tickets.
      */
     constructor() {
-        this.api = new AxiosManager(BASE_URL);
+        this.api = new FetchManager(BASE_URL);
         this.TIMEOUT = 10000;
         this.RETRIES = 3;
         this.EXPONENTIAL_BACKOFF_BASE_DELAY = 1000;
@@ -64,13 +58,20 @@ class TicketService {
                     return { error: resultData.message || 'Error inesperado en la respuesta de la API.' };
                 }
             } catch (error) {
-                this.handleHttpError(error);
+                // handleHttpError siempre lanza (ver su @throws): se usa acá solo para
+                // normalizar el mensaje, sin dejar que corte el loop de reintentos.
+                let message;
+                try {
+                    handleHttpError(error);
+                } catch (normalizedError) {
+                    message = normalizedError.message;
+                }
 
                 attempt++;
                 if (attempt < retries) {
                     await this.exponentialBackoff(attempt);
                 } else {
-                    return { error: 'Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.' };
+                    return { error: message || 'Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.' };
                 }
             }
         }
@@ -85,54 +86,20 @@ class TicketService {
      */
     async sendFormData(formData, endpoint) {
         try {
+            // this.api.request() ya devuelve el body desenvuelto (no una respuesta cruda
+            // con un .data anidado), así que se lee directo de response.
             const response = await this.api.request(endpoint, 'POST', formData);
             console.log("API: ", response);
 
-            if (response.data.status >= OK && response.data.status < 300) {
-                return response.data;
+            if (response.status >= OK && response.status < 300) {
+                return response;
             } else {
-                throw new Error(`Error ${response.data.status}: ${response.data.statusText}`);
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
             }
         } catch (error) {
-            this.handleHttpError(error);
-
-            if (!error.response) {
-                throw new Error('Error de red. Por favor, verifica tu conexión e inténtalo de nuevo.');
-            }
-
-            if (error.response.data && error.response.data.message) {
-                throw new Error(error.response.data.message);
-            } else {
-                throw new Error('Error desconocido. Por favor, inténtalo de nuevo más tarde.');
-            }
-        }
-    }
-
-    /**
-     * Método para manejar los errores devueltos por las solicitudes HTTP.
-     * @param {Error} error - El error capturado durante la solicitud HTTP.
-     * @throws {Error} - Lanza un error con un mensaje descriptivo del error ocurrido.
-     */
-    handleHttpError(error) {
-        if (!error.response) {
-            throw new Error('Error de red. Por favor, verifica tu conexión e inténtalo de nuevo.');
-        }
-
-        const { status, data } = error.response;
-
-        switch (status) {
-            case BAD_REQUEST:
-                throw new Error(`Error de solicitud: ${data.message || 'Datos de solicitud inválidos.'}`);
-            case UNAUTHORIZED:
-                throw new Error(`Error de autorización: ${data.message || 'No autorizado.'}`);
-            case FORBIDDEN:
-                throw new Error(`Acceso prohibido: ${data.message || 'No tienes permiso para acceder a este recurso.'}`);
-            case NOT_FOUND:
-                throw new Error(`Recurso no encontrado: ${data.message || 'El recurso solicitado no existe.'}`);
-            case INTERNAL_SERVER_ERROR:
-                throw new Error(`Error interno del servidor: ${data.message || 'Error en el servidor.'}`);
-            default:
-                throw new Error('Error desconocido. Por favor, inténtalo de nuevo más tarde.');
+            // handleHttpError siempre lanza (ver su @throws) — nada después de esta
+            // línea se ejecuta nunca, igual que en ApiService.sendFormData.
+            handleHttpError(error);
         }
     }
 }

@@ -158,7 +158,10 @@ class FetchManager {
         try {
             const response = await fetch(url, {
                 method: upperCaseMethod,
-                headers: this.headers,
+                // AxiosManager.request() no setea Content-Type explícitamente, pero axios sí
+                // lo agrega solo al serializar un objeto plano como JSON — acá hay que
+                // hacerlo a mano, o el backend no reconoce el body como JSON.
+                headers: { ...this.headers, 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
                 // Equivalente fetch de withCredentials: axios lo maneja como booleano,
                 // fetch usa 'include' | 'same-origin' | 'omit'.

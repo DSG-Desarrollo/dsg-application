@@ -1,4 +1,4 @@
-import AxiosManager from '@utils/AxiosManager';
+import FetchManager from '@managers/FetchManager.js';
 import Constants from 'expo-constants';
 
 // Obtener la URL base de la configuración de Expo
@@ -9,8 +9,8 @@ class UnitWorkOrdersService {
      * Crea una instancia del servicio de unidades.
      */
     constructor() {
-        // Inicializar la instancia de AxiosManager con la URL base
-        this.api = new AxiosManager(BASE_URL);
+        // Inicializar la instancia de FetchManager con la URL base
+        this.api = new FetchManager(BASE_URL);
     }
 
     /**
