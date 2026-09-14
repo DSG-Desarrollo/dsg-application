@@ -2,10 +2,13 @@ import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Constants from 'expo-constants';
 import i18n from '@i18n/i18n';
 import { NetworkInfoStyles } from '../styles';
 import useNetworkState from '@hooks/useNetworkState';
 import DevSyncPanel from '@components/DevSyncPanel';
+
+const isDevSyncPanelEnabled = __DEV__ && Constants.expoConfig.extra.ENABLE_DEV_SYNC_PANEL;
 
 const NetworkInfo = ({ children }) => {
     const insets = useSafeAreaInsets();
@@ -41,7 +44,7 @@ const NetworkInfo = ({ children }) => {
                     {statusText}
                 </View>
             </View>
-            {__DEV__ && <DevSyncPanel />}
+            {isDevSyncPanelEnabled && <DevSyncPanel />}
             {children}
         </View>
     );

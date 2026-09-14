@@ -125,7 +125,7 @@ class SyncService {
      * conexión). Misma forma de respuesta que storeMaterialsOrder — status/message van en
      * el nivel superior, sin envolver en {data: {...}}.
      * @param {number} idOrdenTrabajo
-     * @param {{operation_id: string, id_tarea: number, id_usuario: number, id_cliente: number}} payload
+     * @param {{operation_id: string, id_tarea: number, id_usuario: number, id_cliente: number, started_at?: string}} payload
      * @returns {Promise<Object>} { task, work_order, message, status, statusText }.
      */
     async startWorkOrder(idOrdenTrabajo, payload) {

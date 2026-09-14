@@ -7,7 +7,7 @@ import CustomScrollView from "@components/atoms/CustomScrollView";
 import useNetworkState from "@hooks/useNetworkState";
 import useFetchTickets from "@hooks/tickets/useFetchTickets";
 import useSaveToSQLite from "@hooks/tickets/useSaveToSQLite";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import i18n from '@i18n/i18n';
 
 const SEARCHABLE_FIELDS = [
@@ -31,6 +31,7 @@ const TicketsTab = ({ filters, tabKey }) => {
   const [isResolvingDisplay, setIsResolvingDisplay] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { networkState } = useNetworkState();
+  const isFocused = useIsFocused();
   const { ticketsData, error, isLoading } = useFetchTickets(filters);
   const { isSaved, fetchAllSavedTickets } = useSaveToSQLite(ticketsData);
 
@@ -46,6 +47,16 @@ const TicketsTab = ({ filters, tabKey }) => {
 
   useEffect(() => {
     let cancelled = false;
+
+    // Sin isFocused acá, esta pestaña no vuelve a leer SQLite al recuperar foco
+    // mientras está offline: ticketsData nunca cambia sin conexión (useFetchTickets
+    // corta antes de pedir nada), así que cambiar de OT en otra pantalla (p.ej.
+    // WorkOrderRepository.startWorkOrder marcando la tarea como 'I') no se reflejaba
+    // acá hasta reabrir la app — el ticket quedaba mostrado a la vez en la pestaña
+    // vieja (todavía con el progreso anterior) y en la nueva.
+    if (!isFocused) {
+      return;
+    }
 
     const fetchData = async () => {
       setIsResolvingDisplay(true);
@@ -80,7 +91,7 @@ const TicketsTab = ({ filters, tabKey }) => {
     return () => {
       cancelled = true;
     };
-  }, [networkState.isConnected, ticketsData]);
+  }, [networkState.isConnected, ticketsData, isFocused]);
 
   const mapTicketData = (task) => ({
     tareaId: task.id_tarea,

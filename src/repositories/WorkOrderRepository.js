@@ -593,7 +593,12 @@ const WorkOrderRepository = () => {
         // encolar de nuevo. FormCompletionTracker solo llama a esto una vez por diseño
         // (al completar el primer tab), pero un dispositivo que reintenta el guardado de
         // ese primer tab offline podría volver a pasar por acá.
-        if (current.progreso_orden_trabajo && current.progreso_orden_trabajo !== 'P') {
+        // 'O' es "pendiente" para progreso_orden_trabajo (WorkOrdersController::$progresoLabels
+        // en el backend) — 'P' es el estado análogo de progreso_tarea (a nivel ticket), NO de
+        // la OT. Comparar contra 'P' acá hacía que esta guarda SIEMPRE se disparara para una OT
+        // recién sembrada (progreso_orden_trabajo='O'), devolviendo temprano sin escribir nada
+        // ni encolar 'start': la OT y el ticket nunca pasaban a 'I' offline.
+        if (current.progreso_orden_trabajo && current.progreso_orden_trabajo !== 'O') {
             return { operationId: null };
         }
 
@@ -630,7 +635,12 @@ const WorkOrderRepository = () => {
             entity: 'work_orders',
             entityId: idOrdenTrabajo,
             action: 'start',
-            payload: { id_tarea: taskId, id_orden_trabajo: idOrdenTrabajo, id_usuario: userId, id_cliente: clienteId },
+            payload: {
+                id_tarea: taskId, id_orden_trabajo: idOrdenTrabajo, id_usuario: userId, id_cliente: clienteId,
+                // Momento real en que se inició offline, no cuándo se logró sincronizar
+                // (ver WorkOrdersController::startTaskAndWorkOrder en el backend).
+                started_at: now,
+            },
             expectedVersion: null,
         });
 
