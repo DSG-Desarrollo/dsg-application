@@ -2,6 +2,7 @@ import FetchManager from '@managers/FetchManager.js';
 import Constants from 'expo-constants';
 import { HTTP_CODES } from '@constants';
 import { handleHttpError } from '@utils/httpErrorHandler';
+import NetworkMonitor from '@network/NetworkMonitor';
 
 const { OK } = HTTP_CODES;
 
@@ -44,6 +45,16 @@ class TicketService {
         
         let attempt = 0;
         while (attempt < retries) {
+            // Sin esto, cada intento (incluidos los de backoff) igual pegaba contra
+            // ngrok mientras estábamos offline: el DNS nunca resuelve
+            // (UnknownHostException), así que reintentar no cambia nada — solo suma
+            // ruido en la consola y demora la respuesta hasta agotar los 3 intentos.
+            // NetworkMonitor es la misma fuente de verdad que ya usa el resto de la app
+            // (SyncManager, useNetworkState), así que corta apenas sabe que no hay red.
+            if (!NetworkMonitor.getIsConnected()) {
+                return { error: 'Sin conexión. Se usará la información guardada localmente.' };
+            }
+
             try {
                 const resultData = await Promise.race([
                     this.api.post('api/tasks', filters),

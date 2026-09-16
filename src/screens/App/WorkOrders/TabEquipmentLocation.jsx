@@ -12,6 +12,7 @@ import theme from '@themes/theme';
 import { buttonStyles } from '@themes';
 import WorkOrderRepository from '@repositories/WorkOrderRepository';
 import useEquipmentLocationImage from '@hooks/useEquipmentLocationImage';
+import useTicketCompletion from '@hooks/useTicketCompletion';
 
 const { textMuted, textInverse, borderStrong } = theme.colors;
 const { primary, primaryText } = buttonStyles;
@@ -50,6 +51,7 @@ const options = [
 const TabEquipmentLocation = ({ route }) => {
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -74,6 +76,10 @@ const TabEquipmentLocation = ({ route }) => {
   } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
   const workOrderRepository = WorkOrderRepository();
+  // Offline-first (misma fuente que WorkOrderRepository.completeTicket, sin endpoint
+  // propio): una vez que el ticket quedó completado, esta OT pasa a solo lectura para no
+  // pisar datos que el técnico ya cerró.
+  const { isCompleted: isTicketCompleted } = useTicketCompletion(tareaId);
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const drawableImageRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -82,6 +88,11 @@ const TabEquipmentLocation = ({ route }) => {
   // real en el dispositivo, ver useEquipmentLocationImage/WorkOrderRepository).
   const [canvasImageSource, setCanvasImageSource] = useState(null);
   const [clearPaths, setClearPaths] = useState(false);
+  // Trazos de esta sesión de edición, guardados por tipo de equipo (chip), para poder
+  // alternar entre tipos sin perder lo ya dibujado en cada uno — solo se pisan cuando el
+  // usuario los borra a propósito (goma) o nunca dibujó nada en ese tipo. No es estado de
+  // React a propósito: no necesita disparar un render, solo persistir entre selecciones.
+  const pathsByOptionRef = useRef({});
 
   // Offline-first: se lee siempre de SQLite local (local_image_path apunta a un archivo
   // real en el dispositivo). Si es la primera vez que se abre esta OT en este
@@ -106,10 +117,28 @@ const TabEquipmentLocation = ({ route }) => {
   }, [savedImage]);
 
   const handleSelectOption = (value) => {
+    if (isTicketCompleted) return;
+
     const option = options.find((option) => option.value === value);
+
+    // Antes de cambiar de tipo, guarda los trazos del tipo que se estaba editando —
+    // así, si el usuario vuelve a elegirlo más tarde en esta misma sesión, se
+    // restauran en vez de perderse.
+    if (selectedOption && drawableImageRef.current) {
+      pathsByOptionRef.current[selectedOption.value] = drawableImageRef.current.getPaths();
+    }
+
     setSelectedOption(option);
     setCanvasImageSource(option.image);
-    setClearPaths(true); // Trigger clearing the paths
+
+    const savedPaths = pathsByOptionRef.current[option.value];
+    if (savedPaths && savedPaths.length > 0) {
+      // Ya había trazos guardados para este tipo (de esta misma sesión): se restauran.
+      drawableImageRef.current?.restorePaths(savedPaths);
+    } else {
+      // Tipo nunca dibujado (o ya borrado a propósito con la goma): lienzo limpio.
+      setClearPaths(true);
+    }
   };
 
   const handleClearPaths = () => {
@@ -127,11 +156,15 @@ const TabEquipmentLocation = ({ route }) => {
   };
 
   const handleSave = async () => {
+    if (isSaving || isTicketCompleted) return;
+
     try {
       if (!drawableImageRef.current) {
         console.log("DrawableImage reference is null");
         return;
       }
+
+      setIsSaving(true);
 
       const base64Image = await drawableImageRef.current.captureCanvas();
       const idOrdenTrabajoInt = parseInt(id_orden_trabajo, 10);
@@ -167,6 +200,8 @@ const TabEquipmentLocation = ({ route }) => {
     } catch (error) {
       console.error("Error al guardar la imagen de ubicación:", error);
       ToastAndroid.show("No se pudo guardar la imagen.", ToastAndroid.LONG);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -190,8 +225,9 @@ const TabEquipmentLocation = ({ route }) => {
           return (
             <TouchableOpacity
               key={option.value}
-              style={[styles.chip, isSelected && styles.chipSelected]}
+              style={[styles.chip, isSelected && styles.chipSelected, isTicketCompleted && { opacity: 0.6 }]}
               onPress={() => handleSelectOption(option.value)}
+              disabled={isTicketCompleted}
             >
               <View
                 style={[styles.chipThumb, isSelected && styles.chipThumbSelected]}
@@ -226,15 +262,19 @@ const TabEquipmentLocation = ({ route }) => {
             </Text>
           </View>
         ) : canvasImageSource ? (
-          <DrawableImage
-            ref={drawableImageRef}
-            fixedImageSource={canvasImageSource}
-            strokeColor="red"
-            strokeWidth={4}
-            clearPaths={clearPaths}
-            onPathsCleared={handleClearPaths}
-            onBlankCanvas={handleBlankCanvas}
-          />
+          // pointerEvents="none" bloquea también los botones propios de DrawableImage
+          // (deshacer/rehacer/goma) sin necesitar tocar su implementación interna.
+          <View pointerEvents={isTicketCompleted ? "none" : "auto"} style={{ flex: 1, flexDirection: "row" }}>
+            <DrawableImage
+              ref={drawableImageRef}
+              fixedImageSource={canvasImageSource}
+              strokeColor="red"
+              strokeWidth={4}
+              clearPaths={clearPaths}
+              onPathsCleared={handleClearPaths}
+              onBlankCanvas={handleBlankCanvas}
+            />
+          </View>
         ) : (
           <View style={styles.emptyState}>
             <FontAwesomeIcon icon={faImage} size={40} color={borderStrong} />
@@ -247,12 +287,22 @@ const TabEquipmentLocation = ({ route }) => {
         )}
       </View>
 
-      <View style={styles.saveContainer}>
-        <Pressable style={primary} onPress={handleSave}>
-          <FontAwesomeIcon icon={faSave} size={16} color={textInverse} />
-          <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
-        </Pressable>
-      </View>
+      {!isTicketCompleted && (
+        <View style={styles.saveContainer}>
+          <Pressable
+            style={[primary, isSaving && { opacity: 0.6 }]}
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <ActivityIndicator size="small" color={textInverse} />
+            ) : (
+              <FontAwesomeIcon icon={faSave} size={16} color={textInverse} />
+            )}
+            <Text style={primaryText}>{i18n.t(isSaving ? 'ui:btnSaving' : 'ui:btnSave')}</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 };

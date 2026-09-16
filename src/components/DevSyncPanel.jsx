@@ -7,12 +7,6 @@
 // cuando el flujo offline quede conectado a una pantalla real.
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
-// La API "default" de expo-file-system en SDK 54+ cambió a las clases
-// File/Directory; documentDirectory/getInfoAsync/readAsStringAsync siguen
-// existiendo pero solo en el subpath /legacy (el import viejo tira warning
-// de deprecación y en algunos casos ya no resuelve la ruta esperada).
-import * as FileSystem from 'expo-file-system/legacy';
-import { defaultDatabaseDirectory } from 'expo-sqlite';
 import Constants from 'expo-constants';
 import { useDatabase } from '@context/DatabaseContext';
 import { useSyncState } from '@context/SyncContext';
@@ -23,8 +17,37 @@ import AxiosManager from '@utils/AxiosManager';
 
 const { wsERPURL, DBNAME } = Constants.expoConfig.extra;
 
+// Codificador base64 manual: no hay Buffer/btoa disponible en Hermes/RN sin polyfill,
+// y acá se codifica el Uint8Array de serializeAsync() directo en memoria, sin pasar
+// por un archivo (ver comentario en handleExportDb sobre por qué se evita FileSystem).
+const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const bytesToBase64 = (bytes) => {
+    const chunks = [];
+    let i;
+    for (i = 0; i + 2 < bytes.length; i += 3) {
+        chunks.push(
+            BASE64_CHARS[bytes[i] >> 2],
+            BASE64_CHARS[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)],
+            BASE64_CHARS[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)],
+            BASE64_CHARS[bytes[i + 2] & 63]
+        );
+    }
+    const remaining = bytes.length - i;
+    if (remaining === 1) {
+        chunks.push(BASE64_CHARS[bytes[i] >> 2], BASE64_CHARS[(bytes[i] & 3) << 4], '==');
+    } else if (remaining === 2) {
+        chunks.push(
+            BASE64_CHARS[bytes[i] >> 2],
+            BASE64_CHARS[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)],
+            BASE64_CHARS[(bytes[i + 1] & 15) << 2],
+            '='
+        );
+    }
+    return chunks.join('');
+};
+
 const DevSyncPanel = () => {
-    const { executeSql, getFirstAsyncSql, getAllAsyncSql } = useDatabase();
+    const { executeSql, getFirstAsyncSql, getAllAsyncSql, serializeDatabase } = useDatabase();
     const workOrderRepository = WorkOrderRepository();
     const syncState = useSyncState();
     const [orderId, setOrderId] = useState('');
@@ -100,41 +123,28 @@ const DevSyncPanel = () => {
     // Sube el archivo .db de SQLite al backend (requiere conexión) para poder
     // abrirlo en DB Browser for SQLite desde la PC: Expo Go no es debuggable,
     // así que `adb run-as`/`adb pull` no llegan al archivo sin root.
+    //
+    // OJO: antes esto leía el archivo físico vía FileSystem.readDirectoryAsync sobre
+    // defaultDatabaseDirectory (expo-sqlite guarda el .db en su propio directorio nativo,
+    // context.filesDir + "/SQLite" en Android, no en FileSystem.documentDirectory). Esa
+    // ruta es la correcta a nivel nativo, pero en Expo Go el módulo ExponentFileSystem
+    // solo puede leer dentro del sandbox por-experiencia (documentDirectory/cacheDirectory)
+    // y rechaza cualquier otra ruta con IOException "isn't readable" — por eso fallaba acá
+    // y no antes (el bug es de Expo Go, no de la ruta). serializeAsync() (sqlite3_serialize)
+    // da los bytes de la DB directo desde la conexión ya abierta, sin tocar el filesystem.
     const handleExportDb = async () => {
         try {
-            // OJO: expo-sqlite guarda el archivo en su PROPIO directorio nativo
-            // (context.filesDir + "/SQLite" en Android), no en
-            // FileSystem.documentDirectory — dentro de Expo Go ese último está
-            // aislado por experiencia/proyecto y NO coincide con la carpeta real
-            // de la base de datos. Por eso usamos defaultDatabaseDirectory, que
-            // expo-sqlite expone justamente para esto, en vez de armar la ruta
-            // a mano vía FileSystem.
-            const rawDir = defaultDatabaseDirectory || '';
-            const sqliteDir = `${rawDir.startsWith('file://') ? rawDir : `file://${rawDir}`}/`.replace(/\/+$/, '/');
-            const dirInfo = await FileSystem.getInfoAsync(sqliteDir);
-            if (!dirInfo.exists) {
-                appendLog(`No existe el directorio ${sqliteDir}`);
+            const serialized = await serializeDatabase();
+            if (!serialized || !serialized.length) {
+                appendLog('No se pudo serializar la base de datos (¿todavía no está inicializada?).');
                 return;
             }
 
-            const filesInDir = await FileSystem.readDirectoryAsync(sqliteDir);
-            appendLog(`Archivos en SQLite/: ${JSON.stringify(filesInDir)}`);
-
-            // DBNAME (env DB_NAME) es el nombre pasado a openDatabaseAsync, pero
-            // por las dudas de que no coincida 1:1 con el archivo real, preferimos
-            // el primero de filesInDir que lo contenga en vez de asumir el nombre.
-            const dbFileName = filesInDir.find((name) => name.includes(DBNAME)) || filesInDir[0];
-            if (!dbFileName) {
-                appendLog('No hay ningún archivo dentro de SQLite/.');
-                return;
-            }
-
-            const dbUri = `${sqliteDir}${dbFileName}`;
-            const info = await FileSystem.getInfoAsync(dbUri);
-            const base64 = await FileSystem.readAsStringAsync(dbUri, { encoding: FileSystem.EncodingType.Base64 });
+            const dbFileName = `${DBNAME}.db`;
+            const base64 = bytesToBase64(serialized);
             const api = new AxiosManager(wsERPURL);
             const result = await api.post('api/debug/upload-db', { base64, filename: dbFileName });
-            appendLog(`Exportado ${dbFileName} (${info.size} bytes) -> ${result.path}`);
+            appendLog(`Exportado ${dbFileName} (${serialized.length} bytes) -> ${result.path}`);
         } catch (error) {
             appendLog(`Error al exportar DB: ${error.message}`);
         }

@@ -1,5 +1,6 @@
 import FetchManager from '@managers/FetchManager.js';
 import Constants from 'expo-constants';
+import NetworkMonitor from '@network/NetworkMonitor';
 
 // Obtener la URL base de la configuración de Expo
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
@@ -23,6 +24,13 @@ class UnitWorkOrdersService {
     async getUnits(query, timeout = 10000, retries = 3) {
         let attempt = 0;
         while (attempt < retries) {
+            // Igual criterio que TicketService.getTickets: sin conexión, ningún
+            // reintento va a cambiar el resultado — cortar ya evita golpear la API
+            // inútilmente en cada vuelta del backoff.
+            if (!NetworkMonitor.getIsConnected()) {
+                return { error: 'Sin conexión. Se usará la información guardada localmente.' };
+            }
+
             try {
                 // Realizar la solicitud GraphQL y controlar el tiempo de espera
                 const resultData = await Promise.race([

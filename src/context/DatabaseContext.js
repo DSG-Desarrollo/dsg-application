@@ -82,11 +82,23 @@ export const DatabaseProvider = ({ children }) => {
     return null;
   }, [databaseService]);
 
+  const serializeDatabase = useCallback(async () => {
+    try {
+      if (databaseService) {
+        return await databaseService.serializeDatabase();
+      }
+    } catch (error) {
+      console.error('Error al serializar la base de datos:', error);
+    }
+    return null;
+  }, [databaseService]);
+
   return (
     <DatabaseContext.Provider value={
       {
         getTableStructure, executeSql, getAllAsyncSql,
-        getFirstAsyncSql, runExclusive, isDatabaseInitialized, errorInitializingDatabase
+        getFirstAsyncSql, runExclusive, serializeDatabase,
+        isDatabaseInitialized, errorInitializingDatabase
       }
     }>
       {children}

@@ -49,6 +49,21 @@ const WorkOrderRepository = () => {
     };
 
     /**
+     * Progreso local del ticket (task.progreso_tarea) — 'C' cuando ya quedó completado
+     * (firma del cliente, ver completeTicket). Offline-first: lee siempre de SQLite
+     * local, misma fuente que actualiza completeTicket tanto online como offline, así
+     * que no hace falta ningún endpoint para saber si un ticket ya se cerró (ver
+     * useTicketCompletion, que usa esto para poner los tabs de la OT en solo lectura).
+     *
+     * @param {number} taskId
+     * @returns {Promise<string|null>} 'A'|'C'|'I'|'P'|'T'|'V'|'S', o null si no está local todavía.
+     */
+    const getLocalTicketProgress = async (taskId) => {
+        const row = await getFirstAsyncSql(`SELECT progreso_tarea FROM task WHERE id_tarea = ?`, [Number(taskId)]);
+        return row?.progreso_tarea ?? null;
+    };
+
+    /**
      * Guarda/actualiza la "cáscara" de las órdenes de trabajo de un ticket a partir de la
      * lista de unidades (única fuente hoy que trae work orders reales del servidor —
      * useFetchUnitWorkOrders la llama tras cada fetch online exitoso). Solo toca las
@@ -699,6 +714,7 @@ const WorkOrderRepository = () => {
     return {
         getLocalList,
         getLocalById,
+        getLocalTicketProgress,
         seedFromUnits,
         saveInstallation,
         getLocalMaterials,

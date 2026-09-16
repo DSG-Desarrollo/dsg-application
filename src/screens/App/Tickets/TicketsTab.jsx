@@ -97,7 +97,16 @@ const TicketsTab = ({ filters, tabKey }) => {
     tareaId: task.id_tarea,
     codigo: task.codigo_tarea,
     estado: task.estado_tarea,
+    // customer_service.descripcion_servicio_cliente es una descripción libre del
+    // servicio, no el nombre real del cliente (a veces trae un nombre de contacto en
+    // vez del cliente -- ver Customer::getNombreClienteRealAttribute en el backend).
+    // task.customer_service.customer.nombre_cliente_real es la forma "online" (objeto
+    // anidado, tal cual llega de la API); task.nombre_cliente_real es la forma
+    // "offline" (fetchAllSavedTickets hace un JOIN plano, sin anidar -- mismo patrón
+    // que colorTipoTarea más abajo).
     empresa:
+      task.customer_service?.customer?.nombre_cliente_real ||
+      task.nombre_cliente_real ||
       task.customer_service?.descripcion_servicio_cliente ||
       task.descripcion_servicio_cliente ||
       "",

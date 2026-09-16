@@ -11,6 +11,7 @@ import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
 import WorkOrderRepository from '@repositories/WorkOrderRepository';
 import useWorkOrderPhotos from '@hooks/useWorkOrderPhotos';
+import useTicketCompletion from '@hooks/useTicketCompletion';
 import { photo as styles, common as commonStyles } from "./styles";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
@@ -25,6 +26,10 @@ const MAX_PHOTOS = 4;
 const TabWorkOrderPhotos = ({ route }) => {
   const { tareaId, id_orden_trabajo, clienteId } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
+  // Offline-first (misma fuente que WorkOrderRepository.completeTicket, sin endpoint
+  // propio): una vez que el ticket quedó completado, esta OT pasa a solo lectura para no
+  // pisar datos que el técnico ya cerró.
+  const { isCompleted: isTicketCompleted } = useTicketCompletion(tareaId);
 
   const [actionSheetSection, setActionSheetSection] = useState(null); // 'reception' | 'delivery' | null
   const [cameraSection, setCameraSection] = useState(null);
@@ -136,7 +141,7 @@ const TabWorkOrderPhotos = ({ route }) => {
   };
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSaving || isTicketCompleted) return;
 
     if (photos.reception.length === 0 || photos.delivery.length === 0) {
       ToastAndroid.show(i18n.t('workOrder:photosMissingError'), ToastAndroid.LONG);
@@ -205,6 +210,7 @@ const TabWorkOrderPhotos = ({ route }) => {
             maxPhotos={MAX_PHOTOS}
             onAddPress={() => handleAddPress("reception")}
             onRemove={(photo) => removePhoto("reception", photo)}
+            readOnly={isTicketCompleted}
           />
 
           <EvidenceSection
@@ -215,23 +221,26 @@ const TabWorkOrderPhotos = ({ route }) => {
             maxPhotos={MAX_PHOTOS}
             onAddPress={() => handleAddPress("delivery")}
             onRemove={(photo) => removePhoto("delivery", photo)}
+            readOnly={isTicketCompleted}
           />
         </>
       )}
       </ScrollView>
 
-      <Pressable
-        style={[primary, isSaving && { opacity: 0.6 }]}
-        onPress={handleSave}
-        disabled={isSaving}
-      >
-        {isSaving ? (
-          <ActivityIndicator size="small" color={textPrimary} />
-        ) : (
-          <FontAwesomeIcon icon={faSave} size={14} color={textPrimary} />
-        )}
-        <Text style={primaryText}>{i18n.t(isSaving ? 'ui:btnSaving' : 'ui:btnSave')}</Text>
-      </Pressable>
+      {!isTicketCompleted && (
+        <Pressable
+          style={[primary, isSaving && { opacity: 0.6 }]}
+          onPress={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <ActivityIndicator size="small" color={textPrimary} />
+          ) : (
+            <FontAwesomeIcon icon={faSave} size={14} color={textPrimary} />
+          )}
+          <Text style={primaryText}>{i18n.t(isSaving ? 'ui:btnSaving' : 'ui:btnSave')}</Text>
+        </Pressable>
+      )}
 
       {/* Hoja de acción: tomar foto / elegir de galería */}
       <FullScreenModal

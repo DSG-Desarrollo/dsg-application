@@ -13,15 +13,16 @@ const {
   uiBackground
 } = theme.colors;
 
-const SegmentedToggle = ({ options, value, onChange, error }) => (
+const SegmentedToggle = ({ options, value, onChange, error, disabled = false }) => (
   <View>
-    <View style={[styles.row, error && styles.rowError]}>
+    <View style={[styles.row, error && styles.rowError, disabled && styles.rowDisabled]}>
       {options.map((opt, index) => {
         const isSelected = value === opt.value;
         return (
           <Pressable
             key={opt.value}
-            onPress={() => onChange(opt.value)}
+            onPress={() => !disabled && onChange(opt.value)}
+            disabled={disabled}
             style={[
               styles.segment,
               isSelected && styles.segmentSelected,
@@ -55,6 +56,10 @@ const styles = StyleSheet.create({
 
   rowError: {
     borderColor: danger,
+  },
+
+  rowDisabled: {
+    opacity: 0.6,
   },
 
   segment: {

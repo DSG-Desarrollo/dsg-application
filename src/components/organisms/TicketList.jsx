@@ -86,11 +86,22 @@ const TicketList = (props) => {
             ]}
           />
           <View style={ticketListStyles.cardContent}>
-            <View style={ticketListStyles.leftContent}>
+            <View style={ticketListStyles.headerRow}>
               <Title style={ticketListStyles.ticketCode}>{codigo}</Title>
-              <Paragraph style={ticketListStyles.ticketInfo}>
-                {empresa}
-              </Paragraph>
+              <Badge
+                size={24}
+                style={[
+                  ticketListStyles.badge,
+                  { backgroundColor: badgeColor },
+                ]}
+              >
+                {progressTask}
+              </Badge>
+            </View>
+            <Paragraph style={ticketListStyles.ticketInfo}>
+              {empresa}
+            </Paragraph>
+            <View style={ticketListStyles.footerRow}>
               <View style={ticketListStyles.priorityContainer}>
                 <Icon
                   name={priorityIconName}
@@ -107,23 +118,9 @@ const TicketList = (props) => {
                   {prioridad}
                 </Paragraph>
               </View>
-            </View>
-            <View style={ticketListStyles.rightContent}>
-              <Badge
-                size={24}
-                style={[
-                  ticketListStyles.badge,
-                  { backgroundColor: badgeColor },
-                ]}
-              >
-                {progressTask}
-              </Badge>
-
-              <View style={ticketListStyles.bottomRight}>
-                <Paragraph style={ticketListStyles.ticketInfo}>
-                  {fechaCreacion}
-                </Paragraph>
-              </View>
+              <Paragraph style={ticketListStyles.ticketInfo}>
+                {fechaCreacion}
+              </Paragraph>
             </View>
           </View>
         </View>

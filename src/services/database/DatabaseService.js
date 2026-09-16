@@ -273,6 +273,24 @@ class DatabaseService {
     }
 
     /**
+     * Serializa el contenido completo de la base de datos (sqlite3_serialize) como
+     * `Uint8Array`, para exportarla (ver DevSyncPanel "5. Exportar DB") sin depender de
+     * leer el archivo físico vía FileSystem: expo-sqlite guarda el .db en su propio
+     * directorio nativo (context.filesDir + "/SQLite" en Android), que en Expo Go
+     * ExponentFileSystem no puede leer (queda fuera del sandbox por-experiencia de
+     * documentDirectory/cacheDirectory) y tira IOException "isn't readable".
+     * @returns {Promise<Uint8Array>}
+     */
+    async serializeDatabase() {
+        try {
+            return await this.enqueue(() => this.db.serializeAsync());
+        } catch (error) {
+            this.handleError('Error al serializar la base de datos:', error);
+            throw new Error('Error al serializar la base de datos');
+        }
+    }
+
+    /**
      * Cierra la conexión a la base de datos SQLite.
      */
     async closeDatabase() {

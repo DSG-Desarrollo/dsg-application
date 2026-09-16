@@ -27,17 +27,21 @@ const ticketListStyles = StyleSheet.create({
   },
 
   cardContent: {
+    flexDirection: 'column',
+    flex: 1,
+  },
+
+  headerRow: {
     flexDirection: 'row',
-    flex: 1,
-  },
-
-  leftContent: {
-    flex: 1,
-  },
-
-  rightContent: {
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+  },
+
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 5,
   },
 
   ticketCode: {
@@ -52,7 +56,6 @@ const ticketListStyles = StyleSheet.create({
   priorityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
   },
 
   priorityIcon: {

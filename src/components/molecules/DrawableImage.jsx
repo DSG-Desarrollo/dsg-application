@@ -132,10 +132,43 @@ const DrawableImage = forwardRef(
       }
     };
 
+    // Un toque accidental (o un trazo de un par de píxeles) no es una firma: mide el
+    // bounding box combinado de todos los trazos y exige que supere `minSize` en algún
+    // eje. computeBounds() ya lo da la propia PathBuilder, sin necesidad de rastrear
+    // puntos aparte.
+    const hasMeaningfulDrawing = useCallback((minSize = 24) => {
+      if (paths.length === 0) return false;
+
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+      paths.forEach((pathBuilder) => {
+        const bounds = pathBuilder.computeBounds();
+        minX = Math.min(minX, bounds.x);
+        minY = Math.min(minY, bounds.y);
+        maxX = Math.max(maxX, bounds.x + bounds.width);
+        maxY = Math.max(maxY, bounds.y + bounds.height);
+      });
+
+      return (maxX - minX) >= minSize || (maxY - minY) >= minSize;
+    }, [paths]);
+
     useImperativeHandle(ref, () => ({
       captureCanvas: getCanvasBase64,
       clearAllStrokes,
       hasDrawn,
+      hasMeaningfulDrawing,
+      // Permiten al padre guardar/restaurar los trazos de esta sesión al cambiar entre
+      // varias imágenes base sobre las que se puede dibujar (p.ej. TabEquipmentLocation
+      // alternando tipo de equipo) sin perderlos ni mezclarlos entre una y otra.
+      getPaths: () => paths,
+      restorePaths: (restoredPaths) => {
+        const next = restoredPaths || [];
+        setPaths(next);
+        setUndonePaths([]);
+        setHasDrawn(next.length > 0);
+      },
     }));
 
     const touchHandler = Gesture.Pan()

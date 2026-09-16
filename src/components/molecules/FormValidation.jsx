@@ -110,7 +110,17 @@ const FormValidation = ({
           break;
       }
 
-      return validator.required(input.message || "Este campo es obligatorio");
+      // `optional: true` deja el resto de las reglas (min/max/email/etc.) activas pero
+      // sin exigir el campo — así un string vacío pasa, y solo falla si se escribió
+      // algo que no cumple esas reglas (ver TabInstallationSignatureProof: nombre de
+      // firma opcional, pero de al menos 3 caracteres si se llega a tipear algo).
+      // OJO: min/max/matches/email de Yup usan `skipAbsent` (solo se saltan la prueba
+      // si el valor es null/undefined) — un string vacío "" NO cuenta como absent, así
+      // que sin este transform ('' -> undefined) un campo opcional vacío igual fallaba
+      // el min() como si el usuario hubiera escrito algo demasiado corto.
+      return input.optional
+        ? validator.transform((value) => (value === '' || value == null ? undefined : value)).optional()
+        : validator.required(input.message || "Este campo es obligatorio");
     };
 
     return yup.object().shape(
@@ -174,6 +184,7 @@ FormValidation.propTypes = {
       ]).isRequired,
       min: PropTypes.number,
       max: PropTypes.number,
+      optional: PropTypes.bool,
       email: PropTypes.bool,
       integer: PropTypes.bool,
       matches: PropTypes.shape({

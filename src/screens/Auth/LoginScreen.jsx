@@ -8,9 +8,10 @@ import Button from '@components/atoms/Button';
 import TextInput from '@components/atoms/TextInput';
 import PasswordInput from '@components/molecules/PasswordInput';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
-import { loginScreenStyles } from '@styles';
+import { createLoginScreenStyles } from '@styles';
 import i18n from '@i18n/i18n';
 import { useDatabase } from '@context/DatabaseContext';
+import { useTheme } from '@context/ThemeContext';
 import UserService from '@services/api/users/UserService';
 import { queries } from '@services/database/queries';
 import useNetworkState from '@hooks/useNetworkState';
@@ -24,16 +25,18 @@ const userService = new UserService();
 const { users, userInserts } = queries;
 
 export default function LoginScreen({ navigation, setIsAuthenticated }) {
+  const { colors } = useTheme();
+  const loginScreenStyles = createLoginScreenStyles(colors);
   const { networkState } = useNetworkState();
   const { isConnected } = networkState;
   const { databaseContext, getAllAsyncSql, getFirstAsyncSql, isDatabaseInitialized, executeSql } = useDatabase();
   const [rememberSession, setRememberSession] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [email, setUsuario] = useState({
-    value: 'emerson.martinez',
+    value: '',
     error: '',
   });
-  const [password, setPassword] = useState({ value: 'Dsg2022Wt5', error: '' });
+  const [password, setPassword] = useState({ value: '', error: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Función para manejar el cambio de estado de "Recordar sesión"

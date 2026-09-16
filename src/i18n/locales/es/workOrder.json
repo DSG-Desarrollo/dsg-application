@@ -96,7 +96,8 @@
 
   "signatureModeDrawn": "Firma",
   "signatureModeWritten": "Escribir nombre",
-  "signatureNameValidation": "El nombre es obligatorio y debe tener al menos 3 caracteres",
+  "signatureNameValidation": "Si escribes un nombre, debe tener al menos 3 caracteres",
+  "signatureDrawingTooSmall": "El trazo es muy pequeño para ser una firma. Complétalo o bórralo con el botón de borrar para continuar sin firma.",
   "signatureWrittenLabel": "Firma escrita (nombre completo)",
   "signatureNoActiveOrders": "No hay órdenes de trabajo activas para firmar en este ticket.",
   "signatureIncompleteOrders": "Completa los datos de las órdenes {{orders}} antes de firmar.",

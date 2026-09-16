@@ -1,28 +1,33 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useDatabase } from '@context/DatabaseContext';
 
 const useSaveToSQLite = (data) => {
   const [isSaved, setIsSaved] = useState(false);
   const [savedData, setSavedData] = useState([]);
-  const hasRun = useRef(false); // Usamos useRef para mantener un valor persistente
   const { getAllAsyncSql, executeSql, runExclusive } = useDatabase();
 
   useEffect(() => {
+    // Antes esto guardaba en SQLite una sola vez por sesión (con un useRef que nunca se
+    // reseteaba): un ticket que apareciera recién en un refetch posterior (nuevo, o que
+    // pasó a cumplir el filtro de esta pestaña) nunca llegaba a guardarse localmente —
+    // se veía online pero desaparecía offline hasta reiniciar la app. Ahora corre en
+    // cada fetch con datos nuevos; upsertDataIntoTable ya evita escrituras redundantes
+    // si el registro no cambió.
     const saveData = async () => {
-      if (data && data.length > 0 && !isSaved && !hasRun.current) {
-        console.log('Ejecutando saveData - Inserción en SQLite'); // Registro para depuración
-        try {
-          setIsSaved(true);
-          upsertDataToTables(data, 'task');
-          hasRun.current = true; // Marcamos que la operación se ha realizado
-        } catch (error) {
-          console.error('Error al guardar los datos en SQLite:', error);
-        }
+      if (!data || data.length === 0) return;
+
+      console.log('Ejecutando saveData - Inserción en SQLite'); // Registro para depuración
+      try {
+        setIsSaved(false);
+        await upsertDataToTables(data, 'task');
+        setIsSaved(true);
+      } catch (error) {
+        console.error('Error al guardar los datos en SQLite:', error);
       }
     };
 
     saveData();
-  }, [data, isSaved]);
+  }, [data]);
 
 /**
  * Procesa un array de objetos y los inserta en la base de datos SQLite. 
@@ -51,9 +56,24 @@ const useSaveToSQLite = (data) => {
             // nunca matcheaba: este objeto se descartaba en 'default' y la
             // tabla local 'customers_services' quedaba siempre vacía, lo que
             // rompía el JOIN de fetchAllSavedTickets en modo offline.
-            case 'customer_service':
-              await upsertDataIntoTable('customers_services', value, 'id_servicio_cliente');
+            case 'customer_service': {
+              // Tasks::customerService() ahora trae 'customer' anidado (ver
+              // TasksController::getTasks, agregado para resolver el nombre real del
+              // cliente) -- sin aplanarlo acá, 'customer' llegaba como columna con un
+              // objeto de valor a upsertDataIntoTable, que lo pasa tal cual como bind
+              // param a SQLite y rompía (silenciosamente: el catch de abajo solo hace
+              // console.error) el guardado de TODA la fila de customers_services, no
+              // solo del nombre del cliente.
+              const { customer, ...customerServiceData } = value;
+              await upsertDataIntoTable('customers_services', {
+                ...customerServiceData,
+                nombre_cliente: customer?.nombre_cliente ?? null,
+                apellido_cliente: customer?.apellido_cliente ?? null,
+                tipo_persona: customer?.tipo_persona ?? null,
+                nombre_comercial_cliente: customer?.nombre_comercial_cliente ?? null,
+              }, 'id_servicio_cliente');
               break;
+            }
             case 'priority':
               await upsertDataIntoTable('priority', value, 'id_prioridad_tarea');
               break;
@@ -164,6 +184,15 @@ const useSaveToSQLite = (data) => {
         customers_services.id_cliente,
         customers_services.id_servicio_cliente,
         customers_services.descripcion_servicio_cliente,
+        -- Mismo criterio que Customer::getNombreClienteRealAttribute (backend): natural
+        -- (N) usa nombre + apellido; jurídico (J) usa nombre_comercial_cliente, con el
+        -- mismo fallback si viene vacío. TicketsTab.mapTicketData prioriza este campo
+        -- sobre descripcion_servicio_cliente (que es una descripción libre del
+        -- servicio, no el nombre del cliente).
+        CASE
+          WHEN customers_services.tipo_persona = 'J' THEN COALESCE(NULLIF(TRIM(customers_services.nombre_comercial_cliente), ''), TRIM(COALESCE(customers_services.nombre_cliente, '') || ' ' || COALESCE(customers_services.apellido_cliente, '')))
+          ELSE TRIM(COALESCE(customers_services.nombre_cliente, '') || ' ' || COALESCE(customers_services.apellido_cliente, ''))
+        END AS nombre_cliente_real,
 
         types_tasks.tipo_tarea,
         types_tasks.color_tipo_tarea,

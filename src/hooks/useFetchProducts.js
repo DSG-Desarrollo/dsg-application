@@ -97,6 +97,25 @@ const useFetchProducts = () => {
         fetchUserData();
     }, []);
 
+    // graphqlQuery (ProductsService) atrapa sus propios errores (timeout incluido) y
+    // devuelve { error } en vez de lanzar — así que un timeout puntual con
+    // networkState.isConnected=true (red inestable, no "sin conexión") caía siempre acá,
+    // sin el fallback al catálogo local que sí tiene la rama offline de abajo. Sin esto,
+    // la pestaña de Materiales quedaba vacía por un timeout pasajero aunque ya hubiera un
+    // catálogo cacheado en SQLite de una sincronización anterior.
+    const fallbackToSavedSupplies = useCallback(async (apiErrorMessage) => {
+        try {
+            const savedSupplies = await fetchSavedSupplies();
+            if (savedSupplies.length > 0) {
+                setProductsData(savedSupplies);
+                return;
+            }
+        } catch (fallbackError) {
+            console.error('Error al leer insumos guardados como fallback:', fallbackError);
+        }
+        setError(apiErrorMessage || 'Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.');
+    }, [fetchSavedSupplies]);
+
     useEffect(() => {
         const fetchProducts = async () => {
             // Antes de que userData termine de cargar, userId es undefined y
@@ -149,18 +168,18 @@ const useFetchProducts = () => {
                         console.error('Error al cachear insumos en SQLite:', cacheError);
                     }
                 } else {
-                    setError(responseWithFilter?.error || 'Error al obtener los datos.');
+                    await fallbackToSavedSupplies(responseWithFilter?.error);
                 }
             } catch (error) {
                 console.log('Error al obtener los datos:', error);
-                setError('Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.!');
+                await fallbackToSavedSupplies('Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.!');
             } finally {
                 setLoading(false);
             }
         }
 
         fetchProducts();
-    }, [userId, networkState.isConnected, fetchSavedSupplies, saveSuppliesLocally]);
+    }, [userId, networkState.isConnected, fetchSavedSupplies, saveSuppliesLocally, fallbackToSavedSupplies]);
 
     return { productsData, loading, error };
 }

@@ -5,9 +5,11 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { theme } from '../../core/theme';
+import { useTheme } from '@context/ThemeContext';
 
 export default function Background({ children }) {
+  const { colors } = useTheme();
+
   return (
     // `behavior="height"` en Android reduce la altura disponible cuando
     // aparece el teclado (a diferencia de dejar `undefined`, que en Expo Go
@@ -18,7 +20,7 @@ export default function Background({ children }) {
     // <TextInput> hijo recibe foco y el teclado aparece, el ScrollView se
     // desplaza automáticamente para dejarlo visible por encima del teclado.
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={[styles.flex, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -34,7 +36,6 @@ export default function Background({ children }) {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
-    backgroundColor: theme.colors.surface,
   },
   container: {
     flexGrow: 1,

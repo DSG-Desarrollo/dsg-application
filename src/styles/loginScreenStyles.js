@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { theme } from '../core/theme';
 
-const loginScreenStyles = StyleSheet.create({
+export const createLoginScreenStyles = (colors) => StyleSheet.create({
     forgotPassword: {
         width: '100%',
         alignItems: 'flex-end',
@@ -20,11 +19,11 @@ const loginScreenStyles = StyleSheet.create({
     },
     forgot: {
         fontSize: 13,
-        color: theme.colors.secondary,
+        color: colors.textSecondary,
     },
     link: {
         fontWeight: 'bold',
-        color: theme.colors.primary,
+        color: colors.primary,
     },
     rememberContainer: {
         flexDirection: 'row',
@@ -33,7 +32,8 @@ const loginScreenStyles = StyleSheet.create({
     rememberText: {
         fontSize: 14,
         marginRight: 5,
+        color: colors.text,
     },
 });
 
-export default loginScreenStyles;
+export default createLoginScreenStyles;

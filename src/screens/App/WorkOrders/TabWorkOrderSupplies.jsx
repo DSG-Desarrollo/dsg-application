@@ -18,6 +18,7 @@ import i18n from '@i18n/i18n';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { spacing, palette } from '@themes';
 import WorkOrderRepository from '@repositories/WorkOrderRepository';
+import useTicketCompletion from '@hooks/useTicketCompletion';
 
 const { white } = palette;
 
@@ -30,6 +31,10 @@ const { primary, primaryText } = buttonStyles;
 const TabWorkOrderSupplies = ({ route }) => {
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
+  // Offline-first (misma fuente que WorkOrderRepository.completeTicket, sin endpoint
+  // propio): una vez que el ticket quedó completado, esta OT pasa a solo lectura para no
+  // pisar datos que el técnico ya cerró.
+  const { isCompleted: isTicketCompleted } = useTicketCompletion(tareaId);
   const [materialsSummary, setMaterialsSummary] = useState([]);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,8 +83,14 @@ const TabWorkOrderSupplies = ({ route }) => {
   }
 
   useEffect(() => {
+    // Defensa adicional: TabNavigatorWorkOrder ya fuerza un remount completo de este tab
+    // al cambiar de OT (key={id_orden_trabajo}), pero si algún día ese key se pierde o
+    // este componente se reutiliza por otra vía, no queremos arrastrar cantidades
+    // tipeadas para una OT distinta ni mostrarlas como "guardadas" en la nueva.
+    setProductQuantities({});
     getWorderOrderMaterialsSummary();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id_orden_trabajo]);
 
   useEffect(() => {
     if (!materialsSummary.length || !sortedProductsData.length) return;
@@ -212,8 +223,9 @@ const TabWorkOrderSupplies = ({ route }) => {
 
               <View style={styles.stepper}>
                 <TouchableOpacity
-                  style={styles.stepperBtn}
+                  style={[styles.stepperBtn, isTicketCompleted && { opacity: 0.5 }]}
                   onPress={() => handleStep(product.id, -1)}
+                  disabled={isTicketCompleted}
                 >
                   <Text style={styles.stepperBtnText}>−</Text>
                 </TouchableOpacity>
@@ -224,10 +236,12 @@ const TabWorkOrderSupplies = ({ route }) => {
                   onChangeText={(value) =>
                     handleQuantityChange(product.id, value)
                   }
+                  editable={!isTicketCompleted}
                 />
                 <TouchableOpacity
-                  style={styles.stepperBtn}
+                  style={[styles.stepperBtn, isTicketCompleted && { opacity: 0.5 }]}
                   onPress={() => handleStep(product.id, 1)}
+                  disabled={isTicketCompleted}
                 >
                   <Text style={styles.stepperBtnText}>+</Text>
                 </TouchableOpacity>
@@ -235,22 +249,24 @@ const TabWorkOrderSupplies = ({ route }) => {
             </View>
           );
         })}
-        
+
       </ScrollView>
+      {!isTicketCompleted && (
       <View style={styles.saveContainer}>
-        <Pressable style={primary} onPress={handleSave} disabled={isLoadingSendData}>
-          {isLoadingSendData ?
-            (
-              <ActivityIndicator size="small" color={white} />
-            ) : (
-              <>
-                <FontAwesomeIcon icon={faSave} size={16} color={white} />
-                <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
-              </>
-            )
-          }
+        <Pressable
+          style={[primary, isLoadingSendData && { opacity: 0.6 }]}
+          onPress={handleSave}
+          disabled={isLoadingSendData}
+        >
+          {isLoadingSendData ? (
+            <ActivityIndicator size="small" color={white} />
+          ) : (
+            <FontAwesomeIcon icon={faSave} size={16} color={white} />
+          )}
+          <Text style={primaryText}>{i18n.t(isLoadingSendData ? 'ui:btnSaving' : 'ui:btnSave')}</Text>
         </Pressable>
       </View>
+      )}
     </View>
   );
 };

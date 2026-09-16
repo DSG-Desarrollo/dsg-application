@@ -12,6 +12,7 @@ import SegmentedToggle from "@components/atoms/SegmentedToggle";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import WorkOrderRepository from '@repositories/WorkOrderRepository';
+import useTicketCompletion from '@hooks/useTicketCompletion';
 
 const { primary, primaryText } = buttonStyles;
 const { white } = palette;
@@ -89,6 +90,10 @@ const TabInstallationType = ({ route }) => {
   } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
   const workOrderRepository = WorkOrderRepository();
+  // Offline-first (misma fuente que WorkOrderRepository.completeTicket, sin endpoint
+  // propio): una vez que el ticket quedó completado (firma del cliente), esta OT pasa a
+  // solo lectura para no pisar datos que el técnico ya cerró.
+  const { isCompleted: isTicketCompleted } = useTicketCompletion(tareaId);
 
   // Offline-first: se lee siempre de SQLite local, nunca de la API directamente.
   // work_orders se puebla (id_tarea, numero_orden, progreso_orden_trabajo) apenas se
@@ -242,24 +247,29 @@ const TabInstallationType = ({ route }) => {
                         handleOptionChange(group.key, value, handleChange, handleBlur)
                       }
                       error={touched[group.key] && errors[group.key] ? errors[group.key] : null}
+                      disabled={isTicketCompleted}
                     />
                   </Card>
                 ))}
               </View>
             </ScrollView>
 
-            <View style={styles.footer}>
-              <Pressable style={primary} onPress={handleSubmit} disabled={isLoadingSendData}>
-                {isLoadingSendData ? (
-                  <ActivityIndicator size="small" color={white} />
-                ) : (
-                  <>
+            {!isTicketCompleted && (
+              <View style={styles.footer}>
+                <Pressable
+                  style={[primary, isLoadingSendData && { opacity: 0.6 }]}
+                  onPress={handleSubmit}
+                  disabled={isLoadingSendData}
+                >
+                  {isLoadingSendData ? (
+                    <ActivityIndicator size="small" color={white} />
+                  ) : (
                     <FontAwesomeIcon icon={faSave} size={16} color={white} />
-                    <Text style={primaryText}>{i18n.t('ui:btnSave')}</Text>
-                  </>
-                )}
-              </Pressable>
-            </View>
+                  )}
+                  <Text style={primaryText}>{i18n.t(isLoadingSendData ? 'ui:btnSaving' : 'ui:btnSave')}</Text>
+                </Pressable>
+              </View>
+            )}
           </>
         )}
       </FormValidation>

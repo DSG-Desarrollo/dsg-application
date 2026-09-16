@@ -118,9 +118,15 @@ const TabNavigatorWorkOrder = ({ route }) => {
     }
   };
 
+  // Debe volver a correr (y hasHandledFullCompletionRef debe resetearse) cada vez que
+  // cambia la OT: esta pantalla puede reutilizarse para otra OT sin desmontarse (ver
+  // navigation.navigate("TabNavigatorWorkOrder", ...) en TicketDetailScreen), y con deps
+  // [] esto quedaba mostrando el estado de tabs completados de la OT anterior.
   useEffect(() => {
+    hasHandledFullCompletionRef.current = false;
     checkCompletedForms();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tareaId, id_orden_trabajo]);
 
   const sharedParams = {
     tareaId,
@@ -207,6 +213,14 @@ const TabNavigatorWorkOrder = ({ route }) => {
       <Toolbar title={ticketCode} onBackPress={goBackSafely} />
       <WorkOrderFormCompletionProvider onFormCompleted={() => checkCompletedForms(true)}>
       <Tab.Navigator
+        // navigation.navigate("TabNavigatorWorkOrder", ...) reutiliza esta misma instancia
+        // (y la de este Tab.Navigator) cuando el técnico abre otra OT sin que esta pantalla
+        // se desmonte (p.ej. vuelve a TicketDetailScreen y toca otra unidad). initialParams
+        // de cada Tab.Screen solo se aplica la primera vez que esa ruta se crea, así que sin
+        // este key los tabs hijos (Materiales, Instalación, Ubicación, Fotos) seguían viendo
+        // el id_orden_trabajo/tareaId de la PRIMERA OT visitada. El key fuerza a remontar
+        // todo el Tab.Navigator (y sus screens) cada vez que cambia la OT.
+        key={id_orden_trabajo}
         screenOptions={({ route }) => ({
           tabBarActiveTintColor: theme.colors.accent,
           tabBarInactiveTintColor: "white",

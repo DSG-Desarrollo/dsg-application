@@ -238,7 +238,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <Text style={style.value}>{trabajo}</Text>
         </View>
         <View style={style.field}>
-          <Text style={style.label}>{i18n.t('workOrder:services')}</Text>
+          <Text style={style.label}>{i18n.t('workOrder:services')}: </Text>
           <Text style={style.value}>{servicio}</Text>
         </View>
         <View style={style.field}>

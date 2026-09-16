@@ -1,6 +1,7 @@
 import axios from 'axios'; // Importa axios aquí
 import AxiosManager from '@utils/AxiosManager';
 import Constants from 'expo-constants';
+import NetworkMonitor from '@network/NetworkMonitor';
 
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 class ProductsService {
@@ -23,6 +24,13 @@ class ProductsService {
         let attempt = 0;
 
         while (attempt < retries) {
+            // Igual criterio que TicketService.getTickets: sin conexión, ningún
+            // reintento va a cambiar el resultado — cortar ya evita golpear la API
+            // inútilmente en cada vuelta del backoff.
+            if (!NetworkMonitor.getIsConnected()) {
+                return { error: 'Sin conexión. Se usará la información guardada localmente.' };
+            }
+
             try {
                 const queryWithVariables = {
                     query,
@@ -55,34 +63,41 @@ class ProductsService {
             } catch (error) {
                 attempt++;
 
+                // Mismo patrón que TicketService.getTickets: clasificar/loguear el error
+                // en un mensaje, SIN retornar todavía — antes cada rama retornaba acá
+                // mismo, así que el reintento de abajo (attempt < retries) era código
+                // inalcanzable y un timeout puntual (p.ej. ngrok lento) se reportaba como
+                // fallo definitivo en el primer intento en vez de reintentar como
+                // prometía la firma de la función.
+                let message;
                 if (axios.isAxiosError(error)) {
                     // Manejo de errores específicos de Axios
                     if (error.response) {
                         // El servidor respondió con un código de estado que no está en el rango 2xx
                         console.error('Error de respuesta del servidor:', error.response.status, error.response.data);
-                        return { error: `Error de respuesta del servidor: ${error.response.status}. ${error.response.data}` };
+                        message = `Error de respuesta del servidor: ${error.response.status}. ${error.response.data}`;
                     } else if (error.request) {
                         // La solicitud se realizó pero no se recibió respuesta
                         console.error('No se recibió respuesta del servidor:', error.request);
-                        return { error: 'No se recibió respuesta del servidor. Por favor, inténtalo de nuevo más tarde.' };
+                        message = 'No se recibió respuesta del servidor. Por favor, inténtalo de nuevo más tarde.';
                     } else {
                         // Algo sucedió al configurar la solicitud que provocó un error
                         console.error('Error al configurar la solicitud:', error.message);
-                        return { error: `Error al configurar la solicitud: ${error.message}` };
+                        message = `Error al configurar la solicitud: ${error.message}`;
                     }
                 } else if (error.message === 'Tiempo de espera excedido') {
                     console.error('Error de tiempo de espera:', error.message);
-                    return { error: 'Tiempo de espera excedido. Por favor, inténtalo de nuevo más tarde.' };
+                    message = 'Tiempo de espera excedido. Por favor, inténtalo de nuevo más tarde.';
                 } else {
                     // Otros errores
                     console.error('Error desconocido:', error.message);
-                    return { error: `Error desconocido: ${error.message}` };
+                    message = `Error desconocido: ${error.message}`;
                 }
 
                 if (attempt < retries) {
                     await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos antes de intentar nuevamente
                 } else {
-                    return { error: 'Error al obtener los datos. Por favor, inténtalo de nuevo más tarde.' };
+                    return { error: message };
                 }
             }
         }
@@ -98,6 +113,10 @@ class ProductsService {
     async getProducts(filters, timeout = 10000, retries = 3) {
         let attempt = 0;
         while (attempt < retries) {
+            if (!NetworkMonitor.getIsConnected()) {
+                return { error: 'Sin conexión. Se usará la información guardada localmente.' };
+            }
+
             try {
                 const query = {
                     query: `{
@@ -111,8 +130,12 @@ class ProductsService {
                 }`
                 };
 
+                // Lighthouse registra su ruta como /graphql (config/lighthouse.php ->
+                // route.uri), NO bajo /api — 'api/graphql' siempre daba 404. Sin
+                // llamador real hoy (solo graphqlQuery() se usa), pero se corrige para
+                // que si se retoma no arrastre el bug.
                 const resultData = await Promise.race([
-                    this.api.post('api/graphql', query),
+                    this.api.post('graphql', query),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera excedido')), timeout))
                 ]);
 

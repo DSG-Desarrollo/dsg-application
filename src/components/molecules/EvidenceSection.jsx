@@ -37,16 +37,18 @@ const PhotoThumbnail = ({ photo, onRemove }) => {
         </View>
       )}
 
-      <Pressable
-        style={styles.removeBtn}
-        onPress={() => onRemove(photo)}
-      >
-        <FontAwesomeIcon
-          icon={faTimes}
-          size={10}
-          color={theme.colors.textInverse}
-        />
-      </Pressable>
+      {onRemove && (
+        <Pressable
+          style={styles.removeBtn}
+          onPress={() => onRemove(photo)}
+        >
+          <FontAwesomeIcon
+            icon={faTimes}
+            size={10}
+            color={theme.colors.textInverse}
+          />
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -59,6 +61,7 @@ const EvidenceSection = ({
   maxPhotos,
   onAddPress,
   onRemove,
+  readOnly = false,
 }) => (
   <View style={styles.section}>
     <View style={styles.header}>
@@ -83,10 +86,10 @@ const EvidenceSection = ({
 
     <View style={styles.grid}>
       {photos.map((photo) => (
-        <PhotoThumbnail key={photo.id} photo={photo} onRemove={onRemove} />
+        <PhotoThumbnail key={photo.id} photo={photo} onRemove={readOnly ? null : onRemove} />
       ))}
 
-      {photos.length < maxPhotos && (
+      {!readOnly && photos.length < maxPhotos && (
         <Pressable
           style={styles.addTile}
           onPress={onAddPress}

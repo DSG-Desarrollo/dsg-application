@@ -38,7 +38,15 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const [clearPaths, setClearPaths] = useState(false);
   const [signatureMode, setSignatureMode] = useState("dibujada");
+  const [drawingTooSmall, setDrawingTooSmall] = useState(false);
   const drawableImageRef = useRef(null);
+
+  // Cambiar de modo no debe arrastrar un error que ya no aplica (p.ej. quedó marcado
+  // "trazo muy chico" en modo dibujada y el técnico se pasa a "escrita").
+  const handleSignatureModeChange = (mode) => {
+    setDrawingTooSmall(false);
+    setSignatureMode(mode);
+  };
 
   const SIGNATURE_MODE_OPTIONS = [
     { value: "dibujada", label: i18n.t('workOrder:signatureModeDrawn') },
@@ -50,24 +58,43 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
   }, []);
 
   const initialValues = { nombre_firma_cliente: "" };
+  // La firma ahora es opcional: dejar el campo en blanco es válido (equivale a "no
+  // firmó"). `optional: true` mantiene la regla de "al menos 3 caracteres" activa,
+  // pero solo se dispara si el técnico llegó a escribir algo (ver FormValidation).
   const validationInput = signatureMode === "escrita"
     ? [
         {
           key: "nombre_firma_cliente",
           type: "string",
           min: 3,
-          message: i18n.t('workOrder:signatureNameValidation'),
+          minMessage: i18n.t('workOrder:signatureNameValidation'),
+          optional: true,
         },
       ]
     : [];
 
-  const handlePathsCleared = () => setClearPaths(false);
+  const handlePathsCleared = () => {
+    setClearPaths(false);
+    setDrawingTooSmall(false);
+  };
 
   const handleSave = async (values) => {
     const isDrawMode = signatureMode === "dibujada";
 
-    if (isDrawMode && !drawableImageRef.current) {
-      return;
+    if (isDrawMode) {
+      if (!drawableImageRef.current) {
+        return;
+      }
+
+      // Mismo criterio que el nombre escrito: un lienzo intacto se guarda igual (sin
+      // firma, es opcional), pero si el técnico ya empezó a dibujar, un trazo
+      // insignificante (p.ej. un toque accidental) no es una firma completa y bloquea
+      // el guardado hasta que la complete o la borre con el botón de goma.
+      if (drawableImageRef.current.hasDrawn && !drawableImageRef.current.hasMeaningfulDrawing()) {
+        setDrawingTooSmall(true);
+        return;
+      }
+      setDrawingTooSmall(false);
     }
 
     await onSubmit({
@@ -101,7 +128,7 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
               <SegmentedToggle
                 options={SIGNATURE_MODE_OPTIONS}
                 value={signatureMode}
-                onChange={setSignatureMode}
+                onChange={handleSignatureModeChange}
               />
 
               {signatureMode === "dibujada" ? (
@@ -123,6 +150,11 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
                       />
                     )}
                   </View>
+                  {drawingTooSmall && (
+                    <View style={styles.errorContainer}>
+                      <Text style={styles.errorText}>{i18n.t('workOrder:signatureDrawingTooSmall')}</Text>
+                    </View>
+                  )}
                 </>
               ) : (
                 <View style={styles.signatureContainer}>
