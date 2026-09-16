@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import TicketsTab from "./TicketsTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTheme } from "@context/ThemeContext";
 import i18n from "@i18n/i18n";
 
 const Tab = createBottomTabNavigator();
@@ -57,6 +58,7 @@ const tabScreensConfig = [
 
 const TicketsScreen = () => {
   const navigation = useNavigation();
+  const { colors } = useTheme();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -82,16 +84,16 @@ const TicketsScreen = () => {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   if (!userData || !userData.employee) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 16 }}>
-        <Text>No se pudo cargar la información del usuario. Por favor, inicia sesión nuevamente.</Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 16, backgroundColor: colors.background }}>
+        <Text style={{ color: colors.text }}>No se pudo cargar la información del usuario. Por favor, inicia sesión nuevamente.</Text>
       </View>
     );
   }
@@ -112,8 +114,9 @@ const TicketsScreen = () => {
         },
       }}
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: "blue",
-        tabBarInactiveTintColor: "gray",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
         tabBarShowLabel: false,
         headerShown: false,
         tabBarIcon: ({ color }) => {

@@ -10,9 +10,10 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toolbar from "@components/atoms/Toolbar";
 import { Ionicons } from "@expo/vector-icons";
-import style from "@styles/TicketDetailScreenStyles";
+import { createTicketDetailScreenStyles } from "@styles";
 import useFetchUnitWorkOrders from "@hooks/useFetchUnitWorkOrders";
 import theme from '@themes/theme';
+import { useTheme } from '@context/ThemeContext';
 import { useIsFocused } from '@react-navigation/native';
 import i18n from '@i18n/i18n';
 import { faFileSignature } from "@fortawesome/free-solid-svg-icons";
@@ -29,6 +30,8 @@ const INACTIVE_WORK_ORDER_STATUSES = ["A", "C"];
 const { successDark } = theme.colors;
 
 const TicketDetailScreen = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const style = createTicketDetailScreenStyles(colors);
   const isFocused = useIsFocused();
   const [signatureModalVisible, setSignatureModalVisible] = useState(false);
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
@@ -423,11 +426,15 @@ const TicketDetailScreen = ({ route, navigation }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Toolbar title={titleWithCode} onBackPress={handleBackPress} />
       <FlatList
         data={unitsData}

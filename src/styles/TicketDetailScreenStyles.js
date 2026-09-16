@@ -1,20 +1,19 @@
 // TicketDetailScreenStyles.js
 import { StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import theme from '@themes/theme';
 
-const style = StyleSheet.create({
+export const createTicketDetailScreenStyles = (colors) => StyleSheet.create({
     section: {
         marginBottom: 12,
         padding: 16,
         borderRadius: 8,
-        backgroundColor: '#fff',
+        backgroundColor: colors.surface,
     },
     sectionContent: {
         fontFamily: 'Roboto',
         fontSize: 15,
-        backgroundColor: theme.colors.primary,
-        color: theme.colors.textPrimary,
+        backgroundColor: colors.primary,
+        color: '#FFFFFF',
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 5,
@@ -28,7 +27,7 @@ const style = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 8,
-        color: 'white',
+        color: '#FFFFFF',
     },
     icon: {
         marginRight: 12,
@@ -42,12 +41,13 @@ const style = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 4,
+        color: colors.text,
     },
     ordersContainer: {
         marginBottom: 12,
         padding: 16,
         borderRadius: 8,
-        backgroundColor: '#fff',
+        backgroundColor: colors.surface,
     },
     orderItem: {
         marginBottom: 8,
@@ -60,9 +60,11 @@ const style = StyleSheet.create({
     },
     value: {
         flex: 1,
+        color: colors.text,
     },
     info: {
         marginBottom: 4,
+        color: colors.text,
     },
     itemRow: {
         flexDirection: 'row',
@@ -74,6 +76,7 @@ const style = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 4,
         marginRight: 4,
+        color: colors.text,
     },
     textContainer: {
         flex: 1,
@@ -91,12 +94,12 @@ const style = StyleSheet.create({
         alignItems: 'center',
     },
     errorText: {
-        color: 'red',
+        color: colors.danger,
         fontSize: 18,
     },
     noDataText: {
         fontSize: 16,
-        color: '#6b6b6b',
+        color: colors.textSecondary,
         textAlign: 'center',
         marginTop: 20,
     },
@@ -108,4 +111,4 @@ const style = StyleSheet.create({
     },
 });
 
-export default style;
+export default createTicketDetailScreenStyles;

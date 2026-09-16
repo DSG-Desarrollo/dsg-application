@@ -8,6 +8,7 @@ import useNetworkState from "@hooks/useNetworkState";
 import useFetchTickets from "@hooks/tickets/useFetchTickets";
 import useSaveToSQLite from "@hooks/tickets/useSaveToSQLite";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useTheme } from '@context/ThemeContext';
 import i18n from '@i18n/i18n';
 
 const SEARCHABLE_FIELDS = [
@@ -21,6 +22,8 @@ const SEARCHABLE_FIELDS = [
 ];
 
 const TicketsTab = ({ filters, tabKey }) => {
+  const { colors } = useTheme();
+  const styles = createTicketsTabStyles(colors);
   useFocusEffect(
     React.useCallback(() => {
       console.log(`Tab with filters:`, filters);
@@ -148,7 +151,7 @@ const TicketsTab = ({ filters, tabKey }) => {
           onClear={() => setSearchTerm("")}
         />
         {isLoading || isResolvingDisplay ? (
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color={colors.primary} />
         ) : filteredData.length > 0 ? (
           <View style={styles.ticketsContainer}>
             {filteredData.map((task, index) => (
@@ -156,23 +159,26 @@ const TicketsTab = ({ filters, tabKey }) => {
             ))}
           </View>
         ) : searchTerm.trim() ? (
-          <Text>{i18n.t('ticket:noSearchResults', { term: searchTerm.trim() })}</Text>
+          <Text style={styles.emptyText}>{i18n.t('ticket:noSearchResults', { term: searchTerm.trim() })}</Text>
         ) : (
-          <Text>{i18n.t('ticket:noTickets')}</Text>
+          <Text style={styles.emptyText}>{i18n.t('ticket:noTickets')}</Text>
         )}
       </View>
     </CustomScrollView>
   );
 };
 
-const styles = StyleSheet.create({
+const createTicketsTabStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
   ticketsContainer: {
     flex: 1,
+  },
+  emptyText: {
+    color: colors.text,
   },
 });
 

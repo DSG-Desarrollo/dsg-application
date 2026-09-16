@@ -24,6 +24,10 @@ const FIELD_GROUPS = [
     options: [
       { value: "VH", labelKey: "workOrder:vehicleVH" },
       { value: "FG", labelKey: "workOrder:vehicleFG" },
+      { value: "CM", labelKey: "workOrder:vehicleCM" },
+      { value: "MQ", labelKey: "workOrder:vehicleMQ" },
+      { value: "MT", labelKey: "workOrder:vehicleMT" },
+      { value: "PE", labelKey: "workOrder:vehiclePE" },
     ],
   },
   {

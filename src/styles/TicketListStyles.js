@@ -47,10 +47,12 @@ const ticketListStyles = StyleSheet.create({
   ticketCode: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#212121',
   },
 
   ticketInfo: {
     fontSize: 14,
+    color: '#3A3A3A',
   },
 
   priorityContainer: {
