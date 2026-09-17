@@ -24,6 +24,7 @@ class SyncManager {
     constructor() {
         this.db = null;
         this.isSyncing = false;
+        this.syncAgainRequested = false;
     }
 
     /**
@@ -53,38 +54,60 @@ class SyncManager {
         }
 
         if (this.isSyncing) {
+            // No se descarta: se marca para correr una pasada completa más apenas
+            // termine la que está en curso. Antes esto se perdía en silencio — una
+            // operación encolada mientras otro syncNow() seguía corriendo (p.ej. 'start'
+            // encolado justo mientras el push de 'location' todavía estaba en vuelo)
+            // quedaba 'pending' hasta el próximo evento de red/foreground/arranque de
+            // app, aunque el dispositivo siguiera online todo el tiempo (ver incidente
+            // ticket 7683 / OT 11066).
+            this.syncAgainRequested = true;
             return;
         }
 
-        // No confiar solo en el valor cacheado por el listener pasivo de NetInfo: en
-        // Android, sobre todo cruzando modo avión, el evento de reconexión a veces no
-        // llega (falla conocida de @react-native-community/netinfo) y el valor cacheado
-        // queda pegado en 'false' para siempre, aunque la red ya haya vuelto — dejando la
-        // cola sin sincronizar de forma silenciosa e indefinida. checkNow() fuerza una
-        // lectura fresca contra NetInfo.fetch() justo antes de intentar sincronizar.
-        const isConnected = await NetworkMonitor.checkNow();
-        if (!isConnected) {
-            SyncState.setState({ status: 'offline' });
-            return;
-        }
-
+        // Se marca de forma SÍNCRONA, antes de cualquier `await` (incluido el
+        // checkNow() de abajo). Si se marcara después de ese await, dos syncNow()
+        // disparados casi juntos (dos requestSync() sin un await real entre medio)
+        // pasarían ambos el chequeo de arriba mientras isSyncing todavía es false, y
+        // terminarían corriendo _pushPending/_pullChanges en paralelo — justo lo que
+        // este lock existe para evitar (SPEC.md §42: nunca más de una sync a la vez).
         this.isSyncing = true;
-        SyncState.setState({ status: 'syncing' });
 
         try {
-            await this._pushPending();
-            await this._pullChanges();
+            do {
+                this.syncAgainRequested = false;
 
-            const counts = await SyncQueue.countByStatus(this.db.getAllAsyncSql);
-            SyncState.setState({
-                status: 'success',
-                pendingCount: counts.pending,
-                failedCount: counts.failed,
-                failedPermanentCount: counts.failed_permanent,
-                conflictCount: counts.conflict,
-                lastSyncedAt: new Date().toISOString(),
-                lastError: null,
-            });
+                // No confiar solo en el valor cacheado por el listener pasivo de NetInfo: en
+                // Android, sobre todo cruzando modo avión, el evento de reconexión a veces no
+                // llega (falla conocida de @react-native-community/netinfo) y el valor cacheado
+                // queda pegado en 'false' para siempre, aunque la red ya haya vuelto — dejando la
+                // cola sin sincronizar de forma silenciosa e indefinida. checkNow() fuerza una
+                // lectura fresca contra NetInfo.fetch() justo antes de intentar sincronizar.
+                const isConnected = await NetworkMonitor.checkNow();
+                if (!isConnected) {
+                    SyncState.setState({ status: 'offline' });
+                    return;
+                }
+
+                SyncState.setState({ status: 'syncing' });
+
+                await this._pushPending();
+                await this._pullChanges();
+
+                const counts = await SyncQueue.countByStatus(this.db.getAllAsyncSql);
+                SyncState.setState({
+                    status: 'success',
+                    pendingCount: counts.pending,
+                    failedCount: counts.failed,
+                    failedPermanentCount: counts.failed_permanent,
+                    conflictCount: counts.conflict,
+                    lastSyncedAt: new Date().toISOString(),
+                    lastError: null,
+                });
+                // Si mientras se hacía este push/pull llegó otro requestSync(), se
+                // repite el ciclo completo acá mismo (en vez de otra invocación
+                // recursiva) para no acumular stack en ráfagas de requestSync().
+            } while (this.syncAgainRequested);
         } catch (error) {
             SyncState.setState({ status: 'error', lastError: error.message });
             throw error;

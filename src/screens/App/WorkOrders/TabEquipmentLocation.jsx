@@ -28,8 +28,16 @@ const options = [
     value: "Motocicleta",
     image: require("@assets/images/Yamaha-YZF-600R-Thundercat-1996-.png"),
   },
-  { label: "Planta eléctrica", value: "Planta eléctrica" },
-  { label: "Retro escavador", value: "Retro escavador" },
+  {
+    label: "Planta eléctrica",
+    value: "Planta eléctrica",
+    image: require("@assets/images/planta_electrica.jpg"),
+  },
+  {
+    label: "Retro escavador",
+    value: "Retro escavador",
+    image: require("@assets/images/retroexcavadora.jpg"),
+  },
   { label: "Bocad", value: "Bocad" },
   {
     label: "Volqueta",
