@@ -111,7 +111,14 @@ const AppContent = () => {
             <SyncProvider>
               <NetworkInfo>
                 <NavigationContainer theme={navigationTheme}>
-                  <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+                  {/* edges sin 'top': el Drawer y los Stack headers de React Navigation ya
+                      reservan su propio espacio para la barra de estado (vía
+                      react-native-safe-area-context). Incluir 'top' aquí duplicaba ese
+                      espacio y dejaba una franja vacía entre la barra de estado y el
+                      header (p.ej. "Programados"). Las pantallas con Toolbar propio
+                      (headerShown: false) ahora resuelven su inset superior ellas mismas
+                      (ver Toolbar.jsx). */}
+                  <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
                     <Stack.Navigator
                       initialRouteName={isAuthenticated ? 'DrawerNavigation' : 'LoginScreen'}
                       screenOptions={{ headerShown: false }}
