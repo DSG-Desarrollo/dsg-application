@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { TextInput as Input } from 'react-native-paper';
-import { theme } from '@core/theme';
+import { useTheme } from '@context/ThemeContext';
 
 /**
  * TextInput multilínea con contador de caracteres visible (ej. "120/500"), para que el
@@ -17,6 +17,8 @@ export default function LimitedTextarea({
   style,
   ...props
 }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const length = value?.length || 0;
   const isNearLimit = maxLength ? length >= maxLength * 0.9 : false;
 
@@ -24,7 +26,7 @@ export default function LimitedTextarea({
     <View style={styles.container}>
       <Input
         style={[styles.input, style]}
-        selectionColor={theme.colors.primary}
+        selectionColor={colors.primary}
         underlineColor="transparent"
         mode="outlined"
         multiline
@@ -51,13 +53,13 @@ export default function LimitedTextarea({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     width: '100%',
     marginVertical: 12,
   },
   input: {
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     minHeight: 96,
     textAlignVertical: 'top',
   },
@@ -73,18 +75,18 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 13,
-    color: theme.colors.secondary,
+    color: colors.textSecondary,
   },
   error: {
     fontSize: 13,
-    color: theme.colors.error,
+    color: colors.danger,
   },
   counter: {
     fontSize: 12,
-    color: theme.colors.secondary,
+    color: colors.textSecondary,
   },
   counterNearLimit: {
-    color: theme.colors.error,
+    color: colors.danger,
     fontWeight: '600',
   },
 });

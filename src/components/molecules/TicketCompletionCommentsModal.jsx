@@ -6,10 +6,9 @@ import FullScreenModal from '@components/atoms/FullScreenModal';
 import LimitedTextarea from '@components/atoms/LimitedTextarea';
 import Card from '@components/molecules/Card';
 import { buttonStyles } from '@themes';
-import theme from '@themes/theme';
+import { useTheme } from '@context/ThemeContext';
 
 const { primary, primaryText } = buttonStyles;
-const { textPrimary } = theme.colors;
 
 const COMMENT_MAX_LENGTH = 500;
 
@@ -21,6 +20,8 @@ const COMMENT_MAX_LENGTH = 500;
  * mezclar "capturar la firma" con "escribir los comentarios finales".
  */
 const TicketCompletionCommentsModal = ({ visible, onClose, onConfirm, isSubmitting = false }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [comentarioCliente, setComentarioCliente] = useState('');
   const [comentarioFinalTecnico, setComentarioFinalTecnico] = useState('');
 
@@ -65,9 +66,9 @@ const TicketCompletionCommentsModal = ({ visible, onClose, onConfirm, isSubmitti
           disabled={isSubmitting}
         >
           {isSubmitting ? (
-            <ActivityIndicator size="small" color={textPrimary} />
+            <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
-            <FontAwesomeIcon icon={faSave} size={16} color={textPrimary} />
+            <FontAwesomeIcon icon={faSave} size={16} color="#FFFFFF" />
           )}
           <Text style={primaryText}>{isSubmitting ? 'Guardando...' : 'Guardar y cerrar ticket'}</Text>
         </Pressable>
@@ -76,7 +77,7 @@ const TicketCompletionCommentsModal = ({ visible, onClose, onConfirm, isSubmitti
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   scrollContainer: {
     padding: 16,
   },
@@ -85,17 +86,18 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 13,
-    color: theme.colors.textMuted,
+    color: colors.textSecondary,
     marginBottom: 12,
   },
   fieldLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: theme.colors.textPrimary,
+    color: colors.text,
     marginTop: 4,
   },
   saveContainer: {
     padding: 16,
+    backgroundColor: colors.background,
   },
 });
 

@@ -26,6 +26,7 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
+import { useTheme } from '@context/ThemeContext';
 
 const DrawableImage = forwardRef(
   (
@@ -41,6 +42,8 @@ const DrawableImage = forwardRef(
     },
     ref
   ) => {
+    const { colors } = useTheme();
+    const styles = createStyles(colors);
     const canvasRef = useCanvasRef();
     const [paths, setPaths] = useState([]);
     const [undonePaths, setUndonePaths] = useState([]);
@@ -239,7 +242,7 @@ const DrawableImage = forwardRef(
             accessibilityLabel="Blank canvas"
             accessibilityHint="Clear all strokes drawn in this session"
           >
-            <FontAwesomeIcon icon={faEraser} size={26} color="#555" />
+            <FontAwesomeIcon icon={faEraser} size={26} color={colors.text} />
           </TouchableOpacity>
         </View>
       </GestureHandlerRootView>
@@ -247,7 +250,7 @@ const DrawableImage = forwardRef(
   }
 );
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "row",
@@ -261,7 +264,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: colors.border,
   },
   placeholderText: {
     fontSize: 20,
@@ -275,7 +278,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     marginBottom: 16,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: colors.surface,
   },
   undoButton: {
     borderTopLeftRadius: 0,

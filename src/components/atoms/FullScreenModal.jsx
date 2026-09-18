@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Modal, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toolbar from '@components/atoms/Toolbar';
+import { useTheme } from '@context/ThemeContext';
 import PropTypes from "prop-types";
 
 const FullScreenModal = ({ visible, onClose, title, children, showToolbar = true }) => {
@@ -10,6 +11,7 @@ const FullScreenModal = ({ visible, onClose, title, children, showToolbar = true
   // al fondo (p.ej. "Guardar", o la hoja "Tomar foto"/"Elegir de galería")
   // quedaban tapados por la barra de navegación del sistema.
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   return (
     <Modal
@@ -19,7 +21,7 @@ const FullScreenModal = ({ visible, onClose, title, children, showToolbar = true
       onRequestClose={onClose}
     >
       {showToolbar && <Toolbar title={title} onBackPress={onClose} />}
-      <View style={[styles.content, { paddingBottom: insets.bottom }]}>{children}</View>
+      <View style={[styles.content, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>{children}</View>
     </Modal>
   );
 };

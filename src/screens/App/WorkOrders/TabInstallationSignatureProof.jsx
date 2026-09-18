@@ -24,7 +24,7 @@ import { useTheme } from '@context/ThemeContext';
 import i18n from '@i18n/i18n';
 
 const { primary, primaryText } = buttonStyles;
-const { info, infoText, textPrimary } = theme.colors;
+const { info, textPrimary } = theme.colors;
 
 const { width: screenWidth } = Dimensions.get("window");
 const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen del Card
@@ -38,6 +38,7 @@ const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen de
 const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
   const { colors } = useTheme();
   const styles = createSignatureStyles(colors);
+  const localStyles = createLocalStyles(colors);
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const [clearPaths, setClearPaths] = useState(false);
   const [signatureMode, setSignatureMode] = useState("dibujada");
@@ -100,10 +101,16 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
       setDrawingTooSmall(false);
     }
 
+    // Lienzo intacto (hasDrawn=false): no hay nada que capturar. Antes se llamaba
+    // igual a captureCanvas(), que devuelve un PNG válido pero en blanco -- el backend
+    // lo guarda como image_path no vacío y el PDF termina mostrando el recuadro de
+    // imagen vacío en vez de caer al fallback de texto con el nombre del cliente.
+    const hasImageToSend = isDrawMode && drawableImageRef.current.hasDrawn;
+
     await onSubmit({
       nombre_firma_cliente: values.nombre_firma_cliente,
       tipo_firma: signatureMode,
-      image: isDrawMode ? await drawableImageRef.current.captureCanvas() : null,
+      image: hasImageToSend ? await drawableImageRef.current.captureCanvas() : null,
     });
   };
 
@@ -209,7 +216,7 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
   );
 };
 
-const localStyles = StyleSheet.create({
+const createLocalStyles = (colors) => StyleSheet.create({
   infoBanner: {
     flexDirection: "row",
     gap: 8,
@@ -225,7 +232,7 @@ const localStyles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     lineHeight: 16,
-    color: infoText,
+    color: colors.textSecondary,
   },
   writtenSignatureInput: {
     fontSize: 20,
