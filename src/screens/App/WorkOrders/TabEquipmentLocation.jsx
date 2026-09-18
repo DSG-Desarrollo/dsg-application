@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, Pressable, ToastAndroid, ActivityIndicator } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import DrawableImage from "@components/molecules/DrawableImage";
-import { location as styles } from "./styles";
+import { createLocationStyles } from "./styles";
+import { useTheme } from '@context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FormCompletionTracker from "@components/atoms/FormCompletionTracker";
 import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionContext';
@@ -57,6 +58,8 @@ const options = [
 ];
 
 const TabEquipmentLocation = ({ route }) => {
+  const { colors } = useTheme();
+  const styles = createLocationStyles(colors);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

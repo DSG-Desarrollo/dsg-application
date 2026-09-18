@@ -19,16 +19,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { spacing, palette } from '@themes';
 import WorkOrderRepository from '@repositories/WorkOrderRepository';
 import useTicketCompletion from '@hooks/useTicketCompletion';
+import { useTheme } from '@context/ThemeContext';
 
 const { white } = palette;
 
 // Styles
-import { common as commonStyles, supplies as styles } from './styles';
+import { createCommonStyles, createSuppliesStyles } from './styles';
 import { buttonStyles } from '@themes';
 
 const { primary, primaryText } = buttonStyles;
 
 const TabWorkOrderSupplies = ({ route }) => {
+  const { colors } = useTheme();
+  const commonStyles = createCommonStyles(colors);
+  const styles = createSuppliesStyles(colors);
   const { tareaId, clienteId, id_orden_trabajo } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
   // Offline-first (misma fuente que WorkOrderRepository.completeTicket, sin endpoint

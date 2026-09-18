@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 import theme from '@themes/theme';
 
-export const unitDetail = StyleSheet.create({
+export const createUnitDetailStyles = (colors) => StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#F6F7FB',
+    backgroundColor: colors.background,
   },
   section: {
     marginBottom: 30,
@@ -22,7 +22,7 @@ export const unitDetail = StyleSheet.create({
     textAlign: 'center',
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     padding: 15,
     borderRadius: 5,
     shadowColor: '#000',
@@ -37,12 +37,12 @@ export const unitDetail = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#000',
+    color: colors.textSecondary,
     width: 90, // Ancho fijo para las etiquetas
   },
   text: {
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
     flex: 1, // El texto ocupa todo el espacio restante
   },
 });

@@ -12,11 +12,12 @@ import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionCont
 import WorkOrderRepository from '@repositories/WorkOrderRepository';
 import useWorkOrderPhotos from '@hooks/useWorkOrderPhotos';
 import useTicketCompletion from '@hooks/useTicketCompletion';
-import { photo as styles, common as commonStyles } from "./styles";
+import { createPhotoStyles, createCommonStyles } from "./styles";
 import i18n from '@i18n/i18n';
 import theme from '@themes/theme';
 import { buttonStyles } from '@themes';
 import FullScreenModal from '@components/atoms/FullScreenModal';
+import { useTheme } from '@context/ThemeContext';
 
 const { textPrimary } = theme.colors;
 const { primary, primaryText } = buttonStyles;
@@ -24,6 +25,9 @@ const { primary, primaryText } = buttonStyles;
 const MAX_PHOTOS = 4;
 
 const TabWorkOrderPhotos = ({ route }) => {
+  const { colors } = useTheme();
+  const styles = createPhotoStyles(colors);
+  const commonStyles = createCommonStyles(colors);
   const { tareaId, id_orden_trabajo, clienteId } = route.params;
   const onFormCompleted = useWorkOrderFormCompletion();
   // Offline-first (misma fuente que WorkOrderRepository.completeTicket, sin endpoint
@@ -251,11 +255,11 @@ const TabWorkOrderPhotos = ({ route }) => {
         <Pressable style={styles.sheetBackdrop} onPress={() => setActionSheetSection(null)}>
           <View style={styles.sheetContainer}>
             <Pressable style={styles.sheetOption} onPress={handleOpenCamera}>
-              <FontAwesomeIcon icon={faCamera} size={16} color="#555" />
+              <FontAwesomeIcon icon={faCamera} size={16} color={colors.textSecondary} />
               <Text style={styles.sheetOptionText}>{i18n.t('workOrder:photosTakePhoto')}</Text>
             </Pressable>
             <Pressable style={[styles.sheetOption, styles.sheetOptionLast]} onPress={handlePickFromGallery}>
-              <FontAwesomeIcon icon={faImage} size={16} color="#555" />
+              <FontAwesomeIcon icon={faImage} size={16} color={colors.textSecondary} />
               <Text style={styles.sheetOptionText}>{i18n.t('workOrder:photosPickFromGallery')}</Text>
             </Pressable>
           </View>

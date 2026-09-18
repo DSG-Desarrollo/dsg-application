@@ -1,22 +1,19 @@
 import { StyleSheet } from "react-native";
-import { palette } from '@themes';
 
-const { blue, white } = palette;
-
-export const signature = StyleSheet.create({
+export const createSignatureStyles = (colors) => StyleSheet.create({
   container: { flex: 1 },
   scrollContainer: { flexGrow: 1, padding: 16 },
 
   saveContainer: {
     padding: 16,
-    backgroundColor: white,
+    backgroundColor: colors.background,
   },
 
   formCard: { marginBottom: 16 },
 
   instructionText: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textSecondary,
     marginBottom: 10,
   },
 
@@ -34,8 +31,8 @@ export const signature = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#ccc',
-    backgroundColor: white,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     overflow: 'hidden',
   },
   fixedImage: {
@@ -46,27 +43,27 @@ export const signature = StyleSheet.create({
 
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.border,
     marginBottom: 14,
   },
 
   fieldLabel: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   input: {
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
     paddingBottom: 8,
   },
   underline: {
     borderBottomWidth: 1.5,
-    borderBottomColor: '#ccc',
+    borderBottomColor: colors.border,
   },
   inputError: {
-    borderBottomColor: '#C0392B',
+    borderBottomColor: colors.danger,
   },
   errorContainer: { marginTop: 6 },
-  errorText: { fontSize: 12, color: '#C0392B' },
+  errorText: { fontSize: 12, color: colors.danger },
 });

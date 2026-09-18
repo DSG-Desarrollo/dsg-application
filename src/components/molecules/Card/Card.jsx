@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Text, View } from "react-native";
-import styles from "./styles";
+import { useTheme } from '@context/ThemeContext';
+import createCardStyles from "./styles";
 
 const Card = ({
   title,
@@ -13,6 +14,8 @@ const Card = ({
   contentStyle,
   footerStyle,
 }) => {
+  const { colors } = useTheme();
+  const styles = createCardStyles(colors);
   return (
     <View style={[styles.card, style]}>
       {title !== undefined && title !== null && (

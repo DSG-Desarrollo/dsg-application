@@ -1,20 +1,19 @@
 // TabEquipmentLocationStyles.js
 import { StyleSheet } from 'react-native';
 import theme from '@themes/theme';
-import { palette } from '@themes';
 
-const { colors } = theme;
+const { colors: staticColors } = theme;
 
-export const location = StyleSheet.create({
+export const createLocationStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: palette.gray[50],
+    backgroundColor: colors.background,
   },
   sectionLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.textMuted,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     marginBottom: 8,
   },
@@ -31,25 +30,25 @@ export const location = StyleSheet.create({
     padding: 6,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: colors.borderAlternative,
-    backgroundColor: colors.uiBackground,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   chipSelected: {
-    borderColor: colors.accent,
-    backgroundColor: colors.warningSurface,
+    borderColor: staticColors.accent,
+    backgroundColor: staticColors.warningSurface,
   },
   chipThumb: {
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: palette.gray[100],
+    backgroundColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     marginBottom: 4,
   },
   chipThumbSelected: {
-    backgroundColor: colors.accent,
+    backgroundColor: staticColors.accent,
   },
   chipThumbImage: {
     width: '100%',
@@ -63,7 +62,7 @@ export const location = StyleSheet.create({
     lineHeight: 12,
   },
   chipLabelSelected: {
-    color: colors.warningDark,
+    color: staticColors.warningDark,
     fontWeight: '600',
   },
 
@@ -72,8 +71,8 @@ export const location = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.borderColor,
-    backgroundColor: colors.uiBackground,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     overflow: 'hidden',
   },
   emptyState: {
@@ -85,7 +84,7 @@ export const location = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 13,
-    color: colors.textMuted,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
     maxWidth: 240,
@@ -93,6 +92,6 @@ export const location = StyleSheet.create({
 
   saveContainer: {
     paddingTop: 16,
-    backgroundColor: colors.uiBackground,
+    backgroundColor: colors.background,
   },
 });

@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import i18n from '@i18n/i18n';
-import { unitDetail as styles } from './styles';
+import { useTheme } from '@context/ThemeContext';
+import { createUnitDetailStyles } from './styles';
 
 const TabWorkOrderDetails = ({ route }) => {
+  const { colors } = useTheme();
+  const styles = createUnitDetailStyles(colors);
   // Obtener los parámetros desde route.params
   const {
     tareaId,

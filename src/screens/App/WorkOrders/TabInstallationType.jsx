@@ -7,7 +7,8 @@ import { useWorkOrderFormCompletion } from '@context/WorkOrderFormCompletionCont
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '@components/molecules/Card';
 import { spacing, buttonStyles, palette } from '@themes';
-import { installation as styles, common as commonStyles } from './styles';
+import { useTheme } from '@context/ThemeContext';
+import { createInstallationStyles, createCommonStyles } from './styles';
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -64,6 +65,9 @@ const startingInitials = {
 };
 
 const TabInstallationType = ({ route }) => {
+  const { colors } = useTheme();
+  const styles = createInstallationStyles(colors);
+  const commonStyles = createCommonStyles(colors);
   const [formInitialValues, setFormInitialValues] = useState(null);
   const [isLoadingWorkOrder, setIsLoadingWorkOrder] = useState(true);
   const [userData, setUserData] = useState(null);

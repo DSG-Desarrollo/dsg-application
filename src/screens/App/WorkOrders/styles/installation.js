@@ -1,13 +1,13 @@
 import { StyleSheet } from "react-native";
 import { spacing, palette } from '@themes';
 
-const { red, white, gray } = palette;
+const { red } = palette;
 const { md } = spacing;
 
-export const installation = StyleSheet.create({
+export const createInstallationStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: white,
+    backgroundColor: colors.background,
   },
 
   scrollViewContent: {
@@ -19,8 +19,8 @@ export const installation = StyleSheet.create({
   footer: {
     padding: md,
     borderTopWidth: 1,
-    borderTopColor: gray[200],
-    backgroundColor: white,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
   },
 
   radioGroup: {
@@ -43,6 +43,7 @@ export const installation = StyleSheet.create({
   radioLabel: {
     fontSize: 16,
     marginLeft: 8, // Espacio entre el radio button y el texto
+    color: colors.text,
   },
 
   errorContainer: {

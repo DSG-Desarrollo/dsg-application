@@ -1,13 +1,10 @@
 import { StyleSheet } from "react-native";
-import theme from '@themes/theme';
 
-const { bgButton } = theme.colors;
-
-export const photo = StyleSheet.create({
+export const createPhotoStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
 
   loadingIndicator: {
@@ -21,7 +18,7 @@ export const photo = StyleSheet.create({
   },
 
   sheetContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     paddingBottom: 24,
@@ -34,7 +31,7 @@ export const photo = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: colors.border,
   },
 
   sheetOptionLast: {
@@ -43,6 +40,6 @@ export const photo = StyleSheet.create({
 
   sheetOptionText: {
     fontSize: 15,
-    color: "#374151",
+    color: colors.text,
   },
 });

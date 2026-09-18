@@ -1,7 +1,7 @@
-export { common } from './common';
-export { photo } from './photo';
-export { installation } from './installation';
-export { location } from './location';
-export { signature } from './signature';
-export { supplies } from './supplies';
-export { unitDetail } from './unit_detail';
+export { createCommonStyles } from './common';
+export { createPhotoStyles } from './photo';
+export { createInstallationStyles } from './installation';
+export { createLocationStyles } from './location';
+export { createSignatureStyles } from './signature';
+export { createSuppliesStyles } from './supplies';
+export { createUnitDetailStyles } from './unit_detail';

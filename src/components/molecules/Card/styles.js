@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+const createCardStyles = (colors) => StyleSheet.create({
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
 
     // iOS
     shadowColor: "#000000",
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
   },
 
   content: {
@@ -42,15 +42,15 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 15,
     lineHeight: 22,
-    color: "#4B5563",
+    color: colors.textSecondary,
   },
 
   footer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: colors.border,
   },
 });
 
-export default styles;
+export default createCardStyles;

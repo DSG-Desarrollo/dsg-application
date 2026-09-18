@@ -3,26 +3,26 @@ import { StyleSheet } from 'react-native';
 // Styles
 import { palette } from '@themes';
 
-const { white, green, blue } = palette;
+const { green, blue } = palette;
 
-export const supplies = StyleSheet.create({
+export const createSuppliesStyles = (colors) => StyleSheet.create({
   progressHeader: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.border,
   },
   progressLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  progressLabel: { fontSize: 14, fontWeight: '500', color: '#333' },
-  progressCount: { fontSize: 13, color: '#888' },
+  progressLabel: { fontSize: 14, fontWeight: '500', color: colors.text },
+  progressCount: { fontSize: 13, color: colors.textSecondary },
   progressTrack: {
     height: 4,
-    backgroundColor: '#eee',
+    backgroundColor: colors.border,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -34,7 +34,7 @@ export const supplies = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     textAlign: 'center',
   },
 
@@ -48,7 +48,7 @@ export const supplies = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     padding: 12,
     borderRadius: 8,
     shadowColor: '#000',
@@ -67,9 +67,9 @@ export const supplies = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.border,
     gap: 12,
   },
   rowLast: { borderBottomWidth: 0 },
@@ -78,17 +78,17 @@ export const supplies = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#ccc',
+    backgroundColor: colors.border,
   },
   statusDotFilled: { backgroundColor: '#639922' },
-  productName: { fontSize: 14, fontWeight: '500', color: '#333' },
-  productUnit: { fontSize: 12, color: '#999' },
+  productName: { fontSize: 14, fontWeight: '500', color: colors.text },
+  productUnit: { fontSize: 12, color: colors.textSecondary },
 
   stepper: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.border,
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -97,27 +97,27 @@ export const supplies = StyleSheet.create({
     height: 38,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.border,
   },
-  stepperBtnText: { fontSize: 16, color: '#555' },
+  stepperBtnText: { fontSize: 16, color: colors.text },
   stepperInput: {
     width: 30,
     height: 38,
     textAlign: 'center',
     fontSize: 14,
-    color: '#333',
+    color: colors.text,
     padding: 0,
   },
 
   input: {
     width: 80,
     height: 40,
-    borderColor: '#ddd',
+    borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 8,
     textAlign: 'center',
-    color: '#333',
+    color: colors.text,
   },
   buttonsContainer: {
     marginTop: 20,
@@ -142,25 +142,25 @@ export const supplies = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   errorText: {
     fontSize: 16,
-    color: '#ff0000',
+    color: colors.danger,
   },
   saveContainer: {
     padding: 16,
-    backgroundColor: white,
+    backgroundColor: colors.background,
   }
 });

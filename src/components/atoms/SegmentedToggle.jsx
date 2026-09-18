@@ -1,61 +1,56 @@
 // SegmentedToggle.js
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import theme from '@themes/theme';
+import { useTheme } from '@context/ThemeContext';
 
-const {
-  border,
-  surface,
-  danger,
-  primary,
-  textSecondary,
-  textInverse,
-  uiBackground
-} = theme.colors;
+const SegmentedToggle = ({ options, value, onChange, error, disabled = false }) => {
+  const { colors } = useTheme();
+  const styles = createSegmentedToggleStyles(colors);
 
-const SegmentedToggle = ({ options, value, onChange, error, disabled = false }) => (
-  <View>
-    <View style={[styles.row, error && styles.rowError, disabled && styles.rowDisabled]}>
-      {options.map((opt, index) => {
-        const isSelected = value === opt.value;
-        return (
-          <Pressable
-            key={opt.value}
-            onPress={() => !disabled && onChange(opt.value)}
-            disabled={disabled}
-            style={[
-              styles.segment,
-              isSelected && styles.segmentSelected,
-              index > 0 && styles.segmentDivider,
-            ]}
-          >
-            <Text style={[styles.segmentText, isSelected && styles.segmentTextSelected]}>
-              {opt.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-    {error && (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorMessage}>{error}</Text>
+  return (
+    <View>
+      <View style={[styles.row, error && styles.rowError, disabled && styles.rowDisabled]}>
+        {options.map((opt, index) => {
+          const isSelected = value === opt.value;
+          return (
+            <Pressable
+              key={opt.value}
+              onPress={() => !disabled && onChange(opt.value)}
+              disabled={disabled}
+              style={[
+                styles.segment,
+                isSelected && styles.segmentSelected,
+                index > 0 && styles.segmentDivider,
+              ]}
+            >
+              <Text style={[styles.segmentText, isSelected && styles.segmentTextSelected]}>
+                {opt.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
-    )}
-  </View>
-);
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorMessage}>{error}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
 
-const styles = StyleSheet.create({
+const createSegmentedToggleStyles = (colors) => StyleSheet.create({
   row: {
     flexDirection: "row",
     borderRadius: 8,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: border,
-    backgroundColor: surface,
+    borderColor: colors.border,
+    backgroundColor: colors.border,
   },
 
   rowError: {
-    borderColor: danger,
+    borderColor: colors.danger,
   },
 
   rowDisabled: {
@@ -67,25 +62,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: uiBackground,
+    backgroundColor: colors.surface,
   },
 
   segmentDivider: {
     borderLeftWidth: 1,
-    borderLeftColor: border,
+    borderLeftColor: colors.border,
   },
 
   segmentSelected: {
-    backgroundColor: primary,
+    backgroundColor: colors.primary,
   },
 
   segmentText: {
     fontSize: 13,
-    color: textSecondary,
+    color: colors.textSecondary,
   },
 
   segmentTextSelected: {
-    color: textInverse,
+    color: '#FFFFFF',
     fontWeight: "600",
   },
 
@@ -95,7 +90,7 @@ const styles = StyleSheet.create({
 
   errorMessage: {
     fontSize: 12,
-    color: danger,
+    color: colors.danger,
   },
 });
 

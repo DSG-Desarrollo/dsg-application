@@ -17,9 +17,10 @@ import DrawableImage from "@components/molecules/DrawableImage";
 import Card from "@components/molecules/Card";
 import FormValidation from "@components/molecules/FormValidation";
 import SegmentedToggle from "@components/atoms/SegmentedToggle";
-import { signature as styles } from "./styles";
+import { createSignatureStyles } from "./styles";
 import { buttonStyles } from '@themes';
 import theme from '@themes/theme';
+import { useTheme } from '@context/ThemeContext';
 import i18n from '@i18n/i18n';
 
 const { primary, primaryText } = buttonStyles;
@@ -35,6 +36,8 @@ const canvasSize = screenWidth * 0.86; // ligeramente menor para dejar margen de
  * qué OT(s) aplica y qué hacer con la respuesta (guardar, finalizar OT/ticket, etc.).
  */
 const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
+  const { colors } = useTheme();
+  const styles = createSignatureStyles(colors);
   const [showDrawableImage, setShowDrawableImage] = useState(false);
   const [clearPaths, setClearPaths] = useState(false);
   const [signatureMode, setSignatureMode] = useState("dibujada");
@@ -171,7 +174,7 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
                     onBlur={handleBlur("nombre_firma_cliente")}
                     value={values.nombre_firma_cliente}
                     placeholder={i18n.t('workOrder:placeholderSignature')}
-                    placeholderTextColor="#aaa"
+                    placeholderTextColor={colors.textSecondary}
                     underlineColorAndroid="transparent"
                   />
                 </View>
