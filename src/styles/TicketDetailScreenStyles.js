@@ -58,6 +58,10 @@ export const createTicketDetailScreenStyles = (colors) => StyleSheet.create({
         padding: 0,
         marginVertical: 0,
     },
+    orderTouchable: {
+        flex: 1,
+        minWidth: 0, // Permite que el contenido se encoja en vez de desbordar
+    },
     value: {
         flex: 1,
         color: colors.text,
@@ -67,6 +71,7 @@ export const createTicketDetailScreenStyles = (colors) => StyleSheet.create({
         color: colors.text,
     },
     itemRow: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between', // Distribuye el espacio entre el icono y los textos
@@ -78,8 +83,15 @@ export const createTicketDetailScreenStyles = (colors) => StyleSheet.create({
         marginRight: 4,
         color: colors.text,
     },
+    infoList: {
+        flex: 1,
+        flexShrink: 1,
+        textAlign: 'right',
+        marginBottom: 4,
+    },
     textContainer: {
         flex: 1,
+        minWidth: 0,
         marginLeft: 8, // Espacio entre el icono y los textos
     },
     textLine: {

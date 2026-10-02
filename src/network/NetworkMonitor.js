@@ -41,7 +41,7 @@ class NetworkMonitor {
 
         const wasConnected = this.isConnected;
         this.isConnected = quality.isConnected;
-        console.log(`[NetworkMonitor] wasConnected=${wasConnected} -> isConnected=${this.isConnected} (type=${quality.type}) listeners=${this.listeners.size}`);
+        console.log(`[NetworkMonitor] wasConnected=${wasConnected} -> isConnected=${this.isConnected} (type=${quality.type}, internetReachable=${netInfoState.isInternetReachable}) listeners=${this.listeners.size}`);
 
         if (!wasConnected && this.isConnected) {
             console.log('[NetworkMonitor] disparando evento "online" a los listeners');

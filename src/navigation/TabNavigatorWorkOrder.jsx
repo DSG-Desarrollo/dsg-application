@@ -22,17 +22,11 @@ import { useNavigation } from "@react-navigation/native";
 import theme from "@themes/theme";
 import i18n from "@i18n/i18n";
 import { WorkOrderFormCompletionProvider } from "@context/WorkOrderFormCompletionContext";
+// Tabs (formularios) que deben completarse para dar por finalizada la OT. No incluye
+// "TabUnitDetail" (solo informativo) y, según REQUIRE_WORK_ORDER_PHOTOS, tampoco Fotos.
+import { REQUIRED_FORM_KEYS } from "@components/atoms/FormCompletionTracker";
 
 const Tab = createMaterialTopTabNavigator();
-
-// Tabs (formularios) que deben completarse para dar por finalizada la OT. No incluye
-// "TabUnitDetail" (solo informativo, no es un formulario que se guarde).
-const REQUIRED_FORM_KEYS = [
-  "form_installation_type",
-  "form_work_order_supplies",
-  "form_equipment_location",
-  "form_work_order_photos",
-];
 
 const TabNavigatorWorkOrder = ({ route }) => {
   const navigation = useNavigation(); // Accede al objeto de navegación

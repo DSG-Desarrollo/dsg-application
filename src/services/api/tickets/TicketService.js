@@ -41,7 +41,7 @@ class TicketService {
      * @returns {Object} - Un objeto que contiene los datos de los tickets o el mensaje de error.
      */
     async getTickets(filters, timeout = this.TIMEOUT, retries = this.RETRIES) {
-        console.log("http:", filters);
+        console.log("Filters: ", filters);
         
         let attempt = 0;
         while (attempt < retries) {

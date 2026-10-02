@@ -14,6 +14,7 @@ import useWorkOrderPhotos from '@hooks/useWorkOrderPhotos';
 import useTicketCompletion from '@hooks/useTicketCompletion';
 import { createPhotoStyles, createCommonStyles } from "./styles";
 import i18n from '@i18n/i18n';
+import { REQUIRE_WORK_ORDER_PHOTOS } from '@constants/featureFlags';
 import theme from '@themes/theme';
 import { buttonStyles } from '@themes';
 import FullScreenModal from '@components/atoms/FullScreenModal';
@@ -147,7 +148,12 @@ const TabWorkOrderPhotos = ({ route }) => {
   const handleSave = async () => {
     if (isSaving || isTicketCompleted) return;
 
-    if (photos.reception.length === 0 || photos.delivery.length === 0) {
+    // Con REQUIRE_WORK_ORDER_PHOTOS en false se puede guardar sin fotos (p.ej. tickets
+    // históricos): el tab igual queda marcado como completado más abajo.
+    if (
+      REQUIRE_WORK_ORDER_PHOTOS &&
+      (photos.reception.length === 0 || photos.delivery.length === 0)
+    ) {
       ToastAndroid.show(i18n.t('workOrder:photosMissingError'), ToastAndroid.LONG);
       return;
     }

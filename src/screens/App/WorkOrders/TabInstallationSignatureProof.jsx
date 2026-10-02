@@ -149,6 +149,7 @@ const TabInstallationSignatureProof = ({ onSubmit, isSubmitting = false }) => {
                         ref={drawableImageRef}
                         blankCanvas={true}
                         strokeColor="black"
+                        canvasBackgroundColor="#FFFFFF"
                         strokeWidth={4}
                         clearPaths={clearPaths}
                         onPathsCleared={handlePathsCleared}

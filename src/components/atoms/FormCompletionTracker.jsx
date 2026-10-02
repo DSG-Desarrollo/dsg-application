@@ -3,6 +3,7 @@ import Constants from "expo-constants";
 import FetchManager from "@managers/FetchManager";
 import { ToastAndroid } from "react-native";
 import i18n from "@i18n/i18n";
+import { REQUIRE_WORK_ORDER_PHOTOS } from "@constants/featureFlags";
 
 // Definir las claves de los formularios (tabs) por OT como constantes.
 // La firma del cliente YA NO es uno de estos: se captura una única vez por ticket
@@ -15,7 +16,16 @@ const FORM_KEYS = {
   WORK_ORDER_PHOTOS: "form_work_order_photos",
 };
 
+// Todos los formularios que se registran al guardarse (los cuatro cuentan para iniciar la
+// OT con el primero que se complete)...
 const FORMS = Object.values(FORM_KEYS);
+
+// ...pero solo estos deben estar completos para dar por lista la OT. Las fotos dejan de
+// serlo cuando REQUIRE_WORK_ORDER_PHOTOS es false (ver constants/featureFlags.js).
+export const REQUIRED_FORM_KEYS = FORMS.filter(
+  (formKey) => REQUIRE_WORK_ORDER_PHOTOS || formKey !== FORM_KEYS.WORK_ORDER_PHOTOS
+);
+
 const BASE_URL = Constants.expoConfig.extra.wsERPURL;
 const api = new FetchManager(BASE_URL);
 
@@ -91,9 +101,9 @@ const FormCompletionTracker = {
 
       // Mostrar Toast con la cantidad de formularios completados y los que faltan
       const completedFormsCount = anyCompleted.formStatuses.filter(
-        (status) => status.completed
+        (status) => status.completed && REQUIRED_FORM_KEYS.includes(status.formKey)
       ).length;
-      const totalFormsCount = FORMS.length;
+      const totalFormsCount = REQUIRED_FORM_KEYS.length;
       const remainingFormsCount = totalFormsCount - completedFormsCount;
 
       ToastAndroid.show(
@@ -127,7 +137,7 @@ const FormCompletionTracker = {
         JSON.parse(await AsyncStorage.getItem(taskIdStr)) || {};
       const workOrderData = ticketData[workOrderIdStr] || {};
 
-      const formStatuses = FORMS.map((formKey) => {
+      const formStatuses = REQUIRED_FORM_KEYS.map((formKey) => {
         const formStatus = workOrderData[formKey];
         return {
           formKey,

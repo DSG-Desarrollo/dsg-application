@@ -349,7 +349,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={style.orderItem}
+      style={[style.orderItem, style.orderTouchable]}
       onPress={() =>
         handleItemClick(
           item.id_orden_trabajo,
@@ -375,8 +375,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
               {i18n.t('ticket:plate')}:
             </Text>
             <Text
-              style={[style.info, style.dynamicFontSize, style.textWhite]}
-              numberOfLines={1}
+              style={[style.infoList, style.dynamicFontSize, style.textWhite]}
               ellipsizeMode="tail"
             >
               {item.unidad}
@@ -389,7 +388,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
               {i18n.t('ticket:brand')}:
             </Text>
             <Text
-              style={[style.info, style.dynamicFontSize, style.textWhite]}
+              style={[style.infoList, style.dynamicFontSize, style.textWhite]}
               numberOfLines={1}
               ellipsizeMode="tail"
             >

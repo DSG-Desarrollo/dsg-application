@@ -34,6 +34,7 @@ const DrawableImage = forwardRef(
       fixedImageSource,
       strokeColor = "red",
       strokeWidth = 2,
+      canvasBackgroundColor,
       imageStyle,
       containerStyle,
       clearPaths,
@@ -191,7 +192,13 @@ const DrawableImage = forwardRef(
 
     return (
       <GestureHandlerRootView style={[styles.container, containerStyle]}>
-        <View style={styles.canvasContainer} onLayout={handleCanvasLayout}>
+        <View
+          style={[
+            styles.canvasContainer,
+            canvasBackgroundColor && { backgroundColor: canvasBackgroundColor },
+          ]}
+          onLayout={handleCanvasLayout}
+        >
           <GestureDetector gesture={touchHandler}>
             <Canvas
               ref={canvasRef}

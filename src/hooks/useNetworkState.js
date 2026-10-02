@@ -59,12 +59,12 @@ const useNetworkState = (hideDuration = 10000) => {
         return;
       }
 
-      const { isConnected, effectiveBandwidth, type, cellularGeneration } = quality;
+      const { isConnected, effectiveBandwidth, hasBandwidth, type, cellularGeneration } = quality;
 
       let error = null;
       if (!isConnected) {
         error = i18n.t('networkError');
-      } else if (type === 'cellular' && effectiveBandwidth < 1) {
+      } else if (type === 'cellular' && hasBandwidth && effectiveBandwidth < 1) {
         error = i18n.t('slowConnectionError');
       }
 
